@@ -6,10 +6,14 @@
 //
 //
 
+#include "board.hpp"
+#include "util.hpp"
 #include <iostream>
 
-int main(int argc, const char * argv[]) {
-	// insert code here...
-	std::cout << "Hello, World!\n";
-    return 0;
+int main(int argc, const char *argv[]) {
+  // insert code here...
+  State *state =
+      boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  state->printBoard();
+  return 0;
 }

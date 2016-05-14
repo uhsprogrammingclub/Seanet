@@ -11,23 +11,39 @@
 
 #include "defs.h"
 #include <stdio.h>
+#include <string>
+
+class State;
+class Move;
+class Undo;
 
 class Move {
 public:
-  int toSqr;
-  int fromSqr;
+  int to = 64;
+  int from = 64;
   Piece promotion = EMPTY;
   Piece capturedPiece = EMPTY;
   bool castling = false;
   bool enPassant = false;
+
+  Move();
+  Move(int from, int to, Piece promotion);
+  Move(std::string uci);
+
+  std::string uci();
+  bool equals(Move *other);
 };
 
 class Undo {
 public:
-  Move move;
+  Move *move;
   int castleRights;
   int EPTarget;
   int halfMoveClock;
+
+  Undo();
+  Undo(Move *move, int castleRights, int EPTarget, int halfMoveClock);
+  Undo(Move *move, State *state);
 };
 
 class State {
@@ -42,6 +58,7 @@ public:
   Undo history[2048];
 
   void printBoard();
+  State();
 };
 
 #endif /* board_hpp */

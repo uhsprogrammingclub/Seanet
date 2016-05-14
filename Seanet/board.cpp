@@ -82,3 +82,20 @@ bool Move::equals(Move *other) {
 }
 
 State::State() {}
+
+void State::makeMove(Move *move) {}
+void State::takeMove() {}
+void State::clearSquare(int index) {}
+void State::addPiece(Piece piece, int index) {}
+void State::movePiece(int from, int to) {}
+U64 State::allPieces() {
+  return this->pieceBitboards[WHITES] | this->pieceBitboards[BLACKS];
+}
+int State::kingPos(Side side) {
+  U64 friendlyBB = side == WHITE ? this->pieceBitboards[WHITES]
+                                 : this->pieceBitboards[BLACKS];
+  return LS1B(friendlyBB & this->pieceBitboards[KINGS]);
+}
+bool State::canCastle(Side side, bool kSide) { return false; }
+bool State::isInCheck(Side side) { return false; }
+bool State::isPositionLegal() { return true; }

@@ -57,8 +57,18 @@ public:
   Side sideToMove;
   Undo history[2048];
 
-  void printBoard();
   State();
+  void printBoard();
+  void makeMove(Move *move);
+  void takeMove();
+  void clearSquare(int index);
+  void addPiece(Piece piece, int index);
+  void movePiece(int from, int to);
+  U64 allPieces();
+  int kingPos(Side side);
+  bool canCastle(Side side, bool kSide);
+  bool isInCheck(Side side);
+  bool isPositionLegal();
 };
 
 #endif /* board_hpp */

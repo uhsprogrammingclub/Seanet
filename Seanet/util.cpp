@@ -13,6 +13,8 @@ const int index64[64] = {0,  47, 1,  56, 48, 27, 2,  60, 57, 49, 41, 37, 28,
                          53, 34, 51, 20, 43, 31, 22, 10, 45, 25, 39, 14, 33,
                          19, 30, 9,  24, 13, 18, 8,  12, 7,  6,  5,  63};
 
+unsigned char popCountOfByte256[256];
+
 std::vector<std::string> &split(const std::string &s, char delim,
                                 std::vector<std::string> &elems) {
   std::stringstream ss(s);
@@ -204,9 +206,30 @@ State *boardFromFEN(std::string FEN) {
 }
 
 int LS1B(U64 bb) {
-  const U64 debruijn64 = 0x03f79d71b4cb0a89;
+  const U64 debruijn64 = 0x03f79d71b4cb0a89ULL;
   if (bb == 0) {
     return 64;
   }
   return index64[((bb ^ (bb - 1)) * debruijn64) >> 58];
+}
+
+int popBit(U64 *bb) {
+  int index = LS1B(*bb);
+  *bb &= (*bb - 1);
+  return index;
+}
+
+void initpopCountOfByte256() {
+  popCountOfByte256[0] = 0;
+  for (int i = 1; i < 256; i++)
+    popCountOfByte256[i] = popCountOfByte256[i / 2] + (i & 1);
+}
+
+int countSetBits(U64 bb) {
+  return popCountOfByte256[bb & 0xff] + popCountOfByte256[(bb >> 8) & 0xff] +
+         popCountOfByte256[(bb >> 16) & 0xff] +
+         popCountOfByte256[(bb >> 24) & 0xff] +
+         popCountOfByte256[(bb >> 32) & 0xff] +
+         popCountOfByte256[(bb >> 40) & 0xff] +
+         popCountOfByte256[(bb >> 48) & 0xff] + popCountOfByte256[bb >> 56];
 }

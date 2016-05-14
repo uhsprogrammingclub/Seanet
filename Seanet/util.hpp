@@ -31,5 +31,12 @@ int uciToIndex(std::string uci);
 std::string indexToUCI(int index);
 State *boardFromFEN(std::string FEN);
 int LS1B(U64 bb);
+void initpopCountOfByte256();
+int countSetBits(U64 bb);
+
+// TODO
+std::string boardToFEN(State state);
+std::vector<int> getSetBits(U64 bb);
+std::string bbToString(U64 bb);
 
 #endif /* util_hpp */

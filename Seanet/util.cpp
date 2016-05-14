@@ -15,6 +15,12 @@ const int index64[64] = {0,  47, 1,  56, 48, 27, 2,  60, 57, 49, 41, 37, 28,
 
 unsigned char popCountOfByte256[256];
 
+U64 setMask[64];
+U64 clearMask[64];
+U64 kingAttacks[64];
+U64 knightAttacks[64];
+U64 pawnAttacks[2][64];
+
 std::vector<std::string> &split(const std::string &s, char delim,
                                 std::vector<std::string> &elems) {
   std::stringstream ss(s);
@@ -138,7 +144,7 @@ int uciToIndex(std::string uci) {
     int y = uci[1] - '0' - 1;
     return y * 8 + x;
   } else {
-    return 64;
+    return -1;
   }
 }
 
@@ -151,8 +157,8 @@ std::string indexToUCI(int index) {
   return uci;
 }
 
-State *boardFromFEN(std::string FEN) {
-  State *b = new State();
+State boardFromFEN(std::string FEN) {
+  State b;
   std::vector<std::string> subFEN = split(FEN, ' ');
 
   std::vector<std::string> piecesByRow = split(subFEN[0], '/');
@@ -173,42 +179,42 @@ State *boardFromFEN(std::string FEN) {
       } else {
         int index = y * 8 + x;
         Piece p = charToPiece(*piece);
-        b->pieces[index] = p;
-        b->pieceBitboards[bitboardForPiece(p)] |= 1L << index;
-        b->pieceBitboards[sideBitboardForPiece(p)] |= 1L << index;
+        b._pieces[index] = p;
+        b._pieceBitboards[bitboardForPiece(p)] |= 1L << index;
+        b._pieceBitboards[sideBitboardForPiece(p)] |= 1L << index;
         x++;
       }
     }
     y--;
   }
-  b->sideToMove = sideToMove == "w" ? WHITE : BLACK;
+  b._sideToMove = sideToMove == "w" ? WHITE : BLACK;
   for (std::string::iterator it = castlingRights.begin();
        it != castlingRights.end(); ++it) {
     switch (*it) {
     case 'Q':
-      b->castleRights |= WQCA;
+      b._castleRights |= WQCA;
       break;
     case 'K':
-      b->castleRights |= WKCA;
+      b._castleRights |= WKCA;
       break;
     case 'q':
-      b->castleRights |= BQCA;
+      b._castleRights |= BQCA;
       break;
     case 'k':
-      b->castleRights |= BKCA;
+      b._castleRights |= BKCA;
       break;
     }
   }
-  b->EPTarget = uciToIndex(enPassantTarget);
-  b->halfMoveClock = halfMoveClock;
-  b->fullMoveCounter = fullMoveCounter;
+  b._EPTarget = uciToIndex(enPassantTarget);
+  b._halfMoveClock = halfMoveClock;
+  b._fullMoveCounter = fullMoveCounter;
   return b;
 }
 
 int LS1B(U64 bb) {
   const U64 debruijn64 = 0x03f79d71b4cb0a89ULL;
   if (bb == 0) {
-    return 64;
+    return -1;
   }
   return index64[((bb ^ (bb - 1)) * debruijn64) >> 58];
 }
@@ -232,4 +238,37 @@ int countSetBits(U64 bb) {
          popCountOfByte256[(bb >> 32) & 0xff] +
          popCountOfByte256[(bb >> 40) & 0xff] +
          popCountOfByte256[(bb >> 48) & 0xff] + popCountOfByte256[bb >> 56];
+}
+
+void initPresets() {
+  U64 setMask[64];
+  U64 clearMask[64];
+  U64 kingAttacks[64];
+  U64 knightAttacks[64];
+  U64 pawnAttacks[2][64];
+  for (int i = 0; i < 64; i++) {
+    setMask[i] = 1ULL << i;
+    U64 bit = setMask[i];
+    clearMask[i] = ~bit;
+    U64 kingAttack = bit | RIGHT(bit) | LEFT(bit);
+    kingAttack |= UP(kingAttack) | DOWN(kingAttack);
+    kingAttacks[i] = CLRBIT(kingAttack, i);
+
+    U64 l1 = LEFT(bit);
+    U64 l2 = LEFT(LEFT(bit));
+    U64 r1 = RIGHT(bit);
+    U64 r2 = RIGHT(RIGHT(bit));
+
+    U64 h1 = l2 | r2;
+    U64 h2 = l1 | r1;
+
+    knightAttacks[i] = UP(h1) | DOWN(h1) | UP(UP(h2)) | DOWN(DOWN(h2));
+
+    U64 wRightAttack = UP(RIGHT(bit));
+    U64 wLeftAttack = UP(LEFT(bit));
+    U64 bRightAttack = DOWN(RIGHT(bit));
+    U64 bLeftAttack = DOWN(LEFT(bit));
+    pawnAttacks[0][i] = (wRightAttack | wLeftAttack);
+    pawnAttacks[1][i] = (bRightAttack | bLeftAttack);
+  }
 }

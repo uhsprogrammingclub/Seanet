@@ -16,7 +16,7 @@ void State::printBoard() {
     std::string string = "";
     for (int x = 0; x < 8; x++) {
       string += "|";
-      string += pieceToChar(pieces[y * 8 + x]);
+      string += pieceToChar(_pieces[y * 8 + x]);
     }
     string += "|\n";
     std::cout << y + 1 << string;
@@ -24,27 +24,19 @@ void State::printBoard() {
   std::cout << "  A B C D E F G H \n";
 }
 
-Undo::Undo() {}
-
 Undo::Undo(Move *move, int castleRights, int EPTarget, int halfMoveClock) {
-  this->move = move;
-  this->castleRights = castleRights;
-  this->EPTarget = EPTarget;
-  this->halfMoveClock = halfMoveClock;
+  _move = move;
+  _castleRights = castleRights;
+  _EPTarget = EPTarget;
+  _halfMoveClock = halfMoveClock;
 }
-Undo::Undo(Move *move, State *state) {
-  this->move = move;
-  this->castleRights = state->castleRights;
-  this->EPTarget = state->EPTarget;
-  this->halfMoveClock = state->halfMoveClock;
-}
-
-Move::Move() {}
+Undo::Undo(Move *move, const State &state)
+    : Undo(move, state._castleRights, state._EPTarget, state._halfMoveClock) {}
 
 Move::Move(int from, int to, Piece promotion) {
-  this->from = from;
-  this->to = to;
-  this->promotion = promotion;
+  _from = from;
+  _to = to;
+  _promotion = promotion;
 }
 
 Move::Move(std::string uci) {
@@ -57,44 +49,49 @@ Move::Move(std::string uci) {
   if (uci.length() == 5) {
     promotion = charToPiece(uci[4]);
   }
-  this->from = from;
-  this->to = to;
-  this->promotion = promotion;
+  _from = from;
+  _to = to;
+  _promotion = promotion;
 }
 
 std::string Move::uci() {
-  std::string uci = indexToUCI(from) + indexToUCI(to);
-  if (this->promotion != EMPTY) {
-    uci += pieceToChar(this->promotion);
+  std::string uci = indexToUCI(_from) + indexToUCI(_to);
+  if (_promotion != EMPTY) {
+    uci += pieceToChar(_promotion);
   }
   return uci;
 }
-bool Move::equals(Move *other) {
-  if (this->to != other->to) {
+bool Move::equals(const Move &other) {
+  if (_to != other._to) {
     return false;
-  } else if (this->from != other->from) {
+  } else if (_from != other._from) {
     return false;
-  } else if (this->promotion != other->promotion) {
+  } else if (_promotion != other._promotion) {
     return false;
   } else {
     return true;
   }
 }
 
-State::State() {}
-
 void State::makeMove(Move *move) {}
 void State::takeMove() {}
-void State::clearSquare(int index) {}
+void State::clearSquare(int index) {
+  Piece p = _pieces[index];
+  if (p != EMPTY) {
+    CLRBIT(_pieceBitboards[bitboardForPiece(p)], index);
+    CLRBIT(_pieceBitboards[sideBitboardForPiece(p)], index);
+    _pieces[index] = EMPTY;
+  }
+}
 void State::addPiece(Piece piece, int index) {}
 void State::movePiece(int from, int to) {}
 U64 State::allPieces() {
-  return this->pieceBitboards[WHITES] | this->pieceBitboards[BLACKS];
+  return _pieceBitboards[WHITES] | _pieceBitboards[BLACKS];
 }
 int State::kingPos(Side side) {
-  U64 friendlyBB = side == WHITE ? this->pieceBitboards[WHITES]
-                                 : this->pieceBitboards[BLACKS];
-  return LS1B(friendlyBB & this->pieceBitboards[KINGS]);
+  U64 friendlyBB =
+      side == WHITE ? _pieceBitboards[WHITES] : _pieceBitboards[BLACKS];
+  return LS1B(friendlyBB & _pieceBitboards[KINGS]);
 }
 bool State::canCastle(Side side, bool kSide) { return false; }
 bool State::isInCheck(Side side) { return false; }

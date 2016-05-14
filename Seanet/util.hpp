@@ -29,10 +29,11 @@ int bitboardForPiece(Piece p);
 int sideBitboardForPiece(Piece p);
 int uciToIndex(std::string uci);
 std::string indexToUCI(int index);
-State *boardFromFEN(std::string FEN);
+State boardFromFEN(std::string FEN);
 int LS1B(U64 bb);
 void initpopCountOfByte256();
 int countSetBits(U64 bb);
+void initPresets();
 
 // TODO
 std::string boardToFEN(State state);

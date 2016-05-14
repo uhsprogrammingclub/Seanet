@@ -19,45 +19,43 @@ class Undo;
 
 class Move {
 public:
-  int to = 64;
-  int from = 64;
-  Piece promotion = EMPTY;
-  Piece capturedPiece = EMPTY;
-  bool castling = false;
-  bool enPassant = false;
+  int _to = -1;
+  int _from = -1;
+  Piece _promotion = EMPTY;
+  Piece _capturedPiece = EMPTY;
+  bool _castling = false;
+  bool _enPassant = false;
 
-  Move();
-  Move(int from, int to, Piece promotion);
+  Move(int from, int to, Piece promotion = EMPTY);
   Move(std::string uci);
 
   std::string uci();
-  bool equals(Move *other);
+  bool equals(const Move &other);
 };
 
 class Undo {
 public:
-  Move *move;
-  int castleRights;
-  int EPTarget;
-  int halfMoveClock;
+  Move *_move;
+  int _castleRights;
+  int _EPTarget;
+  int _halfMoveClock;
 
-  Undo();
+  inline Undo(){};
   Undo(Move *move, int castleRights, int EPTarget, int halfMoveClock);
-  Undo(Move *move, State *state);
+  Undo(Move *move, const State &state);
 };
 
 class State {
 public:
-  U64 pieceBitboards[8];
-  Piece pieces[64];
-  int castleRights = 0;
-  int EPTarget = 64;
-  int halfMoveClock;
-  int fullMoveCounter;
-  Side sideToMove;
-  Undo history[2048];
+  U64 _pieceBitboards[8];
+  Piece _pieces[64];
+  int _castleRights = 0;
+  int _EPTarget = -1;
+  int _halfMoveClock;
+  int _fullMoveCounter;
+  Side _sideToMove;
+  Undo _history[2048];
 
-  State();
   void printBoard();
   void makeMove(Move *move);
   void takeMove();

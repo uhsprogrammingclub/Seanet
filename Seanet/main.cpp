@@ -9,6 +9,7 @@
 #include "board.hpp"
 #include "movegenerator.hpp"
 #include "util.hpp"
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -56,10 +57,12 @@ void takePlayerMove() {
     gameState.takeMove();
   } else {
     Move *move = new Move(userMove);
-    if (true) {
+    if (std::find(legalMoves.begin(), legalMoves.end(), *move) !=
+        legalMoves.end()) {
       gameState.makeMove(move);
     } else {
       std::cout << "Illegal Move!\n";
+      delete move;
     }
   }
   takePlayerMove();

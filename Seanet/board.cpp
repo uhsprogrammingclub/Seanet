@@ -7,6 +7,7 @@
 //
 
 #include "board.hpp"
+#include "movegenerator.hpp"
 #include "util.hpp"
 #include <cmath>
 #include <iostream>
@@ -62,7 +63,7 @@ std::string Move::uci() {
   }
   return uci;
 }
-bool Move::equals(const Move &other) {
+bool Move::equals(const Move &other) const {
   if (_to != other._to) {
     return false;
   } else if (_from != other._from) {
@@ -81,12 +82,12 @@ void State::makeMove(Move *move) {
   move->_capturedPiece = _pieces[move->_to];
   movePiece(move->_from, move->_to);
   if (move->_promotion != EMPTY) {
-    if (_sideToMove == WHITE) {
+    if (_sideToMove == BLACK) {
       addPiece(move->_promotion, move->_to);
     } else {
-      int blackP = move->_promotion;
-      blackP++;
-      addPiece((Piece)blackP, move->_to);
+      int whiteP = move->_promotion;
+      whiteP--;
+      addPiece((Piece)whiteP, move->_to);
     }
   }
 
@@ -206,17 +207,63 @@ void State::movePiece(int from, int to) {
   clearSquare(from);
   addPiece(p, to);
 }
-U64 State::allPieces() {
+U64 State::allPieces() const {
   return _pieceBitboards[WHITES] | _pieceBitboards[BLACKS];
 }
-int State::kingPos(int side) {
+int State::kingPos(int side) const {
   U64 friendlyBB =
       side == WHITE ? _pieceBitboards[WHITES] : _pieceBitboards[BLACKS];
   return LS1B(friendlyBB & _pieceBitboards[KINGS]);
 }
-bool State::canCastle(int side, bool kSide) { return false; }
-bool State::isInCheck(int side) { return false; }
-bool State::isPositionLegal() { return true; }
+bool State::canCastle(int side, bool kSide) const {
+  if (isInCheck(side)) {
+    return false;
+  }
+
+  U64 allBB = allPieces();
+
+  if (side == WHITE && (_castleRights & WKCA) != 0 && kSide) {
+    if ((allBB & 0x60ULL) != 0 || attacksTo(5, *this, side) != 0 ||
+        attacksTo(6, *this, side) != 0) {
+      return false;
+    }
+    return true;
+  } else if (side == BLACK && (_castleRights & BKCA) != 0 && kSide) {
+    if ((allBB & 0x6000000000000000ULL) != 0 ||
+        attacksTo(61, *this, side) != 0 || attacksTo(62, *this, side) != 0) {
+      return false;
+    }
+    return true;
+  } else if (side == WHITE && (_castleRights & WQCA) != 0 && !kSide) {
+    if ((allBB & 0xEULL) != 0 || attacksTo(3, *this, side) != 0 ||
+        attacksTo(2, *this, side) != 0) {
+      return false;
+    }
+    return true;
+  } else if (side == BLACK && (_castleRights & BQCA) != 0 && !kSide) {
+    if ((allBB & 0xE00000000000000ULL) != 0 ||
+        attacksTo(59, *this, side) != 0 || attacksTo(58, *this, side) != 0) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+bool State::isInCheck(int side) const {
+  if (attacksTo(kingPos(side), *this, side) == 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+bool State::isPositionLegal() const {
+  if (isInCheck(-_sideToMove)) {
+    return false;
+  } else {
+    return true;
+  }
+}
 bool State::isLegalMove(Move *move) {
   makeMove(move);
   bool isLegal = isPositionLegal();

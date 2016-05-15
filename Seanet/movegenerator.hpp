@@ -15,5 +15,9 @@
 #include <vector>
 
 std::vector<Move> generatePseudoMoves(const State &s);
+void generateMoveDatabase(bool isRook);
+void generateOccupancyVariations(bool isRook);
+U64 attacksTo(int index, const State &s, int defendingSide,
+              U64 consideredPieces = 0);
 
 #endif /* movegenerator_hpp */

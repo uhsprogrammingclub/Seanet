@@ -5,6 +5,7 @@
 //  Created by Stiven Deleur on 5/12/16.
 //
 //
+#include "movegenerator.hpp"
 #include "util.hpp"
 
 const int index64[64] = {0,  47, 1,  56, 48, 27, 2,  60, 57, 49, 41, 37, 28,
@@ -205,7 +206,7 @@ std::string boardToFEN(const State &b) {
 }
 
 State boardFromFEN(std::string FEN) {
-  State b = State();
+  State b;
   std::vector<std::string> subFEN = split(FEN, ' ');
 
   std::vector<std::string> piecesByRow = split(subFEN[0], '/');
@@ -325,4 +326,9 @@ void initPresets() {
     pawnAttacks[0][i] = (wRightAttack | wLeftAttack);
     pawnAttacks[1][i] = (bRightAttack | bLeftAttack);
   }
+
+  generateOccupancyVariations(true);
+  generateMoveDatabase(true);
+  generateOccupancyVariations(false);
+  generateMoveDatabase(false);
 }

@@ -31,7 +31,7 @@ public:
   Move(std::string uci);
 
   std::string uci();
-  bool equals(const Move &other);
+  bool equals(const Move &other) const;
 };
 
 class Undo {
@@ -48,8 +48,8 @@ public:
 
 class State {
 public:
-  U64 _pieceBitboards[8];
-  Piece _pieces[64];
+  U64 _pieceBitboards[8] = {0LL};
+  Piece _pieces[64] = {EMPTY};
   int _castleRights = 0;
   int _EPTarget = -1;
   int _halfMoveClock;
@@ -63,12 +63,14 @@ public:
   void clearSquare(int index);
   void addPiece(Piece piece, int index);
   void movePiece(int from, int to);
-  U64 allPieces();
-  int kingPos(int side);
-  bool canCastle(int side, bool kSide);
-  bool isInCheck(int side);
-  bool isPositionLegal();
+  U64 allPieces() const;
+  int kingPos(int side) const;
+  bool canCastle(int side, bool kSide) const;
+  bool isInCheck(int side) const;
+  bool isPositionLegal() const;
   bool isLegalMove(Move *move);
 };
+
+static bool operator==(const Move &m1, const Move &m2) { return m1.equals(m2); }
 
 #endif /* board_hpp */

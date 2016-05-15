@@ -38,7 +38,7 @@ class Undo {
 public:
   Move *_move;
   int _castleRights;
-  int _EPTarget;
+  int _EPTarget = -1;
   int _halfMoveClock;
 
   inline Undo(){};

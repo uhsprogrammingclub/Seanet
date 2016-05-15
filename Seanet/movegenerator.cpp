@@ -70,7 +70,7 @@ std::vector<Move> generatePseudoMoves(const State &s) {
                    pawnAttack(*from, s._sideToMove, s));
     for (std::vector<int>::iterator to = pawnMoves.begin();
          to != pawnMoves.end(); ++to) {
-      if (*to / 8 <= 1 || *to / 8 >= 7) {
+      if (*to / 8 < 1 || *to / 8 >= 7) {
         moves.emplace_back(*from, *to, bQ);
         moves.emplace_back(*from, *to, bN);
         moves.emplace_back(*from, *to, bR);

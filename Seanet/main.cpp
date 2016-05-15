@@ -18,9 +18,12 @@ State gameState;
 
 int main(int argc, const char *argv[]) {
   // insert code here...
+
+  std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+
   initPresets();
-  gameState =
-      boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  gameState = boardFromFEN(FEN);
   takePlayerMove();
 
   return 0;
@@ -33,7 +36,7 @@ void takePlayerMove() {
   std::vector<Move> pseudoMoves = generatePseudoMoves(gameState);
   std::vector<Move> legalMoves;
 
-  std::cout << "Pseudo moves:";
+  printf("Pseudo moves (%lu):", pseudoMoves.size());
   for (std::vector<Move>::iterator it = pseudoMoves.begin();
        it != pseudoMoves.end(); ++it) {
     std::cout << it->uci() << ", ";
@@ -43,7 +46,7 @@ void takePlayerMove() {
   }
   std::cout << '\n';
 
-  std::cout << "Legal moves:";
+  printf("Legal moves (%lu):", legalMoves.size());
   for (std::vector<Move>::iterator it = legalMoves.begin();
        it != legalMoves.end(); ++it) {
     std::cout << it->uci() << ", ";

@@ -4,9 +4,14 @@
 #include "catch.hpp"
 #include "movegenerator.hpp"
 #include "util.hpp"
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <string>
+
+int leafNodes = 0;
+void perftTest(State &b, int depth);
+void divide(std::string FEN, int depth);
 
 TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
   State state;
@@ -27,10 +32,18 @@ TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
 TEST_CASE("Running PERFT tests", "[perft]") {
   State state;
   initPresets();
-  int leafNodes = 0;
-  int TEST_LIMIT = 20;
+  int TEST_LIMIT = 500;
   int maxDepth = 6;
   int perftStart = 1;
+  std::string divideFEN = "";
+  const clock_t startTime = clock();
+  // divideFEN = "rnbqkbnr/p1pppppp/1p6/8/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c4 0
+  // 1";
+
+  if (divideFEN != "") {
+    divide(divideFEN, 2);
+    return;
+  }
 
   std::ifstream file("perfttests.text");
   std::string line;
@@ -49,22 +62,23 @@ TEST_CASE("Running PERFT tests", "[perft]") {
     std::vector<std::string> subLine = split(*it, ';');
     std::string FEN = subLine[0];
     FEN.erase(FEN.find_last_not_of(" \n\r\t") + 1);
-    int depths[6];
+    int depths[6] = {0};
     for (int i = 1; i < subLine.size(); i++) {
-      depths[i] = std::stoi(subLine[i].substr(3));
-      // printf("Test Number: %d, Depth %d: %d ", testNum, i,
-      // depths[testNum][i]);
+      depths[i - 1] = std::stoi(subLine[i].substr(3));
+      printf("Test Number: %d, Depth %d: %d\n", testNum, i, depths[i]);
     }
     state = boardFromFEN(FEN);
     printf("\n### Running Test #%d ###\n", testNum);
-    for (int i = 0; i < 6; i++) {
-      if (i > maxDepth) {
+    for (int i = 0; i < 6 && depths[i] != 0; i++) {
+      const clock_t iStartTime = clock();
+      if (i >= maxDepth) {
         break;
       }
       state.printBoard();
-      printf("Starting test to depth %d on FEN %s", maxDepth, FEN.c_str());
+      printf("Starting test to depth %d on FEN %s\n", i + 1, FEN.c_str());
       leafNodes = 0;
       std::vector<Move> moves = generatePseudoMoves(state);
+      printf("%lu root moves:\n", moves.size());
       int moveNum = 0;
       for (std::vector<Move>::iterator moveIt = moves.begin();
            moveIt != moves.end(); ++moveIt) {
@@ -72,8 +86,75 @@ TEST_CASE("Running PERFT tests", "[perft]") {
         state.makeMove(&(*moveIt));
         if (state.isPositionLegal()) {
           moveNum++;
+          perftTest(state, i);
+
+        } else {
+          printf("Illegal root move!:\n");
+          state.printBoard();
+          for (int k = 0; k < 8; k++) {
+            printf("%s\n", bbToString(state._pieceBitboards[k]).c_str());
+          }
         }
+        printf("Move %d: %s %i\n", (moveNum), (*moveIt).uci().c_str(),
+               leafNodes - oldNodes);
+        state.takeMove();
       }
+      printf("Leaf nodes: %d, expected: %d; Finished in %f seconds\n",
+             leafNodes, depths[i],
+             float(clock() - iStartTime) / CLOCKS_PER_SEC);
+      REQUIRE((int)depths[i] == leafNodes);
     }
   }
+  printf("PERFT test finished successfully in %f minutes\n",
+         (float(clock() - startTime) / (CLOCKS_PER_SEC * 60.0)));
+}
+
+void perftTest(State &state, int depth) {
+
+  if (depth == 0) {
+    leafNodes++;
+    return;
+  }
+
+  std::vector<Move> moves = generatePseudoMoves(state);
+
+  for (std::vector<Move>::iterator moveIt = moves.begin();
+       moveIt != moves.end(); ++moveIt) {
+    state.makeMove(&(*moveIt));
+    if (state.isPositionLegal()) {
+      perftTest(state, depth - 1);
+    }
+    state.takeMove();
+  }
+}
+
+void divide(std::string FEN, int depth) {
+
+  State state = boardFromFEN(FEN);
+  state.printBoard();
+  printf("Starting divide to depth %d on FEN %s\n", depth, FEN.c_str());
+  leafNodes = 0;
+  std::vector<Move> moves = generatePseudoMoves(state);
+  printf("%lu root moves:\n", moves.size());
+  int moveNum = 0;
+  for (std::vector<Move>::iterator moveIt = moves.begin();
+       moveIt != moves.end(); ++moveIt) {
+    int oldNodes = leafNodes;
+    state.makeMove(&(*moveIt));
+    if (state.isPositionLegal()) {
+      moveNum++;
+      perftTest(state, depth - 1);
+
+    } else {
+      printf("Illegal root move!:\n");
+      state.printBoard();
+      for (int k = 0; k < 8; k++) {
+        printf("%s\n", bbToString(state._pieceBitboards[k]).c_str());
+      }
+    }
+    printf("Move %d: %s %i\n", (moveNum), (*moveIt).uci().c_str(),
+           leafNodes - oldNodes);
+    state.takeMove();
+  }
+  printf("Leaf nodes: %d\n", leafNodes);
 }

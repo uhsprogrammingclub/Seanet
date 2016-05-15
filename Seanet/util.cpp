@@ -197,7 +197,7 @@ std::string boardToFEN(const State &b) {
   FEN += b._castleRights == 0 ? "-" : "";
 
   // EP Target
-  FEN += b._EPTarget != -1 ? " " + std::to_string(b._EPTarget) + " " : " - ";
+  FEN += b._EPTarget != -1 ? " " + indexToUCI(b._EPTarget) + " " : " - ";
   // Move counters
   FEN += std::to_string(b._halfMoveClock) + " " +
          std::to_string(b._fullMoveCounter);
@@ -290,6 +290,7 @@ int countSetBits(U64 bb) {
 
 std::vector<int> getSetBits(U64 bb) {
   std::vector<int> setBits;
+  setBits.reserve(countSetBits(bb));
   while (bb) {
     int index = LS1B(bb);
     setBits.push_back(index);
@@ -331,4 +332,19 @@ void initPresets() {
   generateMoveDatabase(true);
   generateOccupancyVariations(false);
   generateMoveDatabase(false);
+}
+
+std::string bbToString(U64 bb) {
+  std::string string = "";
+  for (int y = 7; y >= 0; y--) {
+    for (int x = 0; x < 8; x++) {
+      if ((bb & (1ULL << (x + y * 8))) != 0) {
+        string += "X ";
+      } else {
+        string += "- ";
+      }
+    }
+    string += "\n";
+  }
+  return string;
 }

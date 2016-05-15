@@ -98,15 +98,22 @@ void State::makeMove(Move *move) {
   if (movingP == wP || movingP == bP) {
     _halfMoveClock = 0;
     // Handle en passant
-    if (move->_from % 8 != move->_to % 8 && move->_capturedPiece == EMPTY) {
+    int fromX = move->_from % 8;
+    int toX = move->_to % 8;
+    if (fromX != toX && move->_capturedPiece == EMPTY) {
+      if (_EPTarget == -1) {
+        printf("ERROR: EN PASSANT ON INVALID SQUARE!");
+      }
       clearSquare(_EPTarget);
       move->_enPassant = true;
     }
-    if (std::abs(move->_from / 8 - move->_to / 8) > 1) {
+    if (std::abs((move->_from - fromX) / 8 - (move->_to - toX) / 8) > 1) {
       _EPTarget = move->_to;
     } else {
       _EPTarget = -1;
     }
+  } else {
+    _EPTarget = -1;
   }
 
   // handle castling

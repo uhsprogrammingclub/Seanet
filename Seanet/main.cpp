@@ -19,8 +19,10 @@ int main(int argc, const char *argv[]) {
   // insert code here...
   initPresets();
   gameState =
-      boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPP3PP/RNB1K1NR w KQkq - 0 1");
-  takePlayerMove();
+      boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  gameState.printBoard();
+  std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
+  // takePlayerMove();
 
   return 0;
 }

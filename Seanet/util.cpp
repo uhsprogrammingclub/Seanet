@@ -157,6 +157,56 @@ std::string indexToUCI(int index) {
   return uci;
 }
 
+
+std::string boardToFEN(const State &b) {
+    std::string FEN = "";
+    int indices[64];
+    int *pindex = indices;
+    for (int i = 0; i < 8;
+         i++) { // Making a list of locations to loop (start top left, etc.)
+        for (int j = 56 - i * 8; j < 64 - i * 8; j++) {
+            *(pindex++) = j;
+        }
+    }
+    int adjEmpty = 0;
+    for (int i = 0; i < 64; i++) { // Adding piece locations including spaces
+        int index = indices[i];
+        Piece p = b._pieces[index]; // Use getPieceAtIndex function here...
+        if (p != EMPTY) {
+            FEN += adjEmpty > 0 ? std::to_string(adjEmpty) : "";
+            adjEmpty = 0;
+            FEN += std::string(1, pieceToChar(p));
+        } else {
+            adjEmpty++;
+        }
+        if (i % 8 == 7) {
+            FEN += adjEmpty > 0 ? std::to_string(adjEmpty) : "";
+            adjEmpty = 0;
+            FEN += i == 7 ? "/" : "";
+        }
+    }
+    FEN += b._sideToMove == WHITE ? " w " : " b "; // Side to move
+    
+    // Castling rights
+    int castling[] = {WKCA, WQCA, BKCA, BQCA};
+    std::string castlingStrings[] = {"K", "Q", "k", "q"};
+    for (auto &&right : castling) {
+        U64 isolated = b._castleRights & right;
+        FEN += isolated != 0 ? castlingStrings[LS1B(isolated)] : "";
+    }
+    FEN += b._castleRights == 0 ? "-" : "";
+    
+    // EP Target
+    FEN += b._EPTarget != -1 ? " " + std::to_string(b._EPTarget) + " " : " - ";
+    // Move counters
+    FEN +=
+    std::to_string(b._halfMoveClock) + " " + std::to_string(b._fullMoveCounter);
+    
+    return FEN;
+}
+
+
+
 State boardFromFEN(std::string FEN) {
   State b;
   std::vector<std::string> subFEN = split(FEN, ' ');

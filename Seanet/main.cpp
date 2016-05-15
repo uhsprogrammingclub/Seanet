@@ -7,18 +7,59 @@
 //
 
 #include "board.hpp"
+#include "movegenerator.hpp"
 #include "util.hpp"
 #include <iostream>
+#include <vector>
+
+void takePlayerMove();
+State gameState;
 
 int main(int argc, const char *argv[]) {
   // insert code here...
   initPresets();
-  State state =
-      boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-  state.clearSquare(0);
-  state.printBoard();
-  initpopCountOfByte256();
-  // U64 num = 0b1111100000110110110001;
-  // printf("Set bits of %llu is %i\n", num, countSetBits(num));
+  gameState =
+      boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPP3PP/RNB1K1NR w KQkq - 0 1");
+  takePlayerMove();
+
   return 0;
+}
+
+void takePlayerMove() {
+  gameState.printBoard();
+
+  std::vector<Move> pseudoMoves = generatePseudoMoves(gameState);
+  std::vector<Move> legalMoves;
+
+  std::cout << "Pseudo moves:";
+  for (std::vector<Move>::iterator it = pseudoMoves.begin();
+       it != pseudoMoves.end(); ++it) {
+    std::cout << it->uci() << ", ";
+    if (gameState.isLegalMove(&(*it))) {
+      legalMoves.push_back(*it);
+    }
+  }
+  std::cout << '\n';
+
+  std::cout << "Legal moves:";
+  for (std::vector<Move>::iterator it = legalMoves.begin();
+       it != legalMoves.end(); ++it) {
+    std::cout << it->uci() << ", ";
+  }
+  std::cout << '\n';
+
+  std::string userMove;
+  std::cout << "Enter the next move!\n";
+  std::cin >> userMove;
+  if (userMove == "undo") {
+    gameState.takeMove();
+  } else {
+    Move *move = new Move(userMove);
+    if (true) {
+      gameState.makeMove(move);
+    } else {
+      std::cout << "Illegal Move!\n";
+    }
+  }
+  takePlayerMove();
 }

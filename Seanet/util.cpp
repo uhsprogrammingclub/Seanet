@@ -240,12 +240,19 @@ int countSetBits(U64 bb) {
          popCountOfByte256[(bb >> 48) & 0xff] + popCountOfByte256[bb >> 56];
 }
 
+std::vector<int> getSetBits(U64 bb) {
+  std::vector<int> setBits;
+  while (bb) {
+    int index = LS1B(bb);
+    setBits.push_back(index);
+    CLRBIT(bb, index);
+  }
+  return setBits;
+}
+
 void initPresets() {
-  U64 setMask[64];
-  U64 clearMask[64];
-  U64 kingAttacks[64];
-  U64 knightAttacks[64];
-  U64 pawnAttacks[2][64];
+
+  initpopCountOfByte256();
   for (int i = 0; i < 64; i++) {
     setMask[i] = 1ULL << i;
     U64 bit = setMask[i];

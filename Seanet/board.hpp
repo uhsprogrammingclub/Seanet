@@ -10,6 +10,7 @@
 #define board_hpp
 
 #include "defs.h"
+#include <stack>
 #include <stdio.h>
 #include <string>
 
@@ -53,8 +54,8 @@ public:
   int _EPTarget = -1;
   int _halfMoveClock;
   int _fullMoveCounter;
-  Side _sideToMove;
-  Undo _history[2048];
+  int _sideToMove;
+  std::stack<Undo> _history;
 
   void printBoard();
   void makeMove(Move *move);
@@ -63,10 +64,11 @@ public:
   void addPiece(Piece piece, int index);
   void movePiece(int from, int to);
   U64 allPieces();
-  int kingPos(Side side);
-  bool canCastle(Side side, bool kSide);
-  bool isInCheck(Side side);
+  int kingPos(int side);
+  bool canCastle(int side, bool kSide);
+  bool isInCheck(int side);
   bool isPositionLegal();
+  bool isLegalMove(Move *move);
 };
 
 #endif /* board_hpp */

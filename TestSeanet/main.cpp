@@ -37,7 +37,7 @@ TEST_CASE("Running PERFT tests", "[perft]") {
   int perftStart = 1;
   std::string divideFEN = "";
   const clock_t startTime = clock();
-  // divideFEN = "rnbqkbnr/p1pppppp/1p6/8/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c4 0
+  // divideFEN = "rnbqkbnr/1ppppppp/8/p7/1P6/8/P1PPPPPP/RNBQKBNR w KQkq a5 0 1";
   // 1";
 
   if (divideFEN != "") {
@@ -65,7 +65,6 @@ TEST_CASE("Running PERFT tests", "[perft]") {
     int depths[6] = {0};
     for (int i = 1; i < subLine.size(); i++) {
       depths[i - 1] = std::stoi(subLine[i].substr(3));
-      printf("Test Number: %d, Depth %d: %d\n", testNum, i, depths[i]);
     }
     state = boardFromFEN(FEN);
     printf("\n### Running Test #%d ###\n", testNum);
@@ -87,13 +86,6 @@ TEST_CASE("Running PERFT tests", "[perft]") {
         if (state.isPositionLegal()) {
           moveNum++;
           perftTest(state, i);
-
-        } else {
-          printf("Illegal root move!:\n");
-          state.printBoard();
-          for (int k = 0; k < 8; k++) {
-            printf("%s\n", bbToString(state._pieceBitboards[k]).c_str());
-          }
         }
         printf("Move %d: %s %i\n", (moveNum), (*moveIt).uci().c_str(),
                leafNodes - oldNodes);

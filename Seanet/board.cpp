@@ -13,7 +13,7 @@
 #include <iostream>
 #include <ostream>
 
-void State::printBoard() {
+void State::printBoard() const {
   for (int y = 7; y >= 0; y--) {
     std::string string = "";
     for (int x = 0; x < 8; x++) {
@@ -220,7 +220,12 @@ U64 State::allPieces() const {
 int State::kingPos(int side) const {
   U64 friendlyBB =
       side == WHITE ? _pieceBitboards[WHITES] : _pieceBitboards[BLACKS];
-  return LS1B(friendlyBB & _pieceBitboards[KINGS]);
+  int index = LS1B(friendlyBB & _pieceBitboards[KINGS]);
+  if (index == -1) {
+    printf("NO KING DETECTED!\n");
+    printBoard();
+  }
+  return index;
 }
 bool State::canCastle(int side, bool kSide) const {
   if (isInCheck(side)) {

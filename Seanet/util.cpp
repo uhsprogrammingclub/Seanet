@@ -288,14 +288,21 @@ int countSetBits(U64 bb) {
          popCountOfByte256[(bb >> 48) & 0xff] + popCountOfByte256[bb >> 56];
 }
 
-std::vector<int> getSetBits(U64 bb) {
-  std::vector<int> setBits;
-  setBits.reserve(countSetBits(bb));
+void *getSetBits(U64 bb, int *setBits) {
+  int i = 0;
   while (bb) {
     int index = LS1B(bb);
-    setBits.push_back(index);
+    setBits[i] = index;
     CLRBIT(bb, index);
+    i++;
   }
+  setBits[i] = -1;
+  return setBits;
+}
+
+int *getSetBits(U64 bb) {
+  int *setBits = new int[65];
+  getSetBits(bb, setBits);
   return setBits;
 }
 

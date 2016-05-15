@@ -57,7 +57,7 @@ public:
   int _sideToMove;
   std::stack<Undo> _history;
 
-  void printBoard();
+  void printBoard() const;
   void makeMove(Move *move);
   void takeMove();
   void clearSquare(int index);

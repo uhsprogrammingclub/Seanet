@@ -29,12 +29,13 @@ std::vector<Move> generatePseudoMoves(const State &s) {
   U64 friendlyBB = s._sideToMove == WHITE ? s._pieceBitboards[WHITES]
                                           : s._pieceBitboards[BLACKS];
 
+  int *pieceSquares = new int[65];
+  int *pieceMoves = new int[65];
   // King Moves
   int kingIndex = LS1B(friendlyBB & s._pieceBitboards[KINGS]);
-  std::vector<int> kingMoves = getSetBits(kingAttacks[kingIndex] & ~friendlyBB);
-  for (std::vector<int>::iterator to = kingMoves.begin(); to != kingMoves.end();
-       ++to) {
-    moves.emplace_back(kingIndex, *to);
+  getSetBits(kingAttacks[kingIndex] & ~friendlyBB, pieceMoves);
+  for (int to = 0; pieceMoves[to] != -1; to++) {
+    moves.emplace_back(kingIndex, pieceMoves[to]);
   }
 
   // Castling moves
@@ -46,83 +47,69 @@ std::vector<Move> generatePseudoMoves(const State &s) {
   }
 
   // Knight Moves
-  std::vector<int> knightSquares =
-      getSetBits(friendlyBB & s._pieceBitboards[KNIGHTS]);
+  getSetBits(friendlyBB & s._pieceBitboards[KNIGHTS], pieceSquares);
 
-  for (std::vector<int>::iterator from = knightSquares.begin();
-       from != knightSquares.end(); ++from) {
-    std::vector<int> knightMoves =
-        getSetBits(knightAttacks[*from] & ~friendlyBB);
-    for (std::vector<int>::iterator to = knightMoves.begin();
-         to != knightMoves.end(); ++to) {
-      moves.emplace_back(*from, *to);
+  for (int from = 0; pieceSquares[from] != -1; from++) {
+    getSetBits(knightAttacks[pieceSquares[from]] & ~friendlyBB, pieceMoves);
+    for (int to = 0; pieceMoves[to] != -1; to++) {
+      moves.emplace_back(pieceSquares[from], pieceMoves[to]);
     }
   }
 
   // Pawn moves
-  std::vector<int> pawnSquares =
-      getSetBits(friendlyBB & s._pieceBitboards[PAWNS]);
+  getSetBits(friendlyBB & s._pieceBitboards[PAWNS], pieceSquares);
 
-  for (std::vector<int>::iterator from = pawnSquares.begin();
-       from != pawnSquares.end(); ++from) {
-    std::vector<int> pawnMoves =
-        getSetBits(pawnPush(setMask[*from], s._sideToMove, s) |
-                   pawnAttack(*from, s._sideToMove, s));
-    for (std::vector<int>::iterator to = pawnMoves.begin();
-         to != pawnMoves.end(); ++to) {
-      if (*to / 8 < 1 || *to / 8 >= 7) {
-        moves.emplace_back(*from, *to, bQ);
-        moves.emplace_back(*from, *to, bN);
-        moves.emplace_back(*from, *to, bR);
-        moves.emplace_back(*from, *to, bB);
+  for (int from = 0; pieceSquares[from] != -1; from++) {
+    getSetBits(pawnPush(setMask[pieceSquares[from]], s._sideToMove, s) |
+                   pawnAttack(pieceSquares[from], s._sideToMove, s),
+               pieceMoves);
+    for (int to = 0; pieceMoves[to] != -1; to++) {
+      if (pieceMoves[to] / 8 < 1 || pieceMoves[to] / 8 >= 7) {
+        moves.emplace_back(pieceSquares[from], pieceMoves[to], bQ);
+        moves.emplace_back(pieceSquares[from], pieceMoves[to], bN);
+        moves.emplace_back(pieceSquares[from], pieceMoves[to], bR);
+        moves.emplace_back(pieceSquares[from], pieceMoves[to], bB);
       } else {
-        moves.emplace_back(*from, *to);
+        moves.emplace_back(pieceSquares[from], pieceMoves[to]);
       }
     }
   }
 
   // Rook Moves
-  std::vector<int> rookSquares =
-      getSetBits(friendlyBB & s._pieceBitboards[ROOKS]);
+  getSetBits(friendlyBB & s._pieceBitboards[ROOKS], pieceSquares);
 
-  for (std::vector<int>::iterator from = rookSquares.begin();
-       from != rookSquares.end(); ++from) {
-    std::vector<int> rookMoves =
-        getSetBits(rookAttacks(*from, s) & ~friendlyBB);
-    for (std::vector<int>::iterator to = rookMoves.begin();
-         to != rookMoves.end(); ++to) {
-      moves.emplace_back(*from, *to);
+  for (int from = 0; pieceSquares[from] != -1; from++) {
+    getSetBits(rookAttacks(pieceSquares[from], s) & ~friendlyBB, pieceMoves);
+    for (int to = 0; pieceMoves[to] != -1; to++) {
+      moves.emplace_back(pieceSquares[from], pieceMoves[to]);
     }
   }
 
   // Bishop Moves
-  std::vector<int> bishopSquares =
-      getSetBits(friendlyBB & s._pieceBitboards[BISHOPS]);
+  getSetBits(friendlyBB & s._pieceBitboards[BISHOPS], pieceSquares);
 
-  for (std::vector<int>::iterator from = bishopSquares.begin();
-       from != bishopSquares.end(); ++from) {
-    std::vector<int> bishopMoves =
-        getSetBits(bishopAttacks(*from, s) & ~friendlyBB);
-    for (std::vector<int>::iterator to = bishopMoves.begin();
-         to != bishopMoves.end(); ++to) {
-      moves.emplace_back(*from, *to);
+  for (int from = 0; pieceSquares[from] != -1; from++) {
+    getSetBits(bishopAttacks(pieceSquares[from], s) & ~friendlyBB, pieceMoves);
+    for (int to = 0; pieceMoves[to] != -1; to++) {
+      moves.emplace_back(pieceSquares[from], pieceMoves[to]);
     }
   }
 
-  // Rook Moves
-  std::vector<int> queenSquares =
-      getSetBits(friendlyBB & s._pieceBitboards[QUEENS]);
+  // Queen Moves
+  getSetBits(friendlyBB & s._pieceBitboards[QUEENS], pieceSquares);
 
-  for (std::vector<int>::iterator from = queenSquares.begin();
-       from != queenSquares.end(); ++from) {
-    std::vector<int> queenMoves = getSetBits(
-        (rookAttacks(*from, s) | bishopAttacks(*from, s)) & ~friendlyBB);
-    for (std::vector<int>::iterator to = queenMoves.begin();
-         to != queenMoves.end(); ++to) {
-      moves.emplace_back(*from, *to);
+  for (int from = 0; pieceSquares[from] != -1; from++) {
+    getSetBits((rookAttacks(pieceSquares[from], s) |
+                bishopAttacks(pieceSquares[from], s)) &
+                   ~friendlyBB,
+               pieceMoves);
+    for (int to = 0; pieceMoves[to] != -1; to++) {
+      moves.emplace_back(pieceSquares[from], pieceMoves[to]);
     }
   }
 
+  delete[] pieceSquares;
+  delete[] pieceMoves;
   return moves;
 }
 
@@ -195,7 +182,7 @@ void generateOccupancyVariations(bool isRook) {
   int i, j, bitRef;
   long mask;
   int variationCount;
-  std::vector<int> setBitsInMask, setBitsInIndex;
+  int *setBitsInMask, *setBitsInIndex;
   int bitCount[64];
 
   for (bitRef = 0; bitRef <= 63; bitRef++) {
@@ -211,11 +198,13 @@ void generateOccupancyVariations(bool isRook) {
 
       setBitsInIndex =
           getSetBits(i); // an array of integers showing which bits are set
-      for (j = 0; j < setBitsInIndex.size(); j++) {
+      for (j = 0; setBitsInIndex[j] != -1; j++) {
         occupancyVariation[bitRef][i] |=
             (1ULL << setBitsInMask[setBitsInIndex[j]]);
       }
+      delete setBitsInIndex;
     }
+    delete setBitsInMask;
   }
 }
 

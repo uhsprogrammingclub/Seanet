@@ -35,7 +35,8 @@ int LS1B(U64 bb);
 void initpopCountOfByte256();
 int countSetBits(U64 bb);
 void initPresets();
-std::vector<int> getSetBits(U64 bb);
+void *getSetBits(U64 bb, int *setBits);
+int *getSetBits(U64 bb);
 std::string bbToString(U64 bb);
 
 #endif /* util_hpp */

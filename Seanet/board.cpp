@@ -249,8 +249,21 @@ bool State::canCastle(int side, bool kSide) const {
   }
   return false;
 }
-bool State::isInCheck(int side) const { return false; }
-bool State::isPositionLegal() const { return true; }
+bool State::isInCheck(int side) const {
+  if (attacksTo(kingPos(side), *this, side) == 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+bool State::isPositionLegal() const {
+  if (isInCheck(-_sideToMove)) {
+    return false;
+  } else {
+    return true;
+  }
+}
 bool State::isLegalMove(Move *move) {
   makeMove(move);
   bool isLegal = isPositionLegal();

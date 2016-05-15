@@ -205,7 +205,7 @@ std::string boardToFEN(const State &b) {
 }
 
 State boardFromFEN(std::string FEN) {
-  State b;
+  State b = State();
   std::vector<std::string> subFEN = split(FEN, ' ');
 
   std::vector<std::string> piecesByRow = split(subFEN[0], '/');

@@ -48,8 +48,8 @@ public:
 
 class State {
 public:
-  U64 _pieceBitboards[8];
-  Piece _pieces[64];
+  U64 _pieceBitboards[8] = {0LL};
+  Piece _pieces[64] = {EMPTY};
   int _castleRights = 0;
   int _EPTarget = -1;
   int _halfMoveClock;

@@ -9,6 +9,7 @@
 #include "board.hpp"
 #include "movegenerator.hpp"
 #include "util.hpp"
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -22,7 +23,7 @@ int main(int argc, const char *argv[]) {
       boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   gameState.printBoard();
   std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
-  // takePlayerMove();
+  takePlayerMove();
 
   return 0;
 }
@@ -58,10 +59,12 @@ void takePlayerMove() {
     gameState.takeMove();
   } else {
     Move *move = new Move(userMove);
-    if (true) {
+    if (std::find(legalMoves.begin(), legalMoves.end(), *move) !=
+        legalMoves.end()) {
       gameState.makeMove(move);
     } else {
       std::cout << "Illegal Move!\n";
+      delete move;
     }
   }
   takePlayerMove();

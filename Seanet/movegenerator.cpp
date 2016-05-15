@@ -172,6 +172,25 @@ U64 pawnAttack(int index, int pawnSide, const State &s) {
   return attack & enemy;
 }
 
+U64 attacksTo(int index, const State &s, int defendingSide,
+              U64 consideredPieces) {
+  if (consideredPieces == 0) {
+    consideredPieces = s.allPieces();
+  }
+  U64 enemyBB = defendingSide == BLACK ? s._pieceBitboards[WHITES]
+                                       : s._pieceBitboards[BLACKS];
+  enemyBB &= consideredPieces;
+  U64 knights = knightAttacks[index] & s._pieceBitboards[KNIGHTS];
+  U64 kings = kingAttacks[index] & s._pieceBitboards[KINGS];
+  U64 bishopsQueens = bishopAttacks(index, consideredPieces) &
+                      (s._pieceBitboards[BISHOPS] | s._pieceBitboards[QUEENS]);
+  U64 rooksQueens = rookAttacks(index, consideredPieces) &
+                    (s._pieceBitboards[ROOKS] | s._pieceBitboards[QUEENS]);
+  U64 pawns = pawnAttack(index, defendingSide, s) & s._pieceBitboards[PAWNS];
+
+  return (knights | kings | bishopsQueens | rooksQueens | pawns) & enemyBB;
+}
+
 void generateOccupancyVariations(bool isRook) {
   int i, j, bitRef;
   long mask;

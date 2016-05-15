@@ -27,6 +27,7 @@ int main(int argc, const char *argv[]) {
 
 void takePlayerMove() {
   gameState.printBoard();
+  std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
 
   std::vector<Move> pseudoMoves = generatePseudoMoves(gameState);
   std::vector<Move> legalMoves;

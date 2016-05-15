@@ -37,7 +37,6 @@ int countSetBits(U64 bb);
 void initPresets();
 
 // TODO
-std::string boardToFEN(State state);
 std::vector<int> getSetBits(U64 bb);
 std::string bbToString(U64 bb);
 

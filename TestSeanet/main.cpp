@@ -37,11 +37,11 @@ TEST_CASE("Running PERFT tests", "[perft]") {
   int perftStart = 1;
   std::string divideFEN = "";
   const clock_t startTime = clock();
-  // divideFEN = "rnbqkbnr/1ppppppp/8/p7/1P6/8/P1PPPPPP/RNBQKBNR w KQkq a5 0 1";
+  //divideFEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R2K3R b kq - 1 1";
   // 1";
 
   if (divideFEN != "") {
-    divide(divideFEN, 2);
+    divide(divideFEN, 3);
     return;
   }
 
@@ -76,18 +76,18 @@ TEST_CASE("Running PERFT tests", "[perft]") {
       state.printBoard();
       printf("Starting test to depth %d on FEN %s\n", i + 1, FEN.c_str());
       leafNodes = 0;
-      std::vector<Move> moves = generatePseudoMoves(state);
+      std::vector<int> moves = generatePseudoMoves(state);
       printf("%lu root moves:\n", moves.size());
       int moveNum = 0;
-      for (std::vector<Move>::iterator moveIt = moves.begin();
+      for (std::vector<int>::iterator moveIt = moves.begin();
            moveIt != moves.end(); ++moveIt) {
         int oldNodes = leafNodes;
-        state.makeMove(&(*moveIt));
+        state.makeMove(*moveIt);
         if (state.isPositionLegal()) {
           moveNum++;
           perftTest(state, i);
         }
-        printf("Move %d: %s %i\n", (moveNum), (*moveIt).uci().c_str(),
+        printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
                leafNodes - oldNodes);
         state.takeMove();
       }
@@ -108,11 +108,11 @@ void perftTest(State &state, int depth) {
     return;
   }
 
-  std::vector<Move> moves = generatePseudoMoves(state);
+  std::vector<int> moves = generatePseudoMoves(state);
 
-  for (std::vector<Move>::iterator moveIt = moves.begin();
-       moveIt != moves.end(); ++moveIt) {
-    state.makeMove(&(*moveIt));
+  for (std::vector<int>::iterator moveIt = moves.begin(); moveIt != moves.end();
+       ++moveIt) {
+    state.makeMove(*moveIt);
     if (state.isPositionLegal()) {
       perftTest(state, depth - 1);
     }
@@ -126,13 +126,13 @@ void divide(std::string FEN, int depth) {
   state.printBoard();
   printf("Starting divide to depth %d on FEN %s\n", depth, FEN.c_str());
   leafNodes = 0;
-  std::vector<Move> moves = generatePseudoMoves(state);
+  std::vector<int> moves = generatePseudoMoves(state);
   printf("%lu root moves:\n", moves.size());
   int moveNum = 0;
-  for (std::vector<Move>::iterator moveIt = moves.begin();
-       moveIt != moves.end(); ++moveIt) {
+  for (std::vector<int>::iterator moveIt = moves.begin(); moveIt != moves.end();
+       ++moveIt) {
     int oldNodes = leafNodes;
-    state.makeMove(&(*moveIt));
+    state.makeMove(*moveIt);
     if (state.isPositionLegal()) {
       moveNum++;
       perftTest(state, depth - 1);
@@ -144,7 +144,7 @@ void divide(std::string FEN, int depth) {
         printf("%s\n", bbToString(state._pieceBitboards[k]).c_str());
       }
     }
-    printf("Move %d: %s %i\n", (moveNum), (*moveIt).uci().c_str(),
+    printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
            leafNodes - oldNodes);
     state.takeMove();
   }

@@ -15,35 +15,18 @@
 #include <string>
 
 class State;
-class Move;
 class Undo;
-
-class Move {
-public:
-  int _to = -1;
-  int _from = -1;
-  Piece _promotion = EMPTY;
-  Piece _capturedPiece = EMPTY;
-  bool _castling = false;
-  bool _enPassant = false;
-
-  Move(int from, int to, Piece promotion = EMPTY);
-  Move(std::string uci);
-
-  std::string uci();
-  bool equals(const Move &other) const;
-};
 
 class Undo {
 public:
-  Move *_move;
+  int _move;
   int _castleRights;
   int _EPTarget = -1;
   int _halfMoveClock;
 
   inline Undo(){};
-  Undo(Move *move, int castleRights, int EPTarget, int halfMoveClock);
-  Undo(Move *move, const State &state);
+  Undo(int move, int castleRights, int EPTarget, int halfMoveClock);
+  Undo(int move, const State &state);
 };
 
 class State {
@@ -58,7 +41,7 @@ public:
   std::stack<Undo> _history;
 
   void printBoard() const;
-  void makeMove(Move *move);
+  void makeMove(int move);
   void takeMove();
   void clearSquare(int index);
   void addPiece(Piece piece, int index);
@@ -68,9 +51,7 @@ public:
   bool canCastle(int side, bool kSide) const;
   bool isInCheck(int side) const;
   bool isPositionLegal() const;
-  bool isLegalMove(Move *move);
+  bool isLegalMove(int move);
 };
-
-static bool operator==(const Move &m1, const Move &m2) { return m1.equals(m2); }
 
 #endif /* board_hpp */

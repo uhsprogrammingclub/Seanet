@@ -26,89 +26,53 @@ void State::printBoard() const {
   std::cout << "  A B C D E F G H \n";
 }
 
-Undo::Undo(Move *move, int castleRights, int EPTarget, int halfMoveClock) {
+Undo::Undo(int move, int castleRights, int EPTarget, int halfMoveClock) {
   _move = move;
   _castleRights = castleRights;
   _EPTarget = EPTarget;
   _halfMoveClock = halfMoveClock;
 }
-Undo::Undo(Move *move, const State &state)
+Undo::Undo(int move, const State &state)
     : Undo(move, state._castleRights, state._EPTarget, state._halfMoveClock) {}
 
-Move::Move(int from, int to, Piece promotion) {
-  _from = from;
-  _to = to;
-  _promotion = promotion;
-}
-
-Move::Move(std::string uci) {
-  if (uci.length() != 4 && uci.length() != 5) {
-    return;
-  }
-  int from = uciToIndex(uci.substr(0, 2));
-  int to = uciToIndex(uci.substr(2, 2));
-  Piece promotion = EMPTY;
-  if (uci.length() == 5) {
-    promotion = charToPiece(uci[4]);
-  }
-  _from = from;
-  _to = to;
-  _promotion = promotion;
-}
-
-std::string Move::uci() {
-  std::string uci = indexToUCI(_from) + indexToUCI(_to);
-  if (_promotion != EMPTY) {
-    uci += pieceToChar(_promotion);
-  }
-  return uci;
-}
-bool Move::equals(const Move &other) const {
-  if (_to != other._to) {
-    return false;
-  } else if (_from != other._from) {
-    return false;
-  } else if (_promotion != other._promotion) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-void State::makeMove(Move *move) {
+void State::makeMove(int move) {
   _history.emplace(move, *this);
   _halfMoveClock++;
-  Piece movingP = _pieces[move->_from];
-  move->_capturedPiece = _pieces[move->_to];
-  movePiece(move->_from, move->_to);
-  if (move->_promotion != EMPTY) {
+  int from = M_FROMSQ(move);
+  int to = M_TOSQ(move);
+  Piece movingP = _pieces[from];
+  M_SETCAP(move, _pieces[to]);
+  movePiece(from, to);
+  if (M_ISPROMOTION(move)) {
     if (_sideToMove == BLACK) {
-      addPiece(move->_promotion, move->_to);
+      addPiece((Piece)M_PROMOTIONP(move), to);
     } else {
-      int whiteP = move->_promotion;
+      int whiteP = (Piece)M_PROMOTIONP(move);
       whiteP--;
-      addPiece((Piece)whiteP, move->_to);
+      addPiece((Piece)whiteP, to);
     }
   }
 
-  if (move->_capturedPiece != EMPTY) {
+  if (M_ISCAPTURE(move)) {
     _halfMoveClock = 0;
   }
 
   if (movingP == wP || movingP == bP) {
     _halfMoveClock = 0;
     // Handle en passant
-    int fromX = move->_from % 8;
-    int toX = move->_to % 8;
-    if (fromX != toX && move->_capturedPiece == EMPTY) {
+    int fromX = from % 8;
+    int toX = to % 8;
+    if (fromX != toX && !M_ISCAPTURE(move)) {
       if (_EPTarget == -1) {
-        printf("ERROR: EN PASSANT ON INVALID SQUARE!");
+        printf("ERROR: EN PASSANT ON INVALID SQUARE! Move: %s (%i); captured "
+               "Piece: %i\n",
+               moveToUCI(move).c_str(), move, _pieces[to]);
       }
       clearSquare(_EPTarget);
-      move->_enPassant = true;
+      M_SETEP(move, true);
     }
-    if (std::abs((move->_from - fromX) / 8 - (move->_to - toX) / 8) > 1) {
-      _EPTarget = move->_to;
+    if (std::abs((from - fromX) / 8 - (to - toX) / 8) > 1) {
+      _EPTarget = to;
     } else {
       _EPTarget = -1;
     }
@@ -120,46 +84,47 @@ void State::makeMove(Move *move) {
   if (movingP == wK || movingP == bK) {
     _castleRights &= _sideToMove == WHITE ? ~(WKCA | WQCA) : ~(BKCA | BQCA);
     for (int y = 0; y < 8; y += 7) {
-      if (move->_from == y * 8 + 4) {
-        if (move->_to == y * 8 + 6) {
+      if (from == y * 8 + 4) {
+        if (to == y * 8 + 6) {
           movePiece(y * 8 + 7, y * 8 + 5);
-          move->_castling = true;
-        } else if (move->_to == y * 8 + 2) {
+          M_SETCASTLE(move, true);
+        } else if (to == y * 8 + 2) {
           movePiece(y * 8 + 0, y * 8 + 3);
-          move->_castling = true;
+          M_SETCASTLE(move, true);
         }
       }
     }
   }
   if (movingP == wR) {
-    if (move->_from == 0) {
+    if (from == 0) {
       _castleRights &= ~WQCA;
-    } else if (move->_from == 7) {
+    } else if (from == 7) {
       _castleRights &= ~WKCA;
     }
   } else if (movingP == bR) {
-    if (move->_from == 56) {
+    if (from == 56) {
       _castleRights &= ~BQCA;
-    } else if (move->_from == 63) {
+    } else if (from == 63) {
       _castleRights &= ~BKCA;
     }
   }
 
-  if (move->_capturedPiece == wR) {
-    if (move->_to == 0) {
+  if (M_CAPTUREDP(move) == wR) {
+    if (to == 0) {
       _castleRights &= ~WQCA;
-    } else if (move->_to == 7) {
+    } else if (to == 7) {
       _castleRights &= ~WKCA;
     }
-  } else if (move->_capturedPiece == bR) {
-    if (move->_to == 56) {
+  } else if (M_CAPTUREDP(move) == bR) {
+    if (to == 56) {
       _castleRights &= ~BQCA;
-    } else if (move->_to == 63) {
+    } else if (to == 63) {
       _castleRights &= ~BKCA;
     }
   }
 
   _sideToMove = -_sideToMove;
+  _history.top()._move = move;
 }
 void State::takeMove() {
   if (_history.empty()) {
@@ -167,28 +132,29 @@ void State::takeMove() {
   }
   Undo undo = _history.top();
   _history.pop();
-  Move *move = undo._move;
+  int move = undo._move;
   _halfMoveClock = undo._halfMoveClock;
   _EPTarget = undo._EPTarget;
   _castleRights = undo._castleRights;
   _sideToMove = -_sideToMove;
-  movePiece(move->_to, move->_from);
-  if (move->_promotion != EMPTY) {
-    _sideToMove == WHITE ? addPiece(wP, move->_from)
-                         : addPiece(bP, move->_from);
+  int from = M_FROMSQ(move);
+  int to = M_TOSQ(move);
+  movePiece(to, from);
+  if (M_ISPROMOTION(move)) {
+    _sideToMove == WHITE ? addPiece(wP, from) : addPiece(bP, from);
   }
-  if (move->_capturedPiece != EMPTY) {
-    addPiece(move->_capturedPiece, move->_to);
+  if (M_ISCAPTURE(move)) {
+    addPiece((Piece)M_CAPTUREDP(move), to);
   }
-  if (move->_enPassant) {
+  if (M_EP(move)) {
     _sideToMove == WHITE ? addPiece(bP, _EPTarget) : addPiece(wP, _EPTarget);
   }
-  if (move->_castling) {
+  if (M_CASTLE(move)) {
     for (int y = 0; y < 8; y += 7) {
-      if (move->_from == y * 8 + 4) {
-        if (move->_to == y * 8 + 6) {
+      if (from == y * 8 + 4) {
+        if (to == y * 8 + 6) {
           movePiece(y * 8 + 5, y * 8 + 7);
-        } else if (move->_to == y * 8 + 2) {
+        } else if (to == y * 8 + 2) {
           movePiece(y * 8 + 3, y * 8 + 0);
         }
       }
@@ -276,7 +242,7 @@ bool State::isPositionLegal() const {
     return true;
   }
 }
-bool State::isLegalMove(Move *move) {
+bool State::isLegalMove(int move) {
   makeMove(move);
   bool isLegal = isPositionLegal();
   takeMove();

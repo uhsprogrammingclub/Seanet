@@ -34,23 +34,23 @@ void takePlayerMove() {
   gameState.printBoard();
   std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
 
-  std::vector<Move> pseudoMoves = generatePseudoMoves(gameState);
-  std::vector<Move> legalMoves;
+  std::vector<int> pseudoMoves = generatePseudoMoves(gameState);
+  std::vector<int> legalMoves;
 
   printf("Pseudo moves (%lu):", pseudoMoves.size());
-  for (std::vector<Move>::iterator it = pseudoMoves.begin();
+  for (std::vector<int>::iterator it = pseudoMoves.begin();
        it != pseudoMoves.end(); ++it) {
-    std::cout << it->uci() << ", ";
-    if (gameState.isLegalMove(&(*it))) {
+    std::cout << moveToUCI(*it) << ", ";
+    if (gameState.isLegalMove(*it)) {
       legalMoves.push_back(*it);
     }
   }
   std::cout << '\n';
 
   printf("Legal moves (%lu):", legalMoves.size());
-  for (std::vector<Move>::iterator it = legalMoves.begin();
+  for (std::vector<int>::iterator it = legalMoves.begin();
        it != legalMoves.end(); ++it) {
-    std::cout << it->uci() << ", ";
+    std::cout << moveToUCI(*it) << ", ";
   }
   std::cout << '\n';
 
@@ -60,13 +60,12 @@ void takePlayerMove() {
   if (userMove == "undo") {
     gameState.takeMove();
   } else {
-    Move *move = new Move(userMove);
-    if (std::find(legalMoves.begin(), legalMoves.end(), *move) !=
+    int move = moveFromUCI(userMove);
+    if (std::find(legalMoves.begin(), legalMoves.end(), move) !=
         legalMoves.end()) {
       gameState.makeMove(move);
     } else {
       std::cout << "Illegal Move!\n";
-      delete move;
     }
   }
   takePlayerMove();

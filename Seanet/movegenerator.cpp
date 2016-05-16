@@ -24,8 +24,8 @@ U64 magicMovesRook[64][4096];
 U64 magicMovesBishop[64][4096];
 U64 occupancyVariation[64][4096];
 
-std::vector<Move> generatePseudoMoves(const State &s) {
-  std::vector<Move> moves;
+std::vector<int> generatePseudoMoves(const State &s) {
+  std::vector<int> moves;
   U64 friendlyBB = s._sideToMove == WHITE ? s._pieceBitboards[WHITES]
                                           : s._pieceBitboards[BLACKS];
 
@@ -35,15 +35,15 @@ std::vector<Move> generatePseudoMoves(const State &s) {
   int kingIndex = LS1B(friendlyBB & s._pieceBitboards[KINGS]);
   getSetBits(kingAttacks[kingIndex] & ~friendlyBB, pieceMoves);
   for (int to = 0; pieceMoves[to] != -1; to++) {
-    moves.emplace_back(kingIndex, pieceMoves[to]);
+    moves.push_back(NEW_MOVE(kingIndex, pieceMoves[to]));
   }
 
   // Castling moves
   if (s.canCastle(s._sideToMove, true)) {
-    moves.emplace_back(kingIndex, kingIndex + 2);
+    moves.push_back(NEW_MOVE(kingIndex, (kingIndex + 2)));
   }
   if (s.canCastle(s._sideToMove, false)) {
-    moves.emplace_back(kingIndex, kingIndex - 2);
+    moves.push_back(NEW_MOVE(kingIndex, (kingIndex - 2)));
   }
 
   // Knight Moves
@@ -52,7 +52,7 @@ std::vector<Move> generatePseudoMoves(const State &s) {
   for (int from = 0; pieceSquares[from] != -1; from++) {
     getSetBits(knightAttacks[pieceSquares[from]] & ~friendlyBB, pieceMoves);
     for (int to = 0; pieceMoves[to] != -1; to++) {
-      moves.emplace_back(pieceSquares[from], pieceMoves[to]);
+      moves.push_back(NEW_MOVE(pieceSquares[from], pieceMoves[to]));
     }
   }
 
@@ -64,13 +64,22 @@ std::vector<Move> generatePseudoMoves(const State &s) {
                    pawnAttack(pieceSquares[from], s._sideToMove, s),
                pieceMoves);
     for (int to = 0; pieceMoves[to] != -1; to++) {
+
       if (pieceMoves[to] / 8 < 1 || pieceMoves[to] / 8 >= 7) {
-        moves.emplace_back(pieceSquares[from], pieceMoves[to], bQ);
-        moves.emplace_back(pieceSquares[from], pieceMoves[to], bN);
-        moves.emplace_back(pieceSquares[from], pieceMoves[to], bR);
-        moves.emplace_back(pieceSquares[from], pieceMoves[to], bB);
+        int move1 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
+        int move2 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
+        int move3 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
+        int move4 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
+        M_SETPROM(move1, bQ);
+        M_SETPROM(move2, bN);
+        M_SETPROM(move3, bR);
+        M_SETPROM(move4, bB);
+        moves.push_back(move1);
+        moves.push_back(move2);
+        moves.push_back(move3);
+        moves.push_back(move4);
       } else {
-        moves.emplace_back(pieceSquares[from], pieceMoves[to]);
+        moves.push_back(NEW_MOVE(pieceSquares[from], pieceMoves[to]));
       }
     }
   }
@@ -81,7 +90,7 @@ std::vector<Move> generatePseudoMoves(const State &s) {
   for (int from = 0; pieceSquares[from] != -1; from++) {
     getSetBits(rookAttacks(pieceSquares[from], s) & ~friendlyBB, pieceMoves);
     for (int to = 0; pieceMoves[to] != -1; to++) {
-      moves.emplace_back(pieceSquares[from], pieceMoves[to]);
+      moves.push_back(NEW_MOVE(pieceSquares[from], pieceMoves[to]));
     }
   }
 
@@ -91,7 +100,7 @@ std::vector<Move> generatePseudoMoves(const State &s) {
   for (int from = 0; pieceSquares[from] != -1; from++) {
     getSetBits(bishopAttacks(pieceSquares[from], s) & ~friendlyBB, pieceMoves);
     for (int to = 0; pieceMoves[to] != -1; to++) {
-      moves.emplace_back(pieceSquares[from], pieceMoves[to]);
+      moves.push_back(NEW_MOVE(pieceSquares[from], pieceMoves[to]));
     }
   }
 
@@ -104,7 +113,7 @@ std::vector<Move> generatePseudoMoves(const State &s) {
                    ~friendlyBB,
                pieceMoves);
     for (int to = 0; pieceMoves[to] != -1; to++) {
-      moves.emplace_back(pieceSquares[from], pieceMoves[to]);
+      moves.push_back(NEW_MOVE(pieceSquares[from], pieceMoves[to]));
     }
   }
 

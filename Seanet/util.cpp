@@ -355,3 +355,26 @@ std::string bbToString(U64 bb) {
   }
   return string;
 }
+
+std::string moveToUCI(int m) {
+  std::string uci = indexToUCI(M_FROMSQ(m)) + indexToUCI(M_TOSQ(m));
+  if (M_ISPROMOTION(m)) {
+    uci += pieceToChar((Piece)M_PROMOTIONP(m));
+  }
+  return uci;
+}
+
+int moveFromUCI(std::string uci) {
+  if (uci.length() != 4 && uci.length() != 5) {
+    return 0;
+  }
+  int from = uciToIndex(uci.substr(0, 2));
+  int to = uciToIndex(uci.substr(2, 2));
+  Piece promotion = EMPTY;
+  if (uci.length() == 5) {
+    promotion = charToPiece(uci[4]);
+  }
+  int move = NEW_MOVE(from, to);
+  M_SETPROM(move, promotion);
+  return move;
+}

@@ -39,6 +39,33 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 #define RIGHT(bb) (bb << 1 & ~FILE_BB[0])
 #define LEFT(bb) (bb >> 1 & ~FILE_BB[7])
 
+// Move bits
+
+/*
+  0000 0000 0000 0000 0011 1111 -> from M & 0x3F
+  0000 0000 0000 1111 1100 0000 -> to (M >> 6) & 0x3F
+  0000 0000 1111 0000 0000 0000 -> captured piece (M >> 12) & 0xF
+  0000 1111 0000 0000 0000 0000 -> promotion piece (M >> 16) & 0xF
+  0001 0000 0000 0000 0000 0000 -> castle M & 0x100000
+  0010 0000 0000 0000 0000 0000 -> en passant M & 0x200000
+
+ */
+
+#define M_FROMSQ(m) (m & 0x3F)
+#define M_TOSQ(m) ((m >> 6) & 0x3F)
+#define M_CAPTUREDP(m) ((m >> 12) & 0xF)
+#define M_PROMOTIONP(m) ((m >> 16) & 0xF)
+#define M_CASTLE(m) (m & 0x100000)
+#define M_EP(m) (m & 0x200000)
+
+#define M_ISCAPTURE(m) (m & 0xF000)
+#define M_ISPROMOTION(m) (m & 0xF0000)
+#define NEW_MOVE(from, to) (from | (to << 6))
+#define M_SETCAP(m, piece) (m |= (piece << 12))
+#define M_SETPROM(m, piece) (m |= (piece << 16))
+#define M_SETCASTLE(m, cas) (cas ? m |= 0x100000 : m &= 0xEFFFFF)
+#define M_SETEP(m, ep) (ep ? m |= 0x200000 : m &= 0xDFFFFF)
+
 const U64 magicNumberRook[64] = {
     0xa180022080400230ULL, 0x40100040022000ULL,   0x80088020001002ULL,
     0x80080280841000ULL,   0x4200042010460008ULL, 0x4800a0003040080ULL,

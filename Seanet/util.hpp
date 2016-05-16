@@ -38,5 +38,7 @@ void initPresets();
 void *getSetBits(U64 bb, int *setBits);
 int *getSetBits(U64 bb);
 std::string bbToString(U64 bb);
+std::string moveToUCI(int move);
+int moveFromUCI(std::string uci);
 
 #endif /* util_hpp */

@@ -37,7 +37,8 @@ TEST_CASE("Running PERFT tests", "[perft]") {
   int perftStart = 1;
   std::string divideFEN = "";
   const clock_t startTime = clock();
-  //divideFEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R2K3R b kq - 1 1";
+  // divideFEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R2K3R b kq -
+  // 1 1";
   // 1";
 
   if (divideFEN != "") {
@@ -81,15 +82,15 @@ TEST_CASE("Running PERFT tests", "[perft]") {
       int moveNum = 0;
       for (std::vector<int>::iterator moveIt = moves.begin();
            moveIt != moves.end(); ++moveIt) {
-        int oldNodes = leafNodes;
-        state.makeMove(*moveIt);
-        if (state.isPositionLegal()) {
+        if (state.isLegalMove(*moveIt)) {
+          int oldNodes = leafNodes;
+          state.makeMove(*moveIt);
           moveNum++;
           perftTest(state, i);
+          state.takeMove();
+          printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
+                 leafNodes - oldNodes);
         }
-        printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
-               leafNodes - oldNodes);
-        state.takeMove();
       }
       printf("Leaf nodes: %d, expected: %d; Finished in %f seconds\n",
              leafNodes, depths[i],

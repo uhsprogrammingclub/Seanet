@@ -26,6 +26,7 @@ U64 occupancyVariation[64][4096];
 
 std::vector<int> generatePseudoMoves(const State &s) {
   std::vector<int> moves;
+  moves.reserve(64);
   U64 friendlyBB = s._sideToMove == WHITE ? s._pieceBitboards[WHITES]
                                           : s._pieceBitboards[BLACKS];
 

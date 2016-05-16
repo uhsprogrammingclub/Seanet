@@ -24,8 +24,8 @@ U64 magicMovesRook[64][4096];
 U64 magicMovesBishop[64][4096];
 U64 occupancyVariation[64][4096];
 
-std::vector<int> generatePseudoMoves(const State &s) {
-  std::vector<int> moves;
+std::vector<Move> generatePseudoMoves(const State &s) {
+  std::vector<Move> moves;
   moves.reserve(64);
   U64 friendlyBB = s._sideToMove == WHITE ? s._pieceBitboards[WHITES]
                                           : s._pieceBitboards[BLACKS];
@@ -67,10 +67,10 @@ std::vector<int> generatePseudoMoves(const State &s) {
     for (int to = 0; pieceMoves[to] != -1; to++) {
 
       if (pieceMoves[to] / 8 < 1 || pieceMoves[to] / 8 >= 7) {
-        int move1 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
-        int move2 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
-        int move3 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
-        int move4 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
+        Move move1 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
+        Move move2 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
+        Move move3 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
+        Move move4 = NEW_MOVE(pieceSquares[from], pieceMoves[to]);
         M_SETPROM(move1, bQ);
         M_SETPROM(move2, bN);
         M_SETPROM(move3, bR);

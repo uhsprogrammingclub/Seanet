@@ -10,6 +10,7 @@
 #define defs_h
 
 typedef unsigned long long U64;
+typedef int Move;
 
 extern U64 setMask[64];
 extern U64 clearMask[64];

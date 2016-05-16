@@ -26,16 +26,16 @@ void State::printBoard() const {
   std::cout << "  A B C D E F G H \n";
 }
 
-Undo::Undo(int move, int castleRights, int EPTarget, int halfMoveClock) {
+Undo::Undo(Move move, int castleRights, int EPTarget, int halfMoveClock) {
   _move = move;
   _castleRights = castleRights;
   _EPTarget = EPTarget;
   _halfMoveClock = halfMoveClock;
 }
-Undo::Undo(int move, const State &state)
+Undo::Undo(Move move, const State &state)
     : Undo(move, state._castleRights, state._EPTarget, state._halfMoveClock) {}
 
-void State::makeMove(int move) {
+void State::makeMove(Move move) {
   _history.emplace(move, *this);
   _halfMoveClock++;
   int from = M_FROMSQ(move);
@@ -242,9 +242,85 @@ bool State::isPositionLegal() const {
     return true;
   }
 }
-bool State::isLegalMove(int move) {
+bool State::isLegalMove(Move move) {
+  int from = M_FROMSQ(move);
+  int to = M_TOSQ(move);
+  int kingSq = kingPos(_sideToMove);
+
+  // If king if moving, check if the to square is attacked
+  if (from == kingSq) {
+    if (attacksTo(to, *this, _sideToMove, allPieces() & clearMask[kingSq]) ==
+        0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // Handle situations when king is in check
+  if (isInCheck(_sideToMove)) {
+    // if double check, only king can move
+    U64 attacksToKing = attacksTo(kingSq, *this, _sideToMove);
+    if (countSetBits(attacksToKing) > 1) {
+      return false;
+    }
+    int attackingSq = LS1B(attacksToKing);
+
+    // If its a capture move and the capturing piece is not absolutely pinned,
+    // move is legal. If absolute pin, the move is illegal.
+
+    if (to == attackingSq) {
+      if (!isAbsolutePin(from, kingSq, _sideToMove)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    // if a knight is attacking, then king has to move
+    if ((_pieceBitboards[KNIGHTS] & setMask[attackingSq]) != 0) {
+      return true;
+    }
+
+    // Try to move to see if it will block the check. Otherwise, move is
+    // illegal.
+    makeMove(move);
+    bool isLegal = isPositionLegal();
+    takeMove();
+    return isLegal;
+  }
+
+  // check that the moving piece is not absolutely pinned
+
+  if (!isAbsolutePin(from, kingSq, _sideToMove)) {
+    bool EPMove = false;
+    if (_pieces[from] == wP || _pieces[from] == bP) {
+      if (to == _EPTarget) {
+        EPMove = true;
+      }
+    }
+    if (!EPMove) {
+      return true;
+    }
+  }
+
+  // If piece is pinned, try to make the move to see if it results in check.
   makeMove(move);
   bool isLegal = isPositionLegal();
   takeMove();
   return isLegal;
+}
+
+bool State::isAbsolutePin(int pinnedSq, int attackedSq, int defendingSide) {
+  int numOfAttacksWithPin =
+      countSetBits(attacksTo(attackedSq, *this, defendingSide));
+  U64 bbWithoutPin = allPieces();
+  CLRBIT(bbWithoutPin, pinnedSq);
+  int numOfAttacksWithoutPin =
+      countSetBits(attacksTo(attackedSq, *this, defendingSide, bbWithoutPin));
+  if (numOfAttacksWithPin < numOfAttacksWithoutPin) {
+    return true;
+  } else {
+    return false;
+  }
 }

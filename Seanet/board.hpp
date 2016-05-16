@@ -19,14 +19,14 @@ class Undo;
 
 class Undo {
 public:
-  int _move;
+  Move _move;
   int _castleRights;
   int _EPTarget = -1;
   int _halfMoveClock;
 
   inline Undo(){};
-  Undo(int move, int castleRights, int EPTarget, int halfMoveClock);
-  Undo(int move, const State &state);
+  Undo(Move move, int castleRights, int EPTarget, int halfMoveClock);
+  Undo(Move move, const State &state);
 };
 
 class State {
@@ -41,7 +41,7 @@ public:
   std::stack<Undo> _history;
 
   void printBoard() const;
-  void makeMove(int move);
+  void makeMove(Move move);
   void takeMove();
   void clearSquare(int index);
   void addPiece(Piece piece, int index);
@@ -51,7 +51,8 @@ public:
   bool canCastle(int side, bool kSide) const;
   bool isInCheck(int side) const;
   bool isPositionLegal() const;
-  bool isLegalMove(int move);
+  bool isLegalMove(Move move);
+	bool isAbsolutePin(int pinnedSq, int attackedSq, int defendingSide);
 };
 
 #endif /* board_hpp */

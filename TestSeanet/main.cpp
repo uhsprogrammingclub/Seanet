@@ -32,12 +32,12 @@ TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
 TEST_CASE("Running PERFT tests", "[perft]") {
   State state;
   initPresets();
-  int TEST_LIMIT = 500;
+  int TEST_LIMIT = 20;
   int maxDepth = 6;
   int perftStart = 1;
   std::string divideFEN = "";
   const clock_t startTime = clock();
-  //divideFEN = "1K6/8/8/3Q4/4q3/8/7k/8 w - - 2 1";
+  // divideFEN = "1K6/8/8/3Q4/4q3/8/7k/8 w - - 2 1";
   // 1";
 
   if (divideFEN != "") {
@@ -82,14 +82,17 @@ TEST_CASE("Running PERFT tests", "[perft]") {
       for (std::vector<int>::iterator moveIt = moves.begin();
            moveIt != moves.end(); ++moveIt) {
         int oldNodes = leafNodes;
-        state.makeMove(*moveIt);
-        if (state.isPositionLegal()) {
-          moveNum++;
-          perftTest(state, i);
-          printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
-                 leafNodes - oldNodes);
+        *moveIt = state.addLegalityFlag(*moveIt);
+        if (!M_ILLEGAL(*moveIt)) {
+          state.makeMove(*moveIt);
+          if (M_LEGAL(*moveIt) || state.isPositionLegal()) {
+            moveNum++;
+            perftTest(state, i);
+            printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
+                   leafNodes - oldNodes);
+          }
+          state.takeMove();
         }
-        state.takeMove();
       }
       printf("Leaf nodes: %d, expected: %d; Finished in %f seconds\n",
              leafNodes, depths[i],
@@ -112,8 +115,9 @@ void perftTest(State &state, int depth) {
 
   for (std::vector<int>::iterator moveIt = moves.begin(); moveIt != moves.end();
        ++moveIt) {
+    *moveIt = state.addLegalityFlag(*moveIt);
     state.makeMove(*moveIt);
-    if (state.isPositionLegal()) {
+    if (M_LEGAL(*moveIt) || state.isPositionLegal()) {
       perftTest(state, depth - 1);
     }
     state.takeMove();
@@ -132,8 +136,9 @@ void divide(std::string FEN, int depth) {
   for (std::vector<int>::iterator moveIt = moves.begin(); moveIt != moves.end();
        ++moveIt) {
     int oldNodes = leafNodes;
+    *moveIt = state.addLegalityFlag(*moveIt);
     state.makeMove(*moveIt);
-    if (state.isPositionLegal()) {
+    if (M_LEGAL(*moveIt) || state.isPositionLegal()) {
       moveNum++;
       perftTest(state, depth - 1);
       printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),

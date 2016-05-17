@@ -54,6 +54,7 @@ public:
   bool isLegalMove(Move move);
   bool isLegalCheckEvasion(Move move);
   bool isAbsolutePin(int pinnedSq, int attackedSq, int defendingSide);
+  Move addLegalityFlag(Move move);
 };
 
 #endif /* board_hpp */

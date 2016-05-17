@@ -289,7 +289,7 @@ int countSetBits(U64 bb) {
          popCountOfByte256[(bb >> 48) & 0xff] + popCountOfByte256[bb >> 56];
 }
 
-void *getSetBits(U64 bb, int *setBits) {
+void getSetBits(U64 bb, int *setBits) {
   int i = 0;
   while (bb) {
     int index = LS1B(bb);
@@ -298,7 +298,6 @@ void *getSetBits(U64 bb, int *setBits) {
     i++;
   }
   setBits[i] = -1;
-  return setBits;
 }
 
 int *getSetBits(U64 bb) {

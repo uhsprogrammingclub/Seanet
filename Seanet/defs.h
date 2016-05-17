@@ -51,7 +51,8 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
   0001 0000 0000 0000 0000 0000 -> castle M & 0x100000
   0010 0000 0000 0000 0000 0000 -> en passant M & 0x200000
   0100 0000 0000 0000 0000 0000 -> optional check evasion flag & 0x400000
-  0100 0000 0000 0000 0000 0000 -> optional legal flag & 0x800000
+  1000 0000 0000 0000 0000 0000 -> optional legal flag & 0x800000
+1 0000 0000 0000 0000 0000 0000 -> optional illegal flag & 0x1000000
 
  */
 
@@ -63,6 +64,7 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 #define M_EP(m) (m & 0x200000)
 #define M_CHECKEV(m) (m & 0x400000)
 #define M_LEGAL(m) (m & 0x800000)
+#define M_ILLEGAL(m) (m & 0x1000000)
 
 #define M_ISCAPTURE(m) (m & 0xF000)
 #define M_ISPROMOTION(m) (m & 0xF0000)
@@ -73,6 +75,7 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 #define M_SETEP(m, ep) (ep ? m |= 0x200000 : m &= 0xDFFFFF)
 #define M_SETCHECKEV(m, check) (check ? m |= 0x400000 : m &= 0xBFFFFF)
 #define M_SETLEGAL(m, legal) (legal ? m |= 0x800000 : m &= 0x7FFFFF)
+#define M_SETILLEGAL(m, illegal) (illegal ? m |= 0x1000000 : m &= 0xEFFFFFF)
 
 const U64 magicNumberRook[64] = {
     0xa180022080400230ULL, 0x40100040022000ULL,   0x80088020001002ULL,

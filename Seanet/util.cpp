@@ -8,20 +8,13 @@
 #include "movegenerator.hpp"
 #include "util.hpp"
 
-const int index64[64] = {0,  47, 1,  56, 48, 27, 2,  60, 57, 49, 41, 37, 28,
-                         16, 3,  61, 54, 58, 35, 52, 50, 42, 21, 44, 38, 32,
-                         29, 23, 17, 11, 4,  62, 46, 55, 26, 59, 40, 36, 15,
-                         53, 34, 51, 20, 43, 31, 22, 10, 45, 25, 39, 14, 33,
-                         19, 30, 9,  24, 13, 18, 8,  12, 7,  6,  5,  63};
-
-unsigned char popCountOfByte256[256];
-
 U64 setMask[64];
 U64 clearMask[64];
 U64 kingAttacks[64];
 U64 knightAttacks[64];
 U64 pawnAttacks[2][64];
 U64 bbBlockers8Way[64][8];
+unsigned char popCountOfByte256[256];
 
 std::vector<std::string> &split(const std::string &s, char delim,
                                 std::vector<std::string> &elems) {
@@ -129,14 +122,6 @@ int bitboardForPiece(Piece p) {
     return KINGS;
   default:
     return 8;
-  }
-}
-
-int sideBitboardForPiece(Piece p) {
-  if (p % 2 == 0) {
-    return BLACKS;
-  } else {
-    return WHITES;
   }
 }
 
@@ -260,33 +245,10 @@ State boardFromFEN(std::string FEN) {
   return b;
 }
 
-int LS1B(U64 bb) {
-  const U64 debruijn64 = 0x03f79d71b4cb0a89ULL;
-  if (bb == 0) {
-    return -1;
-  }
-  return index64[((bb ^ (bb - 1)) * debruijn64) >> 58];
-}
-
-int popBit(U64 *bb) {
-  int index = LS1B(*bb);
-  *bb &= (*bb - 1);
-  return index;
-}
-
 void initpopCountOfByte256() {
   popCountOfByte256[0] = 0;
   for (int i = 1; i < 256; i++)
     popCountOfByte256[i] = popCountOfByte256[i / 2] + (i & 1);
-}
-
-int countSetBits(U64 bb) {
-  return popCountOfByte256[bb & 0xff] + popCountOfByte256[(bb >> 8) & 0xff] +
-         popCountOfByte256[(bb >> 16) & 0xff] +
-         popCountOfByte256[(bb >> 24) & 0xff] +
-         popCountOfByte256[(bb >> 32) & 0xff] +
-         popCountOfByte256[(bb >> 40) & 0xff] +
-         popCountOfByte256[(bb >> 48) & 0xff] + popCountOfByte256[bb >> 56];
 }
 
 void getSetBits(U64 bb, int *setBits) {

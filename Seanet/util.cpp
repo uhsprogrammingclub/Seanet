@@ -21,6 +21,7 @@ U64 clearMask[64];
 U64 kingAttacks[64];
 U64 knightAttacks[64];
 U64 pawnAttacks[2][64];
+U64 bbBlockers8Way[64][8];
 
 std::vector<std::string> &split(const std::string &s, char delim,
                                 std::vector<std::string> &elems) {
@@ -316,6 +317,19 @@ void initPresets() {
     U64 kingAttack = bit | RIGHT(bit) | LEFT(bit);
     kingAttack |= UP(kingAttack) | DOWN(kingAttack);
     kingAttacks[i] = CLRBIT(kingAttack, i);
+
+    U64 allDiag =
+        UP(LEFT(bit)) | UP(RIGHT(bit)) | DOWN(LEFT(bit)) | DOWN(RIGHT(bit));
+    U64 allStraight = UP(bit) | RIGHT(bit) | DOWN(bit) | LEFT(bit);
+
+    bbBlockers8Way[i][0] = kingAttacks[i] & ~UP(bit) & ~allDiag;
+    bbBlockers8Way[i][1] = kingAttacks[i] & ~RIGHT(bit) & ~allDiag;
+    bbBlockers8Way[i][2] = kingAttacks[i] & ~DOWN(bit) & ~allDiag;
+    bbBlockers8Way[i][3] = kingAttacks[i] & ~LEFT(bit) & ~allDiag;
+    bbBlockers8Way[i][4] = kingAttacks[i] & ~UP(LEFT(bit)) & ~allStraight;
+    bbBlockers8Way[i][5] = kingAttacks[i] & ~UP(RIGHT(bit)) & ~allStraight;
+    bbBlockers8Way[i][6] = kingAttacks[i] & ~DOWN(LEFT(bit)) & ~allStraight;
+    bbBlockers8Way[i][7] = kingAttacks[i] & ~DOWN(RIGHT(bit)) & ~allStraight;
 
     U64 l1 = LEFT(bit);
     U64 l2 = LEFT(LEFT(bit));

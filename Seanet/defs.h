@@ -17,6 +17,7 @@ extern U64 clearMask[64];
 extern U64 kingAttacks[64];
 extern U64 knightAttacks[64];
 extern U64 pawnAttacks[2][64];
+extern U64 bbBlockers8Way[64][8];
 const U64 RANK_BB[8] = {0x00000000000000FFULL, 0x000000000000FF00ULL,
                         0x0000000000FF0000ULL, 0x00000000FF000000ULL,
                         0x000000FF00000000ULL, 0x0000FF0000000000ULL,
@@ -49,6 +50,7 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
   0000 1111 0000 0000 0000 0000 -> promotion piece (M >> 16) & 0xF
   0001 0000 0000 0000 0000 0000 -> castle M & 0x100000
   0010 0000 0000 0000 0000 0000 -> en passant M & 0x200000
+  0100 0000 0000 0000 0000 0000 -> optional Legal flag & 0x400000
 
  */
 
@@ -58,6 +60,7 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 #define M_PROMOTIONP(m) ((m >> 16) & 0xF)
 #define M_CASTLE(m) (m & 0x100000)
 #define M_EP(m) (m & 0x200000)
+#define M_LEGAL(m) (m & 0x400000)
 
 #define M_ISCAPTURE(m) (m & 0xF000)
 #define M_ISPROMOTION(m) (m & 0xF0000)
@@ -66,6 +69,7 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 #define M_SETPROM(m, piece) (m |= (piece << 16))
 #define M_SETCASTLE(m, cas) (cas ? m |= 0x100000 : m &= 0xEFFFFF)
 #define M_SETEP(m, ep) (ep ? m |= 0x200000 : m &= 0xDFFFFF)
+#define M_SETLEGAL(m, legal) (legal ? m |= 0x400000 : m &= 0xBFFFFF)
 
 const U64 magicNumberRook[64] = {
     0xa180022080400230ULL, 0x40100040022000ULL,   0x80088020001002ULL,
@@ -173,5 +177,7 @@ const int magicNumberShiftsBishop[64] = {
     59, 59, 57, 57, 57, 57, 59, 59, 59, 59, 57, 55, 55, 57, 59, 59,
     59, 59, 57, 55, 55, 57, 59, 59, 59, 59, 57, 57, 57, 57, 59, 59,
     59, 59, 59, 59, 59, 59, 59, 59, 58, 59, 59, 59, 59, 59, 59, 58};
+
+const U64 border = 0xFF818181818181FFULL;
 
 #endif /* defs_h */

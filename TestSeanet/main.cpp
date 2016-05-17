@@ -37,12 +37,11 @@ TEST_CASE("Running PERFT tests", "[perft]") {
   int perftStart = 1;
   std::string divideFEN = "";
   const clock_t startTime = clock();
-  // divideFEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R2K3R b kq -
-  // 1 1";
+  //divideFEN = "r1bqkbnr/pppppppp/8/8/1n6/1QP5/PP1PPPPP/RNB1KBNR w KQkq - 3 1";
   // 1";
 
   if (divideFEN != "") {
-    divide(divideFEN, 3);
+    divide(divideFEN, 2);
     return;
   }
 
@@ -82,15 +81,15 @@ TEST_CASE("Running PERFT tests", "[perft]") {
       int moveNum = 0;
       for (std::vector<int>::iterator moveIt = moves.begin();
            moveIt != moves.end(); ++moveIt) {
-        if (state.isLegalMove(*moveIt)) {
-          int oldNodes = leafNodes;
-          state.makeMove(*moveIt);
+        int oldNodes = leafNodes;
+        state.makeMove(*moveIt);
+        if (state.isPositionLegal()) {
           moveNum++;
           perftTest(state, i);
-          state.takeMove();
           printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
                  leafNodes - oldNodes);
         }
+        state.takeMove();
       }
       printf("Leaf nodes: %d, expected: %d; Finished in %f seconds\n",
              leafNodes, depths[i],
@@ -137,16 +136,10 @@ void divide(std::string FEN, int depth) {
     if (state.isPositionLegal()) {
       moveNum++;
       perftTest(state, depth - 1);
-
-    } else {
-      printf("Illegal root move!:\n");
-      state.printBoard();
-      for (int k = 0; k < 8; k++) {
-        printf("%s\n", bbToString(state._pieceBitboards[k]).c_str());
-      }
+      printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
+             leafNodes - oldNodes);
     }
-    printf("Move %d: %s %i\n", (moveNum), moveToUCI(*moveIt).c_str(),
-           leafNodes - oldNodes);
+
     state.takeMove();
   }
   printf("Leaf nodes: %d\n", leafNodes);

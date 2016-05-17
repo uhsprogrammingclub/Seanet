@@ -143,7 +143,9 @@ std::vector<Move> generateCheckEvasions(const State &s) {
   int kingIndex = LS1B(friendlyBB & s._pieceBitboards[KINGS]);
   getSetBits(kingAttacks[kingIndex] & ~friendlyBB, pieceMoves);
   for (int to = 0; pieceMoves[to] != -1; to++) {
-    moves.push_back(NEW_MOVE(kingIndex, pieceMoves[to]));
+    Move move = NEW_MOVE(kingIndex, pieceMoves[to]);
+    M_SETCHECKEV(move, true);
+    moves.push_back(move);
   }
   // printMoves("king moving", moves);
 
@@ -155,9 +157,9 @@ std::vector<Move> generateCheckEvasions(const State &s) {
 
     getSetBits(attacksTo(kingAttackerIndex, s, -s._sideToMove), pieceSquares);
     for (int from = 0; pieceSquares[from] != -1; from++) {
-		if (pieceSquares[from] == kingIndex) {
-			continue;
-		}
+      if (pieceSquares[from] == kingIndex) {
+        continue;
+      }
       Piece attackingPiece = s._pieces[pieceSquares[from]];
       if (attackingPiece == wP || attackingPiece == bP) {
         if (kingAttackerIndex / 8 < 1 || kingAttackerIndex / 8 >= 7) {
@@ -169,22 +171,31 @@ std::vector<Move> generateCheckEvasions(const State &s) {
           M_SETPROM(move2, bN);
           M_SETPROM(move3, bR);
           M_SETPROM(move4, bB);
+          M_SETCHECKEV(move1, true);
+          M_SETCHECKEV(move2, true);
+          M_SETCHECKEV(move3, true);
+          M_SETCHECKEV(move4, true);
+
           moves.push_back(move1);
           moves.push_back(move2);
           moves.push_back(move3);
           moves.push_back(move4);
         } else {
-          moves.push_back(NEW_MOVE(pieceSquares[from], kingAttackerIndex));
+          Move move = NEW_MOVE(pieceSquares[from], kingAttackerIndex);
+          M_SETCHECKEV(move, true);
+          moves.push_back(move);
         }
       } else {
-        moves.push_back(NEW_MOVE(pieceSquares[from], kingAttackerIndex));
+        Move move = NEW_MOVE(pieceSquares[from], kingAttackerIndex);
+
+        M_SETCHECKEV(move, true);
+        moves.push_back(move);
       }
     }
     // printMoves("captrure attacker", moves);
 
     // find blocking piece moves
     int indexDelta = kingIndex - kingAttackerIndex;
-
     pieceSquares[0] = -1; // reset piece squares
 
     // if its a horizontal/vertical attack path
@@ -198,7 +209,7 @@ std::vector<Move> generateCheckEvasions(const State &s) {
           bbBlockers = bbBlockers8Way[kingIndex][0];
         }
         // on the right
-        else if (indexDelta >= -7) {
+        else if (-indexDelta <= 7) {
           bbBlockers = bbBlockers8Way[kingIndex][1];
         }
 
@@ -213,6 +224,7 @@ std::vector<Move> generateCheckEvasions(const State &s) {
         }
       }
       if (bbBlockers) {
+        bbBlockers &= ~setMask[kingIndex];
         bbBlockers |= s.allPieces() & occupancyMaskRook[kingIndex];
         // printf("ROOK BB BLOCKERS:\n%s", bbToString(bbBlockers).c_str());
         int databaseIndex =
@@ -234,7 +246,7 @@ std::vector<Move> generateCheckEvasions(const State &s) {
       // if attacking piece is on top
       if (indexDelta < 0) {
         // on the top left
-        if (indexDelta % 7 == 0) {
+        if (indexDelta % 7 == 0 && -indexDelta / 7 < 8 && kingIndex/8 != kingAttackerIndex/8) {
           bbBlockers = bbBlockers8Way[kingIndex][4];
         }
         // on the top right
@@ -248,11 +260,12 @@ std::vector<Move> generateCheckEvasions(const State &s) {
           bbBlockers = bbBlockers8Way[kingIndex][6];
         }
         // on the bottom right
-        else if (indexDelta % 7 == 0) {
+        else if (indexDelta % 7 == 0 && indexDelta / 7 < 8 && kingIndex/8 != kingAttackerIndex/8) {
           bbBlockers = bbBlockers8Way[kingIndex][7];
         }
       }
       if (bbBlockers) {
+        bbBlockers &= ~setMask[kingIndex];
         bbBlockers |= s.allPieces() & occupancyMaskBishop[kingIndex];
         // printf("BISHOP BB BLOCKERS:\n%s", bbToString(bbBlockers).c_str());
         int databaseIndex =
@@ -289,15 +302,25 @@ std::vector<Move> generateCheckEvasions(const State &s) {
             M_SETPROM(move2, bN);
             M_SETPROM(move3, bR);
             M_SETPROM(move4, bB);
+            M_SETCHECKEV(move1, true);
+            M_SETCHECKEV(move2, true);
+            M_SETCHECKEV(move3, true);
+            M_SETCHECKEV(move4, true);
             moves.push_back(move1);
             moves.push_back(move2);
             moves.push_back(move3);
             moves.push_back(move4);
           } else {
-            moves.push_back(NEW_MOVE(pieceMoves[from], pieceSquares[to]));
+            Move move = NEW_MOVE(pieceMoves[from], pieceSquares[to]);
+
+            M_SETCHECKEV(move, true);
+            moves.push_back(move);
           }
         } else {
-          moves.push_back(NEW_MOVE(pieceMoves[from], pieceSquares[to]));
+          Move move = NEW_MOVE(pieceMoves[from], pieceSquares[to]);
+
+          M_SETCHECKEV(move, true);
+          moves.push_back(move);
         }
       }
     }

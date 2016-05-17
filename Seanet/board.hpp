@@ -52,7 +52,8 @@ public:
   bool isInCheck(int side) const;
   bool isPositionLegal() const;
   bool isLegalMove(Move move);
-	bool isAbsolutePin(int pinnedSq, int attackedSq, int defendingSide);
+  bool isLegalCheckEvasion(Move move);
+  bool isAbsolutePin(int pinnedSq, int attackedSq, int defendingSide);
 };
 
 #endif /* board_hpp */

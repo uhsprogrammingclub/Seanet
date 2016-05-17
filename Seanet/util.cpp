@@ -316,20 +316,21 @@ void initPresets() {
     clearMask[i] = ~bit;
     U64 kingAttack = bit | RIGHT(bit) | LEFT(bit);
     kingAttack |= UP(kingAttack) | DOWN(kingAttack);
-    kingAttacks[i] = CLRBIT(kingAttack, i);
 
     U64 allDiag =
         UP(LEFT(bit)) | UP(RIGHT(bit)) | DOWN(LEFT(bit)) | DOWN(RIGHT(bit));
     U64 allStraight = UP(bit) | RIGHT(bit) | DOWN(bit) | LEFT(bit);
 
-    bbBlockers8Way[i][0] = kingAttacks[i] & ~UP(bit) & ~allDiag;
-    bbBlockers8Way[i][1] = kingAttacks[i] & ~RIGHT(bit) & ~allDiag;
-    bbBlockers8Way[i][2] = kingAttacks[i] & ~DOWN(bit) & ~allDiag;
-    bbBlockers8Way[i][3] = kingAttacks[i] & ~LEFT(bit) & ~allDiag;
-    bbBlockers8Way[i][4] = kingAttacks[i] & ~UP(LEFT(bit)) & ~allStraight;
-    bbBlockers8Way[i][5] = kingAttacks[i] & ~UP(RIGHT(bit)) & ~allStraight;
-    bbBlockers8Way[i][6] = kingAttacks[i] & ~DOWN(LEFT(bit)) & ~allStraight;
-    bbBlockers8Way[i][7] = kingAttacks[i] & ~DOWN(RIGHT(bit)) & ~allStraight;
+    bbBlockers8Way[i][0] = kingAttack & ~UP(bit) & ~allDiag;
+    bbBlockers8Way[i][1] = kingAttack & ~RIGHT(bit) & ~allDiag;
+    bbBlockers8Way[i][2] = kingAttack & ~DOWN(bit) & ~allDiag;
+    bbBlockers8Way[i][3] = kingAttack & ~LEFT(bit) & ~allDiag;
+    bbBlockers8Way[i][4] = kingAttack & ~UP(LEFT(bit)) & ~allStraight;
+    bbBlockers8Way[i][5] = kingAttack & ~UP(RIGHT(bit)) & ~allStraight;
+    bbBlockers8Way[i][6] = kingAttack & ~DOWN(LEFT(bit)) & ~allStraight;
+    bbBlockers8Way[i][7] = kingAttack & ~DOWN(RIGHT(bit)) & ~allStraight;
+
+    kingAttacks[i] = CLRBIT(kingAttack, i);
 
     U64 l1 = LEFT(bit);
     U64 l2 = LEFT(LEFT(bit));

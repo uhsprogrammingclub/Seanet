@@ -242,6 +242,42 @@ bool State::isPositionLegal() const {
     return true;
   }
 }
+
+bool State::isLegalCheckEvasion(Move move) {
+  int from = M_FROMSQ(move);
+  int to = M_TOSQ(move);
+  int kingSq = kingPos(_sideToMove);
+  // if double check, only king can move
+  U64 attacksToKing = attacksTo(kingSq, *this, _sideToMove);
+  if (countSetBits(attacksToKing) > 1) {
+    return false;
+  }
+  int attackingSq = LS1B(attacksToKing);
+
+  // If its a capture move and the capturing piece is not absolutely pinned,
+  // move is legal. If absolute pin, the move is illegal.
+
+  if (to == attackingSq) {
+    if (!isAbsolutePin(from, kingSq, _sideToMove)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // if a knight is attacking, then king has to move
+  if ((_pieceBitboards[KNIGHTS] & setMask[attackingSq]) != 0) {
+    return true;
+  }
+
+  // Try to move to see if it will block the check. Otherwise, move is
+  // illegal.
+  makeMove(move);
+  bool isLegal = isPositionLegal();
+  takeMove();
+  return isLegal;
+}
+
 bool State::isLegalMove(Move move) {
   int from = M_FROMSQ(move);
   int to = M_TOSQ(move);
@@ -258,36 +294,8 @@ bool State::isLegalMove(Move move) {
   }
 
   // Handle situations when king is in check
-  if (isInCheck(_sideToMove)) {
-    // if double check, only king can move
-    U64 attacksToKing = attacksTo(kingSq, *this, _sideToMove);
-    if (countSetBits(attacksToKing) > 1) {
-      return false;
-    }
-    int attackingSq = LS1B(attacksToKing);
-
-    // If its a capture move and the capturing piece is not absolutely pinned,
-    // move is legal. If absolute pin, the move is illegal.
-
-    if (to == attackingSq) {
-      if (!isAbsolutePin(from, kingSq, _sideToMove)) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    // if a knight is attacking, then king has to move
-    if ((_pieceBitboards[KNIGHTS] & setMask[attackingSq]) != 0) {
-      return true;
-    }
-
-    // Try to move to see if it will block the check. Otherwise, move is
-    // illegal.
-    makeMove(move);
-    bool isLegal = isPositionLegal();
-    takeMove();
-    return isLegal;
+  if (M_CHECKEV(move)) {
+    return isLegalCheckEvasion(move);
   }
 
   // check that the moving piece is not absolutely pinned

@@ -37,7 +37,7 @@ TEST_CASE("Running PERFT tests", "[perft]") {
   int perftStart = 1;
   std::string divideFEN = "";
   const clock_t startTime = clock();
-  //divideFEN = "r1bqkbnr/pppppppp/8/8/1n6/1QP5/PP1PPPPP/RNB1KBNR w KQkq - 3 1";
+  //divideFEN = "1K6/8/8/3Q4/4q3/8/7k/8 w - - 2 1";
   // 1";
 
   if (divideFEN != "") {

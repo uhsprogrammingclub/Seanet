@@ -8,7 +8,6 @@
 
 #include "board.hpp"
 #include "movegenerator.hpp"
-#include "util.hpp"
 #include <cmath>
 #include <iostream>
 #include <ostream>
@@ -158,38 +157,7 @@ void State::takeMove() {
     }
   }
 }
-void State::clearSquare(int index) {
-  Piece p = _pieces[index];
-  if (p != EMPTY) {
-    CLRBIT(_pieceBitboards[bitboardForPiece(p)], index);
-    CLRBIT(_pieceBitboards[sideBitboardForPiece(p)], index);
-    _pieces[index] = EMPTY;
-  }
-}
-void State::addPiece(Piece p, int index) {
-  clearSquare(index);
-  SETBIT(_pieceBitboards[bitboardForPiece(p)], index);
-  SETBIT(_pieceBitboards[sideBitboardForPiece(p)], index);
-  _pieces[index] = p;
-}
-void State::movePiece(int from, int to) {
-  Piece p = _pieces[from];
-  clearSquare(from);
-  addPiece(p, to);
-}
-U64 State::allPieces() const {
-  return _pieceBitboards[WHITES] | _pieceBitboards[BLACKS];
-}
-int State::kingPos(int side) const {
-  U64 friendlyBB =
-      side == WHITE ? _pieceBitboards[WHITES] : _pieceBitboards[BLACKS];
-  int index = LS1B(friendlyBB & _pieceBitboards[KINGS]);
-  if (index == -1) {
-    printf("NO KING DETECTED!\n");
-    printBoard();
-  }
-  return index;
-}
+
 bool State::canCastle(int side, bool kSide) const {
   if (isInCheck(side)) {
     return false;
@@ -224,27 +192,16 @@ bool State::canCastle(int side, bool kSide) const {
   }
   return false;
 }
-bool State::isInCheck(int side) const {
-  if (attacksTo(kingPos(side), *this, side) == 0) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-bool State::isPositionLegal() const {
-  if (isInCheck(-_sideToMove)) {
-    return false;
-  } else {
-    return true;
-  }
-}
 
 bool State::isLegalMove(Move move) {
   makeMove(move);
   bool isLegal = isPositionLegal();
   takeMove();
   return isLegal;
+}
+
+bool State::isInCheck(int side) const {
+  return !(attacksTo(kingPos(side), *this, side) == 0);
 }
 
 bool State::isAbsolutePin(int pinnedSq, int attackedSq, int defendingSide) {

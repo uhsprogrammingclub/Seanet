@@ -35,7 +35,7 @@ int LS1B(U64 bb);
 void initpopCountOfByte256();
 int countSetBits(U64 bb);
 void initPresets();
-void *getSetBits(U64 bb, int *setBits);
+void getSetBits(U64 bb, int *setBits);
 int *getSetBits(U64 bb);
 std::string bbToString(U64 bb);
 std::string moveToUCI(int move);

@@ -26,12 +26,9 @@ void State::printBoard() const {
   std::cout << "  A B C D E F G H \n";
 }
 
-Undo::Undo(Move move, int castleRights, int EPTarget, int halfMoveClock) {
-  _move = move;
-  _castleRights = castleRights;
-  _EPTarget = EPTarget;
-  _halfMoveClock = halfMoveClock;
-}
+Undo::Undo(Move move, int castleRights, int EPTarget, int halfMoveClock)
+    : _move(move), _castleRights(castleRights), _EPTarget(EPTarget),
+      _halfMoveClock(halfMoveClock) {}
 Undo::Undo(Move move, const State &state)
     : Undo(move, state._castleRights, state._EPTarget, state._halfMoveClock) {}
 

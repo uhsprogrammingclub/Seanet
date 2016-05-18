@@ -22,8 +22,8 @@ State gameState;
 int main(int argc, const char *argv[]) {
   // insert code here...
 
-  std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PP1PPPPP/RNBQKBNR w KQkq - 0 1";
-  FEN = "7k/8/8/p7/1P6/8/8/7K w - - 0 1";
+  std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  //FEN = "7k/8/8/p7/1P6/8/8/7K w - - 0 1";
 
   initPresets();
   gameState = boardFromFEN(FEN);

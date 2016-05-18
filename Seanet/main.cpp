@@ -13,6 +13,9 @@
 #include <iostream>
 #include <vector>
 
+void startUCI();
+void takeUCIInput();
+
 void takePlayerMove();
 State gameState;
 
@@ -20,7 +23,7 @@ int main(int argc, const char *argv[]) {
   // insert code here...
 
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  //FEN = "K7/8/8/3Q4/4q3/8/8/7k w - - 0 1";
+  // FEN = "K7/8/8/3Q4/4q3/8/8/7k w - - 0 1";
 
   initPresets();
   gameState = boardFromFEN(FEN);
@@ -55,9 +58,11 @@ void takePlayerMove() {
 
   std::string userMove;
   std::cout << "Enter the next move!\n";
-  std::cin >> userMove;
+  std::getline(std::cin, userMove);
   if (userMove == "undo") {
     gameState.takeMove();
+  } else if (userMove == "uci") {
+    startUCI();
   } else {
     int move = moveFromUCI(userMove);
     if (std::find(legalMoves.begin(), legalMoves.end(), move) !=
@@ -68,4 +73,60 @@ void takePlayerMove() {
     }
   }
   takePlayerMove();
+}
+
+void startUCI() {
+  std::cout << "id name Seanet 0.1b\n";
+  std::cout << "id author Stiven Deleur, Nathaniel Corley\n";
+
+  std::cout << "uciok\n";
+  takeUCIInput();
+}
+
+void takeUCIInput() {
+  std::string input;
+  std::getline(std::cin, input);
+  std::vector<std::string> inputParts;
+  inputParts = split(input, ' ');
+  std::string commandName = inputParts.at(0);
+  if (commandName == "isready") {
+    std::cout << "readyok\n";
+  } else if (commandName == "ucinewgame") {
+  } else if (commandName == "position") {
+    std::string FEN = inputParts.at(1);
+    if (FEN == "startpos") {
+      gameState = boardFromFEN(
+          "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    } else {
+      gameState = boardFromFEN(FEN);
+    }
+    for (int i = 3; i < inputParts.size(); i++) {
+      gameState.makeMove(moveFromUCI(inputParts.at(i)));
+    }
+  } else if (commandName == "go") {
+    for (int i = 1; i < inputParts.size(); i++) {
+      if (inputParts.at(i) == "searchmoves") {
+      } else if (inputParts.at(i) == "ponder") {
+      } else if (inputParts.at(i) == "wtime") {
+      } else if (inputParts.at(i) == "btime") {
+      } else if (inputParts.at(i) == "winc") {
+      } else if (inputParts.at(i) == "binc") {
+      } else if (inputParts.at(i) == "movestogo") {
+      } else if (inputParts.at(i) == "depth") {
+      } else if (inputParts.at(i) == "nodes") {
+      } else if (inputParts.at(i) == "mate") {
+      } else if (inputParts.at(i) == "movetime") {
+      } else if (inputParts.at(i) == "infinite") {
+      }
+    }
+  } else if (commandName == "stop") {
+    // stop search
+  } else if (commandName == "ponderhit") {
+  } else if (commandName == "quit") {
+    exit(0);
+  } else {
+    std::cout << "Unrecognized command: " << input << "\n";
+  }
+
+  takeUCIInput();
 }

@@ -22,7 +22,7 @@ void search(State &state, SearchController &sControl) {
     state.bestLine = newLine;
     // sControl._bestPreviousMove = sControl._bestRootMove;
 
-    std::cout << "Depth " << depth << "completed with an evaluation of "
+    std::cout << "Depth " << depth << " completed with an evaluation of "
               << state.bestLine.moves[0].eval << " and a best move of "
               << moveToUCI(state.bestLine.moves[0].move) << "\n";
     std::cout << "Principal Variation Line: " << pvLineToString(state.bestLine)
@@ -41,15 +41,14 @@ int negamax(int alpha, int beta, int depth, State &state,
     pvLine.moveCount = 0;
     // return quisce(alpha, beta) -- to be implemented with quiescence search
     int eval = evaluate(state);
-    eval *= state._sideToMove == WHITE ? -1 : 1;
-    // printf("EVAL %i", eval);
+    eval *= state._sideToMove == WHITE ? 1 : -1;
     return eval;
   }
   S_PVLINE line;
 
   std::vector<int> moves = generatePseudoMoves(state);
 
-  /*for (std::vector<int>::iterator it = moves.begin(); it != moves.end(); ++it)
+  for (std::vector<int>::iterator it = moves.begin(); it != moves.end(); ++it)
   {
     if (*it == state.bestLine.moves[state._ply].move) {
       Move x = *it;
@@ -57,7 +56,7 @@ int negamax(int alpha, int beta, int depth, State &state,
       moves.insert(moves.begin(), x);
       break;
     }
-  }*/
+  }
 
   for (Move move : moves) {
     state.makeMove(move);
@@ -76,8 +75,6 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     if (score >= beta) {
-      // printf("BETA CUTOFF: score %i, beta %i, alpha %i\n", score, beta,
-      // alpha);
       return beta; // Fail hard beta-cutoff
     }
     if (score > alpha) {
@@ -86,7 +83,7 @@ int negamax(int alpha, int beta, int depth, State &state,
       memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(S_MOVE));
       pvLine.moveCount = line.moveCount + 1;
       if (depth > 4) {
-        //printf("score: %i\n", score);
+        // printf("score: %i\n", score);
       }
     }
   }

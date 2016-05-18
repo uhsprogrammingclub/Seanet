@@ -7,7 +7,9 @@
 //
 
 #include "board.hpp"
+#include "evaluator.hpp"
 #include "movegenerator.hpp"
+#include "search.hpp"
 #include "util.hpp"
 #include <algorithm>
 #include <iostream>
@@ -24,7 +26,9 @@ int main(int argc, const char *argv[]) {
 
   initPresets();
   gameState = boardFromFEN(FEN);
-  takePlayerMove();
+  std::cout << search(gameState, 5);
+
+  // takePlayerMove();
 
   return 0;
 }

@@ -53,7 +53,8 @@ void State::makeMove(Move move) {
     _halfMoveClock = 0;
   }
 
-  if (movingP == wP || movingP == bP) {
+  switch (movingP) {
+  case wP: {
     _halfMoveClock = 0;
     // Handle en passant
     int fromX = from % 8;
@@ -72,12 +73,67 @@ void State::makeMove(Move move) {
     } else {
       _EPTarget = -1;
     }
-  } else {
-    _EPTarget = -1;
+    break;
   }
-
-  // handle castling
-  if (movingP == wK || movingP == bK) {
+  case bP: {
+    _halfMoveClock = 0;
+    // Handle en passant
+    int fromX = from % 8;
+    int toX = to % 8;
+    if (fromX != toX && !M_ISCAPTURE(move)) {
+      if (_EPTarget == -1) {
+        printf("ERROR: EN PASSANT ON INVALID SQUARE! Move: %s (%i); captured "
+               "Piece: %i\n",
+               moveToUCI(move).c_str(), move, _pieces[to]);
+      }
+      clearSquare(_EPTarget);
+      M_SETEP(move, true);
+    }
+    if (std::abs((from - fromX) / 8 - (to - toX) / 8) > 1) {
+      _EPTarget = to;
+    } else {
+      _EPTarget = -1;
+    }
+    break;
+  }
+  case wQ:
+    _EPTarget = -1;
+    break;
+  case bQ:
+    _EPTarget = -1;
+    break;
+  case wN:
+    _EPTarget = -1;
+    break;
+  case bN:
+    _EPTarget = -1;
+    break;
+  case wB:
+    _EPTarget = -1;
+    break;
+  case bB:
+    _EPTarget = -1;
+    break;
+  case wR: {
+    _EPTarget = -1;
+    if (from == 0) {
+      _castleRights &= ~WQCA;
+    } else if (from == 7) {
+      _castleRights &= ~WKCA;
+    }
+    break;
+  }
+  case bR: {
+    _EPTarget = -1;
+    if (from == 56) {
+      _castleRights &= ~BQCA;
+    } else if (from == 63) {
+      _castleRights &= ~BKCA;
+    }
+    break;
+  }
+  case wK: {
+    _EPTarget = -1;
     _castleRights &= _sideToMove == WHITE ? ~(WKCA | WQCA) : ~(BKCA | BQCA);
     for (int y = 0; y < 8; y += 7) {
       if (from == y * 8 + 4) {
@@ -90,19 +146,30 @@ void State::makeMove(Move move) {
         }
       }
     }
+    break;
   }
-  if (movingP == wR) {
-    if (from == 0) {
-      _castleRights &= ~WQCA;
-    } else if (from == 7) {
-      _castleRights &= ~WKCA;
+  case bK: {
+    _EPTarget = -1;
+    _castleRights &= _sideToMove == WHITE ? ~(WKCA | WQCA) : ~(BKCA | BQCA);
+    for (int y = 0; y < 8; y += 7) {
+      if (from == y * 8 + 4) {
+        if (to == y * 8 + 6) {
+          movePiece(y * 8 + 7, y * 8 + 5);
+          M_SETCASTLE(move, true);
+        } else if (to == y * 8 + 2) {
+          movePiece(y * 8 + 0, y * 8 + 3);
+          M_SETCASTLE(move, true);
+        }
+      }
     }
-  } else if (movingP == bR) {
-    if (from == 56) {
-      _castleRights &= ~BQCA;
-    } else if (from == 63) {
-      _castleRights &= ~BKCA;
-    }
+    break;
+  }
+  default:
+    std::cout << "MOVE:" << moveToUCI(move);
+    std::cout << "PIECE:" << movingP;
+    std::cout
+        << "Unknown piece passed to makeMove() function. Exiting with error.";
+    exit(EXIT_FAILURE);
   }
 
   if (M_CAPTUREDP(move) == wR) {

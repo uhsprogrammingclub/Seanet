@@ -32,7 +32,7 @@ TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
 TEST_CASE("Running PERFT tests", "[perft]") {
   State state;
   initPresets();
-  int TEST_LIMIT = 20;
+  int TEST_LIMIT = 200;
   int maxDepth = 6;
   int perftStart = 1;
   std::string divideFEN = "";

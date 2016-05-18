@@ -98,6 +98,9 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
 
   std::vector<int> moves = generateNoisyMoves(state);
   for (Move move : moves) {
+    if (see(move, state) < 0) {
+      continue; // unbeneficial move (don't do this if in check?)
+    }
     state.makeMove(move);
 
     if (!state.isPositionLegal()) {

@@ -363,3 +363,57 @@ std::string pvLineToString(S_PVLINE line) {
   }
   return str;
 }
+
+int getValue(int index, const State &s) {
+  U64 piece = setMask[index];
+  if (piece & s._pieceBitboards[PAWNS]) {
+    return 1;
+  } else if (piece & s._pieceBitboards[KNIGHTS]) {
+    return 3;
+  } else if (piece & s._pieceBitboards[BISHOPS]) {
+    return 3;
+  } else if (piece & s._pieceBitboards[ROOKS]) {
+    return 5;
+  } else if (piece & s._pieceBitboards[QUEENS]) {
+    return 9;
+  } else if (piece & s._pieceBitboards[KINGS]) {
+    return 10000;
+  }
+  return 0;
+}
+
+U64 getLeastValuablePiece(U64 bb, const State &s) {
+  for (int pieces = PAWNS; pieces <= KINGS; pieces += 1) {
+    long subset = bb & s._pieceBitboards[pieces];
+    if (subset != 0) {
+      return subset & -subset; // single bit
+    }
+  }
+  return 0; // empty set
+}
+
+int see(Move move, const State &s) {
+  int gain[32], d = 0;
+  int side = s._sideToMove;
+  U64 fromSet = setMask[M_FROMSQ(move)];
+  U64 occ = s.allPieces();
+  U64 attadef = attacksTo(M_TOSQ(move), s, side, occ);
+  gain[d] = getValue(M_TOSQ(move), s);
+  while (fromSet) {
+    d++; // next depth and side
+    int defenderIndex = LS1B(attadef);
+    gain[d] = getValue(defenderIndex, s) -
+              gain[d - 1]; // speculative store, if defended
+    if (std::max(-gain[d - 1], gain[d]) < 0) {
+      break; // pruning does not influence the result
+    }
+    occ ^= fromSet; // reset bit in temporary occupancy (for x-Rays)
+    side = -side;
+    attadef |= attacksTo(M_TOSQ(move), s, side, occ);
+    fromSet = getLeastValuablePiece(attadef, s);
+  }
+  while (--d) {
+    gain[d - 1] = -std::max(-gain[d - 1], gain[d]);
+  }
+  return gain[0];
+}

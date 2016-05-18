@@ -32,12 +32,12 @@ TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
 TEST_CASE("Running PERFT tests", "[perft]") {
   State state;
   initPresets();
-  int TEST_LIMIT = 500;
+  int TEST_LIMIT = 200;
   int maxDepth = 6;
   int perftStart = 1;
   std::string divideFEN = "";
   const clock_t startTime = clock();
-  //divideFEN = "1K6/8/8/3Q4/4q3/8/7k/8 w - - 2 1";
+  // divideFEN = "1K6/8/8/3Q4/4q3/8/7k/8 w - - 2 1";
   // 1";
 
   if (divideFEN != "") {

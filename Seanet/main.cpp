@@ -7,7 +7,9 @@
 //
 
 #include "board.hpp"
+#include "evaluator.hpp"
 #include "movegenerator.hpp"
+#include "search.hpp"
 #include "util.hpp"
 #include <algorithm>
 #include <iostream>
@@ -20,11 +22,14 @@ int main(int argc, const char *argv[]) {
   // insert code here...
 
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  //FEN = "K7/8/8/3Q4/4q3/8/8/7k w - - 0 1";
+  FEN = "r1bqkbnr/pppp1ppp/8/8/3nPp2/5N2/PPP3PP/RNBQKB1R w KQkq - 0 5";
+  // FEN = "K7/8/8/3Q4/4q3/8/8/7k w - - 0 1";
 
   initPresets();
   gameState = boardFromFEN(FEN);
-  takePlayerMove();
+  std::cout << search(gameState, 5);
+
+  // takePlayerMove();
 
   return 0;
 }

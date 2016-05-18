@@ -354,3 +354,12 @@ int moveFromUCI(std::string uci) {
   M_SETPROM(move, promotion);
   return move;
 }
+
+std::string pvLineToString(S_PVLINE line) {
+  std::string str;
+  for (int i = 0; i < line.moveCount; i++) {
+    str += moveToUCI(line.moves[i].move);
+    str += ' ';
+  }
+  return str;
+}

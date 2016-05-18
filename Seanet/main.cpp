@@ -10,6 +10,7 @@
 #include "evaluator.hpp"
 #include "movegenerator.hpp"
 #include "search.hpp"
+#include "searchcontroller.hpp"
 #include "util.hpp"
 #include <algorithm>
 #include <iostream>
@@ -21,12 +22,17 @@ State gameState;
 int main(int argc, const char *argv[]) {
   // insert code here...
 
-  std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  // FEN = "K7/8/8/3Q4/4q3/8/8/7k w - - 0 1";
+  std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PP1PPPPP/RNBQKBNR w KQkq - 0 1";
+  FEN = "7k/8/8/p7/1P6/8/8/7K w - - 0 1";
 
   initPresets();
   gameState = boardFromFEN(FEN);
-  std::cout << search(gameState, 5);
+  gameState.printBoard();
+  SearchController sControl;
+  search(gameState, sControl);
+  printf("Best move: %s (%i)",
+         moveToUCI(gameState.bestLine.moves[0].move).c_str(),
+         gameState.bestLine.moves[0].eval);
 
   // takePlayerMove();
 

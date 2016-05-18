@@ -37,6 +37,7 @@ int *getSetBits(U64 bb);
 std::string bbToString(U64 bb);
 std::string moveToUCI(int move);
 int moveFromUCI(std::string uci);
+std::string pvLineToString(S_PVLINE line);
 
 // inline functions
 

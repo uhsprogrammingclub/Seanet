@@ -25,14 +25,8 @@ void State::printBoard() const {
   std::cout << "  A B C D E F G H \n";
 }
 
-Undo::Undo(Move move, int castleRights, int EPTarget, int halfMoveClock)
-    : _move(move), _castleRights(castleRights), _EPTarget(EPTarget),
-      _halfMoveClock(halfMoveClock) {}
-Undo::Undo(Move move, const State &state)
-    : Undo(move, state._castleRights, state._EPTarget, state._halfMoveClock) {}
-
 void State::makeMove(Move move) {
-  _history.emplace(move, *this);
+  _history.emplace(S_UNDO{move, _castleRights, _EPTarget, _halfMoveClock});
   _halfMoveClock++;
   int from = M_FROMSQ(move);
   int to = M_TOSQ(move);
@@ -193,7 +187,7 @@ void State::takeMove() {
   if (_history.empty()) {
     return;
   }
-  Undo undo = _history.top();
+  S_UNDO undo = _history.top();
   _history.pop();
   int move = undo._move;
   _halfMoveClock = undo._halfMoveClock;

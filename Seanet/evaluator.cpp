@@ -13,10 +13,7 @@ int evaluate(State &state) {
   getSetBits(state.allPieces(), allPieces);
 
   int score = 0;
-  for (int i = 0; i < 65; i++) {
-    if (allPieces[i] == -1) {
-      break;
-    }
+  for (int i = 0; allPieces[i] != -1; i++) {
     Piece piece = state._pieces[allPieces[i]];
     switch (piece) {
     case wP:
@@ -59,5 +56,6 @@ int evaluate(State &state) {
       break;
     }
   }
+  delete[] allPieces;
   return score;
 }

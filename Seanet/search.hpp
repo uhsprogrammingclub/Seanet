@@ -15,8 +15,8 @@
 #include "util.hpp"
 #include <stdio.h>
 
-int alphaBeta(int alpha, int beta, int depth, State state,
-              SearchController sControl);
-int search(State state, double timeLimit, int maxDepth = INT_MAX);
+int negamax(int alpha, int beta, int depth, State &state,
+            SearchController &sControl, S_PVLINE &pvLine);
+void search(State &state, SearchController &sControl);
 
 #endif /* defined(__Seanet__search__) */

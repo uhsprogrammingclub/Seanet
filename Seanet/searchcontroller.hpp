@@ -15,11 +15,11 @@
 
 class SearchController {
 public:
-  int _depthLimit;
-  int _timeLimit;
+  int _depthLimit = INT_MAX;
+  int _timeLimit = 10;
   int _totalNodes;
   double _startTime = time(NULL);
-  bool _stopSearch;
+  bool _stopSearch = false;
   int _bestRootMove;
   int _bestRootScore = INT_MIN;
   int _bestPreviousMove = 0;

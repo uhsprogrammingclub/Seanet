@@ -15,8 +15,9 @@
 #include "util.hpp"
 #include <stdio.h>
 
+void search(State &state, SearchController &sControl);
 int negamax(int alpha, int beta, int depth, State &state,
             SearchController &sControl, S_PVLINE &pvLine);
-void search(State &state, SearchController &sControl);
+int qSearch(int alpha, int beta, State &state, SearchController &sControl);
 
 #endif /* defined(__Seanet__search__) */

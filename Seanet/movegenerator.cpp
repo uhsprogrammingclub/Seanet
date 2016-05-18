@@ -323,6 +323,15 @@ std::vector<Move> generatePseudoMoves(const State &s) {
   }
 }
 
+std::vector<Move> generateNoisyMoves(const State &s) {
+  std::vector<Move> moves;
+
+  if (s.isInCheck(s._sideToMove)) {
+    moves = generateCheckEvasions(s);
+  }
+  return moves;
+}
+
 U64 rookAttacks(int index, U64 consideredPieces) {
   U64 bbBlockers = consideredPieces & occupancyMaskRook[index];
   int databaseIndex = (int)((bbBlockers * magicNumberRook[index]) >>

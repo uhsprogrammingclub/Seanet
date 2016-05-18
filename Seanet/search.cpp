@@ -39,17 +39,14 @@ int negamax(int alpha, int beta, int depth, State &state,
   }
   if (depth <= 0) {
     pvLine.moveCount = 0;
-    // return quisce(alpha, beta) -- to be implemented with quiescence search
-    int eval = evaluate(state);
-    eval *= state._sideToMove == WHITE ? 1 : -1;
-    return eval;
+    return qSearch(alpha, beta, state, sControl);
+    // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
   }
   S_PVLINE line;
 
   std::vector<int> moves = generatePseudoMoves(state);
 
-  for (std::vector<int>::iterator it = moves.begin(); it != moves.end(); ++it)
-  {
+  for (std::vector<int>::iterator it = moves.begin(); it != moves.end(); ++it) {
     if (*it == state.bestLine.moves[state._ply].move) {
       Move x = *it;
       moves.erase(it);
@@ -86,6 +83,37 @@ int negamax(int alpha, int beta, int depth, State &state,
         // printf("score: %i\n", score);
       }
     }
+  }
+  return alpha;
+}
+
+int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
+  sControl._totalNodes++;
+
+  int stand_pat = evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
+  if (stand_pat >= beta)
+    return beta;
+  if (alpha < stand_pat)
+    alpha = stand_pat;
+
+  std::vector<int> moves = generateNoisyMoves(state);
+  for (Move move : moves) {
+    state.makeMove(move);
+
+    if (!state.isPositionLegal()) {
+      state.takeMove();
+      continue;
+    }
+    state._ply++;
+    int score = -qSearch(-beta, -alpha, state, sControl);
+    state._ply--;
+
+    state.takeMove();
+
+    if (score >= beta)
+      return beta;
+    if (score > alpha)
+      alpha = score;
   }
   return alpha;
 }

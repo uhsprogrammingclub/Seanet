@@ -8,7 +8,6 @@
 
 #include "board.hpp"
 #include "movegenerator.hpp"
-#include "util.hpp"
 #include <cmath>
 #include <iostream>
 #include <ostream>
@@ -26,12 +25,9 @@ void State::printBoard() const {
   std::cout << "  A B C D E F G H \n";
 }
 
-Undo::Undo(Move move, int castleRights, int EPTarget, int halfMoveClock) {
-  _move = move;
-  _castleRights = castleRights;
-  _EPTarget = EPTarget;
-  _halfMoveClock = halfMoveClock;
-}
+Undo::Undo(Move move, int castleRights, int EPTarget, int halfMoveClock)
+    : _move(move), _castleRights(castleRights), _EPTarget(EPTarget),
+      _halfMoveClock(halfMoveClock) {}
 Undo::Undo(Move move, const State &state)
     : Undo(move, state._castleRights, state._EPTarget, state._halfMoveClock) {}
 
@@ -228,38 +224,7 @@ void State::takeMove() {
     }
   }
 }
-void State::clearSquare(int index) {
-  Piece p = _pieces[index];
-  if (p != EMPTY) {
-    CLRBIT(_pieceBitboards[bitboardForPiece(p)], index);
-    CLRBIT(_pieceBitboards[sideBitboardForPiece(p)], index);
-    _pieces[index] = EMPTY;
-  }
-}
-void State::addPiece(Piece p, int index) {
-  clearSquare(index);
-  SETBIT(_pieceBitboards[bitboardForPiece(p)], index);
-  SETBIT(_pieceBitboards[sideBitboardForPiece(p)], index);
-  _pieces[index] = p;
-}
-void State::movePiece(int from, int to) {
-  Piece p = _pieces[from];
-  clearSquare(from);
-  addPiece(p, to);
-}
-U64 State::allPieces() const {
-  return _pieceBitboards[WHITES] | _pieceBitboards[BLACKS];
-}
-int State::kingPos(int side) const {
-  U64 friendlyBB =
-      side == WHITE ? _pieceBitboards[WHITES] : _pieceBitboards[BLACKS];
-  int index = LS1B(friendlyBB & _pieceBitboards[KINGS]);
-  if (index == -1) {
-    printf("NO KING DETECTED!\n");
-    printBoard();
-  }
-  return index;
-}
+
 bool State::canCastle(int side, bool kSide) const {
   if (isInCheck(side)) {
     return false;
@@ -294,96 +259,16 @@ bool State::canCastle(int side, bool kSide) const {
   }
   return false;
 }
-bool State::isInCheck(int side) const {
-  if (attacksTo(kingPos(side), *this, side) == 0) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-bool State::isPositionLegal() const {
-  if (isInCheck(-_sideToMove)) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-bool State::isLegalCheckEvasion(Move move) {
-  int from = M_FROMSQ(move);
-  int to = M_TOSQ(move);
-  int kingSq = kingPos(_sideToMove);
-  // if double check, only king can move
-  U64 attacksToKing = attacksTo(kingSq, *this, _sideToMove);
-  if (countSetBits(attacksToKing) > 1) {
-    return false;
-  }
-  int attackingSq = LS1B(attacksToKing);
-
-  // If its a capture move and the capturing piece is not absolutely pinned,
-  // move is legal. If absolute pin, the move is illegal.
-
-  if (to == attackingSq) {
-    if (!isAbsolutePin(from, kingSq, _sideToMove)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  // if a knight is attacking, then king has to move
-  if ((_pieceBitboards[KNIGHTS] & setMask[attackingSq]) != 0) {
-    return true;
-  }
-
-  // Try to move to see if it will block the check. Otherwise, move is
-  // illegal.
-  makeMove(move);
-  bool isLegal = isPositionLegal();
-  takeMove();
-  return isLegal;
-}
 
 bool State::isLegalMove(Move move) {
-  int from = M_FROMSQ(move);
-  int to = M_TOSQ(move);
-  int kingSq = kingPos(_sideToMove);
-
-  // If king if moving, check if the to square is attacked
-  if (from == kingSq) {
-    if (attacksTo(to, *this, _sideToMove, allPieces() & clearMask[kingSq]) ==
-        0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  // Handle situations when king is in check
-  if (M_CHECKEV(move)) {
-    return isLegalCheckEvasion(move);
-  }
-
-  // check that the moving piece is not absolutely pinned
-
-  if (!isAbsolutePin(from, kingSq, _sideToMove)) {
-    bool EPMove = false;
-    if (_pieces[from] == wP || _pieces[from] == bP) {
-      if (to == _EPTarget) {
-        EPMove = true;
-      }
-    }
-    if (!EPMove) {
-      return true;
-    }
-  }
-
-  // If piece is pinned, try to make the move to see if it results in check.
   makeMove(move);
   bool isLegal = isPositionLegal();
   takeMove();
   return isLegal;
+}
+
+bool State::isInCheck(int side) const {
+  return !(attacksTo(kingPos(side), *this, side) == 0);
 }
 
 bool State::isAbsolutePin(int pinnedSq, int attackedSq, int defendingSide) {

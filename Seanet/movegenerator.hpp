@@ -15,7 +15,7 @@
 #include <vector>
 
 std::vector<int> generatePseudoMoves(const State &s);
-std::vector<int> generateNoisyMoves(const State &s);
+std::vector<Move> generateNoisyMoves(const State &s, bool inCheck);
 void generateMoveDatabase(bool isRook);
 void generateOccupancyVariations(bool isRook);
 U64 attacksTo(int index, const State &s, int defendingSide,

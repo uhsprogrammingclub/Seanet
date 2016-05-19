@@ -323,17 +323,16 @@ std::vector<Move> generatePseudoMoves(const State &s) {
   }
 }
 
-std::vector<Move> generateNoisyMoves(const State &s) {
+std::vector<Move> generateNoisyMoves(const State &s, bool inCheck) {
   std::vector<Move> moves;
 
-  if (s.isInCheck(s._sideToMove)) {
+  if (inCheck) {
     moves = generateCheckEvasions(s);
     return moves;
   }
 
+  // Capture or promotion move (have to filter out on the go)
   moves = generateAllMoves(s);
-
-  // Capture or promotion moves
 
   return moves;
 }

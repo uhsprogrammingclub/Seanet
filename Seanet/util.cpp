@@ -393,23 +393,23 @@ U64 getLeastValuablePiece(U64 bb, const State &s) {
 }
 
 int see(Move move, const State &s) {
-  int gain[32], d = 0;
-  int side = s._sideToMove;
+  int gain[32];
+  int d = 0;
+  int side = -s._sideToMove;
   U64 fromSet = setMask[M_FROMSQ(move)];
   U64 occ = s.allPieces();
   U64 attadef = attacksTo(M_TOSQ(move), s, side, occ);
   gain[d] = getValue(M_TOSQ(move), s);
   while (fromSet) {
     d++; // next depth and side
-    int defenderIndex = LS1B(attadef);
-    gain[d] = getValue(defenderIndex, s) -
+    gain[d] = getValue(LS1B(fromSet), s) -
               gain[d - 1]; // speculative store, if defended
     if (std::max(-gain[d - 1], gain[d]) < 0) {
       break; // pruning does not influence the result
     }
     occ ^= fromSet; // reset bit in temporary occupancy (for x-Rays)
     side = -side;
-    attadef |= attacksTo(M_TOSQ(move), s, side, occ);
+    attadef = attacksTo(M_TOSQ(move), s, side, occ);
     fromSet = getLeastValuablePiece(attadef, s);
   }
   while (--d) {

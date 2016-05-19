@@ -8,6 +8,7 @@
 
 #include "search.hpp"
 
+int quiescencePly = 0;
 /**
 Takes input of a state, time limit, and (optional) max depth, returns the best
 move for the state.sideToMove() as an int.
@@ -88,19 +89,27 @@ int negamax(int alpha, int beta, int depth, State &state,
 }
 
 int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
+  // printf("Quiescence Ply: %i\n", quiescencePly);
   sControl._totalNodes++;
 
-  int stand_pat = evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
+  int stand_pat = evaluate(state) * (state._sideToMove == WHITE ? 1 : -1);
   if (stand_pat >= beta)
     return beta;
   if (alpha < stand_pat)
     alpha = stand_pat;
+  // printf("Quiescence Ply: %i; stand_pat: %i; alpha: %i\n", quiescencePly,
+  // stand_pat, alpha);
 
-  std::vector<int> moves = generateNoisyMoves(state);
+  bool inCheck = state.isInCheck(state._sideToMove);
+  std::vector<int> moves = generateNoisyMoves(state, inCheck);
   for (Move move : moves) {
-    if (see(move, state) < 0) {
-      continue; // unbeneficial move (don't do this if in check?)
+    if (!inCheck) {
+      if ((state._pieces[M_TOSQ(move)] == EMPTY && !M_ISPROMOTION(move)) ||
+          see(move, state) < 0) {
+        continue;
+      }
     }
+
     state.makeMove(move);
 
     if (!state.isPositionLegal()) {
@@ -108,8 +117,10 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
       continue;
     }
     state._ply++;
+    quiescencePly++;
     int score = -qSearch(-beta, -alpha, state, sControl);
     state._ply--;
+    quiescencePly--;
 
     state.takeMove();
 

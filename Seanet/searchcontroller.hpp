@@ -15,7 +15,7 @@
 
 class SearchController {
 public:
-  int _depthLimit = INT_MAX;
+  int _depthLimit = 30;
   int _timeLimit = 10;
   int _totalNodes;
   double _startTime = time(NULL);

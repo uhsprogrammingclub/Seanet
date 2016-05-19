@@ -55,7 +55,7 @@ int negamax(int alpha, int beta, int depth, State &state,
       break;
     }
   }
-
+  bool gameOver = true; // set to false if there's a legal move
   for (Move move : moves) {
     state.makeMove(move);
 
@@ -63,6 +63,7 @@ int negamax(int alpha, int beta, int depth, State &state,
       state.takeMove();
       continue;
     }
+    gameOver = false;
     state._ply++;
     int score = -negamax(-beta, -alpha, depth - 1, state, sControl, line);
     state._ply--;
@@ -85,6 +86,9 @@ int negamax(int alpha, int beta, int depth, State &state,
       }
     }
   }
+  if (gameOver) {
+    return evaluateGameOver(state);
+  }
   return alpha;
 }
 
@@ -102,6 +106,8 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
 
   bool inCheck = state.isInCheck(state._sideToMove);
   std::vector<int> moves = generateNoisyMoves(state, inCheck);
+
+  bool gameOver = true; // set to false if there's a legal move
   for (Move move : moves) {
     if (!inCheck) {
       if ((state._pieces[M_TOSQ(move)] == EMPTY && !M_ISPROMOTION(move)) ||
@@ -116,6 +122,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
       state.takeMove();
       continue;
     }
+    gameOver = false;
     state._ply++;
     quiescencePly++;
     int score = -qSearch(-beta, -alpha, state, sControl);
@@ -128,6 +135,9 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
       return beta;
     if (score > alpha)
       alpha = score;
+  }
+  if (gameOver && inCheck) {
+    return evaluateGameOver(state);
   }
   return alpha;
 }

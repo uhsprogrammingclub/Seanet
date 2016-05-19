@@ -59,3 +59,13 @@ int evaluate(State &state) {
   delete[] allPieces;
   return score;
 }
+
+int evaluateGameOver(State &state) {
+  if (state.isInCheck(state._sideToMove)) {
+	  printf("MATE FOUND\n");
+    return -1000000;
+  } else {
+    // stalemate
+    return 0;
+  }
+}

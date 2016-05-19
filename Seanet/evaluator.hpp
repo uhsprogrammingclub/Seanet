@@ -14,5 +14,6 @@
 #include <stdio.h>
 
 int evaluate(State &state);
+int evaluateGameOver(State &state);
 
 #endif /* defined(__Seanet__evaluator__) */

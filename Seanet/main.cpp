@@ -23,7 +23,7 @@ int main(int argc, const char *argv[]) {
   // insert code here...
 
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  //FEN = "7k/8/8/p7/1P6/8/8/7K w - - 0 1";
+  FEN = "3k4/1Q6/8/4K3/8/8/8/8 b - - 14 11";
 
   initPresets();
   gameState = boardFromFEN(FEN);

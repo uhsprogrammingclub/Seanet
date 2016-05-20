@@ -96,48 +96,56 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
   // printf("Quiescence Ply: %i\n", quiescencePly);
   sControl._totalNodes++;
 
-  int stand_pat = evaluate(state) * (state._sideToMove == WHITE ? 1 : -1);
-  if (stand_pat >= beta)
-    return beta;
-  if (alpha < stand_pat)
-    alpha = stand_pat;
-  // printf("Quiescence Ply: %i; stand_pat: %i; alpha: %i\n", quiescencePly,
-  // stand_pat, alpha);
-
   bool inCheck = state.isInCheck(state._sideToMove);
-  std::vector<int> moves = generateNoisyMoves(state, inCheck);
+  std::vector<int> moves = generatePseudoMoves(state, inCheck);
+  bool gameOver = true; // assume game is over until we find a legal move
 
-  bool gameOver = true; // set to false if there's a legal move
-  for (Move move : moves) {
-    if (!inCheck) {
-      if ((state._pieces[M_TOSQ(move)] == EMPTY && !M_ISPROMOTION(move)) ||
-          see(move, state) < 0) {
+  int stand_pat = evaluate(state) * (state._sideToMove == WHITE ? 1 : -1);
+  if (stand_pat >= beta) {
+    alpha = beta;
+  } else {
+
+    if (alpha < stand_pat) {
+      alpha = stand_pat;
+    }
+
+    for (Move move : moves) {
+      if (!inCheck) {
+        if ((state._pieces[M_TOSQ(move)] == EMPTY && !M_ISPROMOTION(move)) ||
+            see(move, state) < 0) {
+          continue;
+        }
+      }
+
+      state.makeMove(move);
+
+      if (!state.isPositionLegal()) {
+        state.takeMove();
         continue;
       }
-    }
+      gameOver = false;
+      state._ply++;
+      quiescencePly++;
+      int score = -qSearch(-beta, -alpha, state, sControl);
+      state._ply--;
+      quiescencePly--;
 
-    state.makeMove(move);
-
-    if (!state.isPositionLegal()) {
       state.takeMove();
-      continue;
+
+      if (score >= beta)
+        return beta;
+      if (score > alpha)
+        alpha = score;
     }
-    gameOver = false;
-    state._ply++;
-    quiescencePly++;
-    int score = -qSearch(-beta, -alpha, state, sControl);
-    state._ply--;
-    quiescencePly--;
-
-    state.takeMove();
-
-    if (score >= beta)
-      return beta;
-    if (score > alpha)
-      alpha = score;
   }
-  if (gameOver && inCheck) {
-    return evaluateGameOver(state);
+  if (alpha == beta) { // check game over for beta cutoff
+    if (isGameOver(state, moves)) {
+      return evaluateGameOver(state);
+    }
+  } else {
+    if (gameOver && (inCheck || isGameOver(state, moves))) {
+      return evaluateGameOver(state);
+    }
   }
   return alpha;
 }

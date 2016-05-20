@@ -7,6 +7,7 @@
 //
 
 #include "evaluator.hpp"
+#include "movegenerator.hpp"
 
 int evaluate(State &state) {
   int *allPieces = new int[65];
@@ -62,10 +63,22 @@ int evaluate(State &state) {
 
 int evaluateGameOver(State &state) {
   if (state.isInCheck(state._sideToMove)) {
-	  printf("MATE FOUND\n");
     return -1000000;
   } else {
     // stalemate
     return 0;
   }
+}
+
+bool isGameOver(State &state, std::vector<Move> moves) {
+  for (Move move : moves) {
+    if (state.isLegalMove(move)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool isGameOver(State &state) {
+  return isGameOver(state, generatePseudoMoves(state));
 }

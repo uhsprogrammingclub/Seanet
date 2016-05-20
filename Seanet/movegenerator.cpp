@@ -315,26 +315,16 @@ std::vector<Move> generateCheckEvasions(const State &s) {
   return moves;
 }
 
-std::vector<Move> generatePseudoMoves(const State &s) {
-  if (s.isInCheck(s._sideToMove)) {
+std::vector<Move> generatePseudoMoves(const State &s, bool inCheck) {
+  if (inCheck) {
     return generateCheckEvasions(s);
   } else {
     return generateAllMoves(s);
   }
 }
 
-std::vector<Move> generateNoisyMoves(const State &s, bool inCheck) {
-  std::vector<Move> moves;
-
-  if (inCheck) {
-    moves = generateCheckEvasions(s);
-    return moves;
-  }
-
-  // Capture or promotion move (have to filter out on the go)
-  moves = generateAllMoves(s);
-
-  return moves;
+std::vector<Move> generatePseudoMoves(const State &s) {
+  return generatePseudoMoves(s, s.isInCheck(s._sideToMove));
 }
 
 U64 rookAttacks(int index, U64 consideredPieces) {

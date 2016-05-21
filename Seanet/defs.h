@@ -9,8 +9,11 @@
 #ifndef defs_h
 #define defs_h
 
+#include <map>
+
 typedef unsigned long long U64;
 typedef int Move;
+typedef std::map<std::string, std::string> KeyInfoMap;
 
 extern U64 setMask[64];
 extern U64 clearMask[64];
@@ -40,6 +43,8 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 #define DOWN(bb) (bb >> 8)
 #define RIGHT(bb) (bb << 1 & ~FILE_BB[0])
 #define LEFT(bb) (bb >> 1 & ~FILE_BB[7])
+#define DTTMFMT "%Y-%m-%d %H:%M:%S "
+#define DTTMSZ 21
 
 // Move bits
 

@@ -12,17 +12,21 @@
 #include "board.hpp"
 #include "defs.h"
 #include "util.hpp"
+
 #include <cctype>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
 #include <string>
+#include <time.h>
 #include <vector>
 
 std::vector<std::string> &split(const std::string &s, char delim,
                                 std::vector<std::string> &elems);
 std::vector<std::string> split(const std::string &s, char delim);
 
+char *getDtTm(char *buff);
+KeyInfoMap splitEDP(std::string EDP);
 char pieceToChar(Piece p);
 Piece charToPiece(char p);
 int bitboardForPiece(Piece p);

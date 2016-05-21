@@ -25,17 +25,31 @@ int main(int argc, const char *argv[]) {
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   FEN = "3k4/1Q6/8/4K3/8/8/8/8 b - - 14 11";
 
-  initPresets();
-  gameState = boardFromFEN(FEN);
-  gameState.printBoard();
-  SearchController sControl;
-  search(gameState, sControl);
-  printf("Best move: %s (%i)",
-         moveToUCI(gameState.bestLine.moves[0].move).c_str(),
-         gameState.bestLine.moves[0].eval);
+  std::string EPD =
+      "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id BK.01;";
 
-  // takePlayerMove();
+  KeyInfoMap test = splitEDP(EPD);
 
+  for (auto elem : test) {
+    std::cout << elem.first << "\n";
+    std::cout << elem.second << "\n";
+  }
+  std::cout << "FEN: " << test["fen"];
+  std::cout << "BM: " << test["bm"];
+  std::cout << "ID:" << test["id"];
+  /*
+    initPresets();
+    gameState = boardFromFEN(FEN);
+    gameState.printBoard();
+
+    SearchController sControl;
+    search(gameState, sControl);
+    printf("Best move: %s (%i)",
+           moveToUCI(gameState.bestLine.moves[0].move).c_str(),
+           gameState.bestLine.moves[0].eval);
+
+    // takePlayerMove();
+  */
   return 0;
 }
 
@@ -47,8 +61,7 @@ void takePlayerMove() {
   std::vector<int> legalMoves;
 
   printf("Pseudo moves (%lu):", pseudoMoves.size());
-  for (std::vector<int>::iterator it = pseudoMoves.begin();
-       it != pseudoMoves.end(); ++it) {
+  for (auto it = pseudoMoves.begin(); it != pseudoMoves.end(); ++it) {
     std::cout << moveToUCI(*it) << ", ";
     if (gameState.isLegalMove(*it)) {
       legalMoves.push_back(*it);
@@ -57,8 +70,7 @@ void takePlayerMove() {
   std::cout << '\n';
 
   printf("Legal moves (%lu):", legalMoves.size());
-  for (std::vector<int>::iterator it = legalMoves.begin();
-       it != legalMoves.end(); ++it) {
+  for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
     std::cout << moveToUCI(*it) << ", ";
   }
   std::cout << '\n';

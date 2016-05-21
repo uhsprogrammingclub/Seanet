@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		36A30F9B1CEFE38E00B6FDAC /* searchcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871EB1CEC013E00F7007A /* searchcontroller.cpp */; };
+		36A30F9C1CEFE39300B6FDAC /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E51CEADC7900F7007A /* search.cpp */; };
+		36A30F9D1CEFE3AC00B6FDAC /* evaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E81CEADE8900F7007A /* evaluator.cpp */; };
 		80053BD51CE57713006B1B81 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BD41CE57713006B1B81 /* main.cpp */; };
 		80053BDD1CE5801D006B1B81 /* board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BDB1CE5801D006B1B81 /* board.cpp */; };
 		80053BE01CE58033006B1B81 /* movegenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BDE1CE58033006B1B81 /* movegenerator.cpp */; };
@@ -42,6 +45,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "Bratko-Kopec.text"; sourceTree = "<group>"; };
+		36A30F9A1CEFD0A600B6FDAC /* records.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = records.text; sourceTree = "<group>"; };
 		80053BD11CE57713006B1B81 /* Seanet */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Seanet; sourceTree = BUILT_PRODUCTS_DIR; };
 		80053BD41CE57713006B1B81 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		80053BDB1CE5801D006B1B81 /* board.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = board.cpp; sourceTree = "<group>"; };
@@ -126,6 +131,8 @@
 				BFDDC6B41CE81E1500CBB8CC /* catch.hpp */,
 				BFDDC6B51CE81E2A00CBB8CC /* perfttests.text */,
 				BFDDC6AF1CE81DD900CBB8CC /* main.cpp */,
+				36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */,
+				36A30F9A1CEFD0A600B6FDAC /* records.text */,
 			);
 			path = TestSeanet;
 			sourceTree = "<group>";
@@ -221,9 +228,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				BFDDC6B01CE81DD900CBB8CC /* main.cpp in Sources */,
+				36A30F9C1CEFE39300B6FDAC /* search.cpp in Sources */,
+				36A30F9D1CEFE3AC00B6FDAC /* evaluator.cpp in Sources */,
 				BFDDC6B61CE8288100CBB8CC /* util.cpp in Sources */,
 				BFDDC6B91CE82CFE00CBB8CC /* movegenerator.cpp in Sources */,
 				BFDDC6B71CE82CEF00CBB8CC /* board.cpp in Sources */,
+				36A30F9B1CEFE38E00B6FDAC /* searchcontroller.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

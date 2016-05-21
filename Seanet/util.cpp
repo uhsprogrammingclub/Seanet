@@ -32,6 +32,12 @@ std::vector<std::string> split(const std::string &s, char delim) {
   return elems;
 }
 
+char *getDtTm(char *buff) {
+  time_t t = time(0);
+  strftime(buff, DTTMSZ, DTTMFMT, localtime(&t));
+  return buff;
+}
+
 char pieceToChar(Piece p) {
   switch (p) {
   case wP:
@@ -199,8 +205,12 @@ State boardFromFEN(std::string FEN) {
   std::string sideToMove = subFEN[1];
   std::string castlingRights = subFEN[2];
   std::string enPassantTarget = subFEN[3];
-  int halfMoveClock = std::stoi(subFEN[4]);
-  int fullMoveCounter = std::stoi(subFEN[5]);
+  int halfMoveClock = 0;
+  int fullMoveCounter = 0;
+  if (subFEN.size() > 4) {
+    halfMoveClock = std::stoi(subFEN[4]);
+    fullMoveCounter = std::stoi(subFEN[5]);
+  }
 
   int y = 7;
   for (std::vector<std::string>::iterator it = piecesByRow.begin();
@@ -245,6 +255,48 @@ State boardFromFEN(std::string FEN) {
   return b;
 }
 
+static inline void trim(std::string &s) {
+  // trim leading spaces
+  size_t startpos = s.find_first_not_of(" \t");
+  if (std::string::npos != startpos) {
+    s = s.substr(startpos);
+  }
+
+  // trim trailing spaces
+  size_t endpos = s.find_last_not_of(" \t");
+  if (std::string::npos != endpos) {
+    s = s.substr(0, endpos + 1);
+  }
+}
+
+/*
+ Returns a KeyInfoMap (a map from <string, string>) with information from the
+ EDP. FEN is stroed in map['fen'], for example.
+ */
+KeyInfoMap splitEDP(std::string EDP) {
+  KeyInfoMap result;
+  std::vector<std::string> subEDP = split(EDP, ';');
+  std::vector<std::string> subFEN = split(subEDP[0], ' ');
+  subEDP.erase(subEDP.begin());
+  result["fen"] =
+      subFEN[0] + " " + subFEN[1] + " " + subFEN[2] + " " + subFEN[3];
+  if (subFEN.size() > 4) {
+    trim(subFEN[4]);
+    trim(subFEN[5]);
+    result[subFEN[4]] = subFEN[5];
+  }
+
+  for (std::vector<std::string>::iterator it = subEDP.begin();
+       it != subEDP.end(); ++it) {
+    trim(*it);
+    std::vector<std::string> sub = split(*it, ' ');
+    trim(sub[0]);
+    trim(sub[1]);
+    result[sub[0]] = sub[1];
+  }
+  return result;
+}
+
 void initpopCountOfByte256() {
   popCountOfByte256[0] = 0;
   for (int i = 1; i < 256; i++)
@@ -269,7 +321,6 @@ int *getSetBits(U64 bb) {
 }
 
 void initPresets() {
-
   initpopCountOfByte256();
   for (int i = 0; i < 64; i++) {
     setMask[i] = 1ULL << i;

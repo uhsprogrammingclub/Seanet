@@ -12,10 +12,12 @@
 #include "board.hpp"
 #include "util.hpp"
 #include <stdio.h>
+#include <vector>
 
 int evaluate(State &state);
 int evaluateGameOver(State &state);
 bool isGameOver(State &state);
 bool isGameOver(State &state, std::vector<Move> moves);
+void generateFlippedTables();
 
 #endif /* defined(__Seanet__evaluator__) */

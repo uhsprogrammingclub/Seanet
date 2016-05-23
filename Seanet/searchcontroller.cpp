@@ -13,3 +13,4 @@ void SearchController::checkTimeLimit() {
     _stopSearch = true;
   }
 }
+

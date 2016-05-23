@@ -22,12 +22,12 @@ void search(State &state, SearchController &sControl) {
     };
     state.bestLine = newLine;
     // sControl._bestPreviousMove = sControl._bestRootMove;
-
-    std::cout << "Depth " << depth << " completed with an evaluation of "
-              << state.bestLine.moves[0].eval << " and a best move of "
-              << moveToUCI(state.bestLine.moves[0].move) << "\n";
-    std::cout << "Principal Variation Line: " << pvLineToString(state.bestLine)
-              << std::endl;
+    /*
+  std::cout << "Depth " << depth << " completed with an evaluation of "
+            << state.bestLine.moves[0].eval << " and a best move of "
+            << moveToUCI(state.bestLine.moves[0].move) << "\n";
+  std::cout << "Principal Variation Line: " << pvLineToString(state.bestLine)
+            << std::endl;*/
   }
 }
 

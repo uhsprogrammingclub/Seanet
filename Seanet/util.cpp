@@ -141,6 +141,54 @@ int uciToIndex(std::string uci) {
   }
 }
 
+std::string moveToSAN(Move move, State state) {
+
+  std::string s = "";
+  int from = M_FROMSQ(move);
+  int to = M_TOSQ(move);
+  int fromX = from % 8;
+  int toX = to % 8;
+
+  Piece movingP = state._pieces[from];
+  if (bitboardForPiece(movingP) != PAWNS) {
+    s += toupper(pieceToChar(movingP));
+  }
+  if (state._pieces[to] != 0 || M_EP(move)) {
+    if (bitboardForPiece(movingP) == PAWNS) {
+      s += (char)(fromX + 97);
+    }
+    s += "x";
+  }
+  if (M_EP(move)) {
+    s += indexToUCI(to - 8);
+  } else {
+    s += indexToUCI(to);
+  }
+
+  if (M_ISPROMOTION(move)) {
+    s += "=";
+    s += toupper(pieceToChar((Piece)M_PROMOTIONP(move)));
+  }
+
+  if (M_EP(move)) {
+    s += "e.p.";
+  }
+  if (M_CASTLE(move)) {
+    if (toX == 6) {
+      s += "O-O";
+    } else {
+      s += "O-O-O";
+    }
+  }
+  state.makeMove(move);
+  if (state.isInCheck(state._sideToMove)) {
+    s += "+";
+  }
+  state.takeMove();
+
+  return s;
+}
+
 std::string indexToUCI(int index) {
   int x = index % 8;
   int y = (index - x) / 8;
@@ -271,7 +319,7 @@ static inline void trim(std::string &s) {
 
 /*
  Returns a KeyInfoMap (a map from <string, string>) with information from the
- EDP. FEN is stroed in map['fen'], for example.
+ EDP. FEN is stored in map["fen"], for example.
  */
 KeyInfoMap splitEDP(std::string EDP) {
   KeyInfoMap result;
@@ -366,6 +414,7 @@ void initPresets() {
   generateMoveDatabase(true);
   generateOccupancyVariations(false);
   generateMoveDatabase(false);
+  generateFlippedTables();
 }
 
 std::string bbToString(U64 bb) {

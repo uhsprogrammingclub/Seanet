@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		36304D881CF2B509004ABD85 /* LCT-II.text in Sources */ = {isa = PBXBuildFile; fileRef = 36304D871CF2B509004ABD85 /* LCT-II.text */; };
 		36A30F9B1CEFE38E00B6FDAC /* searchcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871EB1CEC013E00F7007A /* searchcontroller.cpp */; };
 		36A30F9C1CEFE39300B6FDAC /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E51CEADC7900F7007A /* search.cpp */; };
 		36A30F9D1CEFE3AC00B6FDAC /* evaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E81CEADE8900F7007A /* evaluator.cpp */; };
@@ -45,6 +46,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		36304D871CF2B509004ABD85 /* LCT-II.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LCT-II.text"; sourceTree = "<group>"; };
 		36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "Bratko-Kopec.text"; sourceTree = "<group>"; };
 		36A30F9A1CEFD0A600B6FDAC /* records.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = records.text; sourceTree = "<group>"; };
 		80053BD11CE57713006B1B81 /* Seanet */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Seanet; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,6 +135,7 @@
 				BFDDC6AF1CE81DD900CBB8CC /* main.cpp */,
 				36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */,
 				36A30F9A1CEFD0A600B6FDAC /* records.text */,
+				36304D871CF2B509004ABD85 /* LCT-II.text */,
 			);
 			path = TestSeanet;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36304D881CF2B509004ABD85 /* LCT-II.text in Sources */,
 				BFDDC6B01CE81DD900CBB8CC /* main.cpp in Sources */,
 				36A30F9C1CEFE39300B6FDAC /* search.cpp in Sources */,
 				36A30F9D1CEFE3AC00B6FDAC /* evaluator.cpp in Sources */,

@@ -11,18 +11,24 @@
 
 #include "board.hpp"
 #include "defs.h"
+#include "evaluator.hpp"
 #include "util.hpp"
+
 #include <cctype>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
 #include <string>
+#include <time.h>
 #include <vector>
 
 std::vector<std::string> &split(const std::string &s, char delim,
                                 std::vector<std::string> &elems);
 std::vector<std::string> split(const std::string &s, char delim);
 
+std::string moveToSAN(Move move, State state);
+char *getDtTm(char *buff);
+KeyInfoMap splitEDP(std::string EDP);
 char pieceToChar(Piece p);
 Piece charToPiece(char p);
 int bitboardForPiece(Piece p);
@@ -37,6 +43,8 @@ int *getSetBits(U64 bb);
 std::string bbToString(U64 bb);
 std::string moveToUCI(int move);
 int moveFromUCI(std::string uci);
+std::string pvLineToString(S_PVLINE line);
+int see(Move move, const State &s);
 
 // inline functions
 

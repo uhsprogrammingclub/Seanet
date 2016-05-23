@@ -7,7 +7,10 @@
 //
 
 #include "board.hpp"
+#include "evaluator.hpp"
 #include "movegenerator.hpp"
+#include "search.hpp"
+#include "searchcontroller.hpp"
 #include "util.hpp"
 #include <algorithm>
 #include <iostream>
@@ -27,7 +30,16 @@ int main(int argc, const char *argv[]) {
 
   initPresets();
   gameState = boardFromFEN(FEN);
-  takePlayerMove();
+  gameState.printBoard();
+
+  SearchController sControl;
+  search(gameState, sControl);
+
+  printf("Best move: %s (%i)",
+         moveToUCI(gameState.bestLine.moves[0].move).c_str(),
+         gameState.bestLine.moves[0].eval);
+
+  // takePlayerMove();
 
   return 0;
 }
@@ -40,8 +52,7 @@ void takePlayerMove() {
   std::vector<int> legalMoves;
 
   printf("Pseudo moves (%lu):", pseudoMoves.size());
-  for (std::vector<int>::iterator it = pseudoMoves.begin();
-       it != pseudoMoves.end(); ++it) {
+  for (auto it = pseudoMoves.begin(); it != pseudoMoves.end(); ++it) {
     std::cout << moveToUCI(*it) << ", ";
     if (gameState.isLegalMove(*it)) {
       legalMoves.push_back(*it);
@@ -50,8 +61,7 @@ void takePlayerMove() {
   std::cout << '\n';
 
   printf("Legal moves (%lu):", legalMoves.size());
-  for (std::vector<int>::iterator it = legalMoves.begin();
-       it != legalMoves.end(); ++it) {
+  for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
     std::cout << moveToUCI(*it) << ", ";
   }
   std::cout << '\n';

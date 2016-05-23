@@ -17,19 +17,25 @@
 
 class State;
 class Undo;
-#include "util.hpp"
 
-class Undo {
-public:
+typedef struct {
   Move _move;
   int _castleRights;
   int _EPTarget;
   int _halfMoveClock;
+} S_UNDO;
 
-  inline Undo(){};
-  Undo(Move move, int castleRights, int EPTarget, int halfMoveClock);
-  Undo(Move move, const State &state);
-};
+typedef struct {
+  Move move;
+  int eval;
+} S_MOVE;
+
+typedef struct {
+  int moveCount = 0;
+  S_MOVE moves[100];
+} S_PVLINE;
+
+#include "util.hpp"
 
 class State {
 public:
@@ -40,10 +46,12 @@ public:
   int _halfMoveClock;
   int _fullMoveCounter;
   int _sideToMove;
-  std::stack<Undo> _history;
+  std::stack<S_UNDO> _history;
+  S_PVLINE bestLine;
+  int _ply = 0;
 
   void printBoard() const;
-  void makeMove(Move move);
+  void makeMove(Move &move);
   void takeMove();
 
   void clearSquare(int index);
@@ -88,8 +96,9 @@ inline U64 State::allPieces() const {
 };
 
 inline int State::kingPos(int side) const {
-  return LS1B((side == WHITE ? _pieceBitboards[WHITES]
-                            : _pieceBitboards[BLACKS]) & _pieceBitboards[KINGS]);
+  return LS1B(
+      (side == WHITE ? _pieceBitboards[WHITES] : _pieceBitboards[BLACKS]) &
+      _pieceBitboards[KINGS]);
 }
 
 inline bool State::isPositionLegal() const {

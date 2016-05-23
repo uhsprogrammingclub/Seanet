@@ -3,6 +3,8 @@
 #include "board.hpp"
 #include "catch.hpp"
 #include "movegenerator.hpp"
+#include "search.hpp"
+#include "searchcontroller.hpp"
 #include "util.hpp"
 #include <ctime>
 #include <fstream>
@@ -12,6 +14,8 @@
 int leafNodes = 0;
 void perftTest(State &b, int depth);
 void divide(std::string FEN, int depth);
+void engineTest(std::string testPath, std::string tag, std::string comments,
+                int secondsPerPosition = 25);
 
 TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
   State state;
@@ -29,10 +33,21 @@ TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
   }
 }
 
+TEST_CASE("Running Bratko-Kopec Tests", "[Bratko-Kopec]") {
+  engineTest("Bratko-Kopec.text", "[Bratko-Kopec]",
+             "Nate - Shits and giggles"); // Add descriptive comments with each
+                                          // full run
+}
+TEST_CASE("Running LCT-II Tests", "[LCT-II]") {
+  engineTest(
+      "LCT-II.text", "[LCT-II]",
+      "Nate - Initial run"); // Add descriptive comments with each full run
+}
+
 TEST_CASE("Running PERFT tests", "[perft]") {
   State state;
   initPresets();
-  int TEST_LIMIT = 20;
+  int TEST_LIMIT = 200;
   int maxDepth = 6;
   int perftStart = 1;
   std::string divideFEN = "";
@@ -118,6 +133,39 @@ void perftTest(State &state, int depth) {
     }
     state.takeMove();
   }
+}
+
+void engineTest(std::string testPath, std::string tag, std::string comments,
+                int secondsPerPosition) {
+  State state;
+  initPresets();
+  std::ifstream file(testPath);
+  std::string line;
+  int numCorrect = 0;
+  while (std::getline(file, line)) {
+    KeyInfoMap info = splitEDP(line);
+    state = boardFromFEN(info["fen"]);
+    SearchController sControl;
+    sControl._timeLimit = secondsPerPosition;
+    sControl._depthLimit = INT_MAX;
+    search(state, sControl);
+    std::string result = moveToSAN(state.bestLine.moves[0].move, state).c_str();
+    printf("FEN: %s, Engine BM (eval): %s (%i), Given BM: %s",
+           info["fen"].c_str(), result.c_str(), state.bestLine.moves[0].eval,
+           info["bm"].c_str());
+    CHECK(result == info["bm"].c_str());
+    if (result == info["bm"]) {
+      numCorrect++;
+    }
+  }
+  char buff[DTTMSZ];
+  std::fstream records;
+  records.open("records.text", std::fstream::out | std::fstream::app);
+  records << "test = " << tag << "; date = " << getDtTm(buff)
+          << "; correct = " << numCorrect
+          << "; seconds/position = " << secondsPerPosition
+          << "; comments = " << comments << ";\n";
+  records.close();
 }
 
 void divide(std::string FEN, int depth) {

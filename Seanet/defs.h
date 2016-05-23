@@ -9,8 +9,11 @@
 #ifndef defs_h
 #define defs_h
 
+#include <map>
+
 typedef unsigned long long U64;
 typedef int Move;
+typedef std::map<std::string, std::string> KeyInfoMap;
 
 extern U64 setMask[64];
 extern U64 clearMask[64];
@@ -41,6 +44,10 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 #define RIGHT(bb) (bb << 1 & ~FILE_BB[0])
 #define LEFT(bb) (bb >> 1 & ~FILE_BB[7])
 
+// Date definitions
+#define DTTMFMT "%Y-%m-%d %H:%M:%S "
+#define DTTMSZ 21
+
 // Move bits
 
 /*
@@ -67,6 +74,7 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 #define M_SETPROM(m, piece) (m |= (piece << 16))
 #define M_SETCASTLE(m, cas) (cas ? m |= 0x100000 : m &= 0xEFFFFF)
 #define M_SETEP(m, ep) (ep ? m |= 0x200000 : m &= 0xDFFFFF)
+#define M_EQUALS(m1, m2) ((0xF0FFF & m1) == (0xF0FFF & m2))
 
 const U64 magicNumberRook[64] = {
     0xa180022080400230ULL, 0x40100040022000ULL,   0x80088020001002ULL,

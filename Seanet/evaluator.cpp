@@ -72,8 +72,9 @@ int whiteKingEndPS[8][8] = {{-50, -40, -30, -20, -20, -30, -40, -50},
                             {-30, -30, 0, 0, 0, 0, -30, -30},
                             {-50, -30, -30, -30, -30, -30, -30, -50}};
 
+int allPieces[65];
 int evaluate(State &state) {
-  int *allPieces = new int[65];
+  allPieces[0] = -1;
   getSetBits(state.allPieces(), allPieces);
 
   int score = 0;
@@ -136,7 +137,6 @@ int evaluate(State &state) {
       break;
     }
   }
-  delete[] allPieces;
   return score;
 }
 

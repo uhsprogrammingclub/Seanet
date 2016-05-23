@@ -24,14 +24,17 @@ U64 magicMovesRook[64][4096];
 U64 magicMovesBishop[64][4096];
 U64 occupancyVariation[64][4096];
 
+int pieceSquares[65];
+int pieceMoves[65];
+
 std::vector<Move> generateAllMoves(const State &s) {
   std::vector<Move> moves;
   moves.reserve(64);
   U64 friendlyBB = s._sideToMove == WHITE ? s._pieceBitboards[WHITES]
                                           : s._pieceBitboards[BLACKS];
 
-  int *pieceSquares = new int[65];
-  int *pieceMoves = new int[65];
+  pieceSquares[0] = -1;
+  pieceMoves[0] = -1;
   // King Moves
   int kingIndex = LS1B(friendlyBB & s._pieceBitboards[KINGS]);
   getSetBits(kingAttacks[kingIndex] & ~friendlyBB, pieceMoves);
@@ -118,9 +121,6 @@ std::vector<Move> generateAllMoves(const State &s) {
       moves.push_back(NEW_MOVE(pieceSquares[from], pieceMoves[to]));
     }
   }
-
-  delete[] pieceSquares;
-  delete[] pieceMoves;
   return moves;
 }
 
@@ -137,8 +137,8 @@ std::vector<Move> generateCheckEvasions(const State &s) {
   U64 friendlyBB = s._sideToMove == WHITE ? s._pieceBitboards[WHITES]
                                           : s._pieceBitboards[BLACKS];
   U64 allPieces = s.allPieces();
-  int *pieceSquares = new int[65];
-  int *pieceMoves = new int[65];
+  pieceSquares[0] = -1;
+  pieceMoves[0] = -1;
   // King Moves
   int kingIndex = LS1B(friendlyBB & s._pieceBitboards[KINGS]);
   getSetBits(kingAttacks[kingIndex] & ~friendlyBB, pieceMoves);
@@ -310,8 +310,6 @@ std::vector<Move> generateCheckEvasions(const State &s) {
     // printMoves("block path", moves);
   }
 
-  delete[] pieceSquares;
-  delete[] pieceMoves;
   return moves;
 }
 

@@ -12,5 +12,5 @@ void SearchController::checkTimeLimit() {
   if ((time(NULL) - _startTime) >= _timeLimit) {
     _stopSearch = true;
   }
-}
 
+}

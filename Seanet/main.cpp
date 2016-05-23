@@ -23,7 +23,6 @@ int main(int argc, const char *argv[]) {
   // insert code here...
 
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  FEN = "3k4/1Q6/8/4K3/8/8/8/8 b - - 14 11";
   FEN = "4k3/8/8/3p4/4P3/8/8/4K3 w - - 0 1";
 
   initPresets();
@@ -33,20 +32,6 @@ int main(int argc, const char *argv[]) {
   SearchController sControl;
   search(gameState, sControl);
 
-  for (auto elem : test) {
-    std::cout << elem.first << "\n";
-    std::cout << elem.second << "\n";
-  }
-  std::cout << "FEN: " << test["fen"] << "\n";
-  std::cout << "BM: " << test["bm"] << "\n";
-  std::cout << "ID:" << test["id"] << "\n";
-
-  initPresets();
-  gameState = boardFromFEN(FEN);
-  gameState.printBoard();
-
-  SearchController sControl;
-  search(gameState, sControl);
   printf("Best move: %s (%i)",
          moveToUCI(gameState.bestLine.moves[0].move).c_str(),
          gameState.bestLine.moves[0].eval);

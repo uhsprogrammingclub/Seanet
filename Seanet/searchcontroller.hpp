@@ -23,7 +23,11 @@ public:
   int _bestRootMove;
   int _bestRootScore = INT_MIN;
   int _bestPreviousMove = 0;
+	
+	int _currentDepth = 0;
+	
   void checkTimeLimit();
+	void reset();
 };
 
 #endif /* defined(__Seanet__searchcontroller__) */

@@ -26,7 +26,7 @@ int main(int argc, const char *argv[]) {
   // insert code here...
 
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  // FEN = "K7/8/8/3Q4/4q3/8/8/7k w - - 0 1";
+  FEN = "4k3/8/8/3p4/4P3/8/8/4K3 w - - 0 1";
 
   initPresets();
   gameState = boardFromFEN(FEN);
@@ -111,7 +111,8 @@ void takeUCIInput() {
       gameState = boardFromFEN(FEN);
     }
     for (int i = 3; i < inputParts.size(); i++) {
-      gameState.makeMove(moveFromUCI(inputParts.at(i)));
+      Move move = moveFromUCI(inputParts.at(i));
+      gameState.makeMove(move);
     }
   } else if (commandName == "go") {
     for (int i = 1; i < inputParts.size(); i++) {

@@ -25,7 +25,7 @@ void State::printBoard() const {
   std::cout << "  A B C D E F G H \n";
 }
 
-void State::makeMove(Move move) {
+void State::makeMove(Move &move) {
   _history.emplace(S_UNDO{move, _castleRights, _EPTarget, _halfMoveClock});
   _halfMoveClock++;
   int from = M_FROMSQ(move);

@@ -51,7 +51,7 @@ public:
   int _ply = 0;
 
   void printBoard() const;
-  void makeMove(Move move);
+  void makeMove(Move &move);
   void takeMove();
 
   void clearSquare(int index);

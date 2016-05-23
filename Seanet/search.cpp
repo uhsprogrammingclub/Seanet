@@ -48,7 +48,7 @@ int negamax(int alpha, int beta, int depth, State &state,
   std::vector<int> moves = generatePseudoMoves(state);
 
   for (std::vector<int>::iterator it = moves.begin(); it != moves.end(); ++it) {
-    if (*it == state.bestLine.moves[state._ply].move) {
+    if (M_EQUALS(*it, state.bestLine.moves[state._ply].move)) {
       Move x = *it;
       moves.erase(it);
       moves.insert(moves.begin(), x);

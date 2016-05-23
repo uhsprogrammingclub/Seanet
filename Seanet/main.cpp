@@ -24,6 +24,7 @@ int main(int argc, const char *argv[]) {
 
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   FEN = "3k4/1Q6/8/4K3/8/8/8/8 b - - 14 11";
+  FEN = "4k3/8/8/3p4/4P3/8/8/4K3 w - - 0 1";
 
   std::string EPD =
       "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id BK.01;";
@@ -34,22 +35,22 @@ int main(int argc, const char *argv[]) {
     std::cout << elem.first << "\n";
     std::cout << elem.second << "\n";
   }
-  std::cout << "FEN: " << test["fen"];
-  std::cout << "BM: " << test["bm"];
-  std::cout << "ID:" << test["id"];
-  /*
-    initPresets();
-    gameState = boardFromFEN(FEN);
-    gameState.printBoard();
+  std::cout << "FEN: " << test["fen"] << "\n";
+  std::cout << "BM: " << test["bm"] << "\n";
+  std::cout << "ID:" << test["id"] << "\n";
 
-    SearchController sControl;
-    search(gameState, sControl);
-    printf("Best move: %s (%i)",
-           moveToUCI(gameState.bestLine.moves[0].move).c_str(),
-           gameState.bestLine.moves[0].eval);
+  initPresets();
+  gameState = boardFromFEN(FEN);
+  gameState.printBoard();
 
-    // takePlayerMove();
-  */
+  SearchController sControl;
+  search(gameState, sControl);
+  printf("Best move: %s (%i)",
+         moveToUCI(gameState.bestLine.moves[0].move).c_str(),
+         gameState.bestLine.moves[0].eval);
+
+  // takePlayerMove();
+
   return 0;
 }
 

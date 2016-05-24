@@ -25,11 +25,11 @@ void search(State &state, SearchController &sControl) {
     };
     state.bestLine = newLine;
 
+    timeval currTime;
+    gettimeofday(&currTime, 0);
+    int timeElapsed =
+        (int)(timeToMS(currTime) - timeToMS(sControl._startTime)) + 1;
     if (sControl._uciOutput) {
-      timeval currTime;
-      gettimeofday(&currTime, 0);
-      int timeElapsed =
-          (int)(timeToMS(currTime) - timeToMS(sControl._startTime)) + 1;
       std::cout << "info";
       std::cout << " depth " << sControl._currDepth;
       std::cout << " seldepth " << sControl._maxDepth;
@@ -41,12 +41,14 @@ void search(State &state, SearchController &sControl) {
       std::cout << " pv " << pvLineToString(state.bestLine);
       std::cout << std::endl;
     } else {
-
-      std::cout << "Depth " << depth << " completed with an evaluation of "
-                << state.bestLine.moves[0].eval << " and a best move of "
-                << moveToUCI(state.bestLine.moves[0].move) << "\n";
-      std::cout << "Principal Variation Line: "
-                << pvLineToString(state.bestLine) << std::endl;
+      std::cout << sControl._currDepth;
+      std::cout << " [";
+      std::cout << state.bestLine.moves[0].eval;
+      std::cout << "] ";
+      std::cout << pvLineToString(state.bestLine);
+      std::cout << "(" << timeElapsed << " ms)";
+      std::cout << (int)(sControl._totalNodes / (timeElapsed));
+      std::cout << " kn/s\n";
     }
   }
 }

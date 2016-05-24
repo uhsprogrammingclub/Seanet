@@ -46,9 +46,12 @@ void search(State &state, SearchController &sControl) {
       std::cout << state.bestLine.moves[0].eval;
       std::cout << "] ";
       std::cout << pvLineToString(state.bestLine);
-      std::cout << "(" << timeElapsed << " ms)";
+      std::cout << "; " << timeElapsed << " ms; ";
       std::cout << (int)(sControl._totalNodes / (timeElapsed));
-      std::cout << " kn/s\n";
+      std::cout << " kn/s";
+      std::cout << "; "
+                << (float)(100.0 * sControl._fhfNodes / sControl._fhNodes)
+                << "% fhf\n";
     }
   }
 }
@@ -77,6 +80,7 @@ int negamax(int alpha, int beta, int depth, State &state,
       break;
     }
   }
+  int moveNum = 0;
   bool gameOver = true; // set to false if there's a legal move
   for (Move move : moves) {
     state.makeMove(move);
@@ -85,6 +89,7 @@ int negamax(int alpha, int beta, int depth, State &state,
       state.takeMove();
       continue;
     }
+    moveNum++;
     gameOver = false;
     if (state._ply == 0) {
       sControl._currMove = move;
@@ -100,6 +105,10 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     if (score >= beta) {
+      if (moveNum == 1) {
+        sControl._fhfNodes++;
+      }
+      sControl._fhNodes++;
       return beta; // Fail hard beta-cutoff
     }
     if (score > alpha) {
@@ -142,7 +151,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
     if (alpha < stand_pat) {
       alpha = stand_pat;
     }
-
+    int moveNum = 0;
     for (Move move : moves) {
       if (!inCheck) {
         if ((state._pieces[M_TOSQ(move)] == EMPTY && !M_ISPROMOTION(move)) ||
@@ -157,6 +166,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
         state.takeMove();
         continue;
       }
+      moveNum++;
       gameOver = false;
       state._ply++;
       quiescencePly++;
@@ -166,10 +176,16 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
 
       state.takeMove();
 
-      if (score >= beta)
+      if (score >= beta) {
+        if (moveNum == 1) {
+          sControl._fhfNodes++;
+        }
+        sControl._fhNodes++;
         return beta;
-      if (score > alpha)
+      }
+      if (score > alpha) {
         alpha = score;
+      }
     }
   }
   if (alpha == beta) { // check game over for beta cutoff

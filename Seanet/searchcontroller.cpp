@@ -17,6 +17,8 @@ void SearchController::checkTimeLimit() {
 void SearchController::resetStats() {
   gettimeofday(&_startTime, 0);
   _totalNodes = 0;
+  _fhNodes = 0;
+  _fhfNodes = 0;
   _currDepth = 0;
   _maxDepth = 0;
   _currMove = 0;

@@ -23,6 +23,8 @@ public:
   bool _stopSearch = false;
   timeval _startTime;
   int _totalNodes = 0;
+  int _fhNodes = 0;
+  int _fhfNodes = 0;
   int _currDepth = 0;
   int _maxDepth = 0;
   Move _currMove = 0;

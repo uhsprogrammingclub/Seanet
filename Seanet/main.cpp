@@ -27,7 +27,6 @@ int main(int argc, const char *argv[]) {
   // insert code here...
 
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
-  FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
 
   initPresets();
 
@@ -35,7 +34,7 @@ int main(int argc, const char *argv[]) {
   gameState.printBoard();
 
   SearchController sControl;
-  sControl._depthLimit = 4;
+  sControl._depthLimit = 8;
   sControl._timeLimit = 60;
   search(gameState, sControl);
 
@@ -43,8 +42,7 @@ int main(int argc, const char *argv[]) {
          moveToUCI(gameState.bestLine.moves[0].move).c_str(),
          gameState.bestLine.moves[0].eval);
 
-  exit(0);
-  takePlayerMove();
+  //takePlayerMove();
 
   return 0;
 }

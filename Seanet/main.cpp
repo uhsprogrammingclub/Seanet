@@ -27,8 +27,7 @@ int main(int argc, const char *argv[]) {
   // insert code here...
 
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
-  // FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0
-  // 1";
+  FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
 
   initPresets();
 
@@ -121,9 +120,18 @@ void takeUCIInput() {
         uciGameState = boardFromFEN(
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
       } else {
+        FEN = input.substr(13);
         uciGameState = boardFromFEN(FEN);
       }
-      for (int i = 3; i < inputParts.size(); i++) {
+      int i;
+
+      for (i = 2; i < inputParts.size(); i++) {
+        if (inputParts.at(i) == "moves") {
+          i++;
+          break;
+        }
+      }
+      for (; i < inputParts.size(); i++) {
         Move move = moveFromUCI(inputParts.at(i));
         uciGameState.makeMove(move);
       }

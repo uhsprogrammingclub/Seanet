@@ -9,8 +9,17 @@
 #include "searchcontroller.hpp"
 
 void SearchController::checkTimeLimit() {
-  if ((time(NULL) - _startTime) >= _timeLimit) {
+  if ((time(NULL) - _startTime.tv_sec) >= _timeLimit) {
     _stopSearch = true;
   }
+}
 
+void SearchController::resetStats() {
+  gettimeofday(&_startTime, 0);
+  _totalNodes = 0;
+  _currDepth = 0;
+  _maxDepth = 0;
+  _currMove = 0;
+  _currMoveNumber = 0;
+  _stopSearch = false;
 }

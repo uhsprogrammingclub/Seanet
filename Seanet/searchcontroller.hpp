@@ -12,22 +12,24 @@
 #include "board.hpp"
 #include "util.hpp"
 #include <stdio.h>
+#include <sys/time.h>
 
 class SearchController {
 public:
   int _depthLimit = 12;
   int _timeLimit = 60;
-  int _totalNodes;
-  double _startTime = time(NULL);
+  int _uciOutput = false;
+
   bool _stopSearch = false;
-  int _bestRootMove;
-  int _bestRootScore = INT_MIN;
-  int _bestPreviousMove = 0;
-	
-	int _currentDepth = 0;
-	
+  timeval _startTime;
+  int _totalNodes = 0;
+  int _currDepth = 0;
+  int _maxDepth = 0;
+  Move _currMove = 0;
+  int _currMoveNumber = 0;
+
   void checkTimeLimit();
-	void reset();
+  void resetStats();
 };
 
 #endif /* defined(__Seanet__searchcontroller__) */

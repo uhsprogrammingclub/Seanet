@@ -14,19 +14,40 @@ Takes input of a state, time limit, and (optional) max depth, returns the best
 move for the state.sideToMove() as an int.
  **/
 void search(State &state, SearchController &sControl) {
+  sControl.resetStats();
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
+    sControl._currDepth = depth;
+    sControl._maxDepth = depth;
     S_PVLINE newLine;
     negamax(INT_MIN + 1, INT_MAX - 1, depth, state, sControl, newLine);
     if (sControl._stopSearch) {
       break;
     };
     state.bestLine = newLine;
-	  
-  std::cout << "Depth " << depth << " completed with an evaluation of "
-            << state.bestLine.moves[0].eval << " and a best move of "
-            << moveToUCI(state.bestLine.moves[0].move) << "\n";
-  std::cout << "Principal Variation Line: " << pvLineToString(state.bestLine)
-            << std::endl;
+
+    if (sControl._uciOutput) {
+      timeval currTime;
+      gettimeofday(&currTime, 0);
+      int timeElapsed =
+          (int)(timeToMS(currTime) - timeToMS(sControl._startTime)) + 1;
+      std::cout << "info";
+      std::cout << " depth " << sControl._currDepth;
+      std::cout << " seldepth " << sControl._maxDepth;
+      std::cout << " time " << timeElapsed;
+      std::cout << " nodes " << sControl._totalNodes;
+      std::cout << " score cp " << state.bestLine.moves[0].eval;
+      std::cout << " nps "
+                << (int)(sControl._totalNodes / (timeElapsed / 1000.0));
+      std::cout << " pv " << pvLineToString(state.bestLine);
+      std::cout << std::endl;
+    } else {
+
+      std::cout << "Depth " << depth << " completed with an evaluation of "
+                << state.bestLine.moves[0].eval << " and a best move of "
+                << moveToUCI(state.bestLine.moves[0].move) << "\n";
+      std::cout << "Principal Variation Line: "
+                << pvLineToString(state.bestLine) << std::endl;
+    }
   }
 }
 
@@ -34,7 +55,7 @@ int negamax(int alpha, int beta, int depth, State &state,
             SearchController &sControl, S_PVLINE &pvLine) {
   sControl._totalNodes++;
 
-  if ((sControl._totalNodes & 1024) == 0) {
+  if ((sControl._totalNodes & 10240) == 0) {
     sControl.checkTimeLimit();
   }
   if (depth <= 0) {
@@ -63,6 +84,10 @@ int negamax(int alpha, int beta, int depth, State &state,
       continue;
     }
     gameOver = false;
+    if (state._ply == 0) {
+      sControl._currMove = move;
+      sControl._currMoveNumber++;
+    }
     state._ply++;
     int score = -negamax(-beta, -alpha, depth - 1, state, sControl, line);
     state._ply--;
@@ -77,7 +102,8 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
     if (score > alpha) {
       alpha = score; // Update value of "best path so far for maximizer"
-      pvLine.moves[0] = S_MOVE{move, score};
+      pvLine.moves[0] =
+          S_MOVE{move, score * (state._sideToMove == WHITE ? 1 : -1)};
       memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(S_MOVE));
       pvLine.moveCount = line.moveCount + 1;
       if (depth > 4) {
@@ -93,7 +119,14 @@ int negamax(int alpha, int beta, int depth, State &state,
 
 int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
   // printf("Quiescence Ply: %i\n", quiescencePly);
+  if (state._ply > sControl._maxDepth) {
+    sControl._maxDepth = state._ply;
+  }
   sControl._totalNodes++;
+
+  if ((sControl._totalNodes & 10240) == 0) {
+    sControl.checkTimeLimit();
+  }
 
   bool inCheck = state.isInCheck(state._sideToMove);
   std::vector<int> moves = generatePseudoMoves(state, inCheck);

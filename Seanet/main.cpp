@@ -95,50 +95,25 @@ void startUCI() {
   takeUCIInput();
 }
 
-void uciProtocol() {
-  std::string Line; // to read the command given by the GUI
-  SearchController uciStateControl;
-  State uciGameState;
-
-  while (getline(std::cin, Line)) {
-    if (Line == "uci") {
-      std::cout << "id name Seanet 0.1b\n";
-      std::cout << "id author Stiven Deleur, Nathaniel Corley\n";
-      std::cout << "uciok\n";
-    } else if (Line == "quit") {
-      std::cout << "Bye Bye" << std::endl;
-      break;
-    } else if (Line == "isready") {
-      std::cout << "readyok" << std::endl;
-    } else if (Line == "ucinewgame") {
-      ; // nothing to do
-    }
-
-    if (Line.substr(0, 23) == "position startpos moves ") {
-      ; // nothing to do
-    } else if (Line == "stop") {
-      ; // nothing to do
-    } else if (Line.substr(0, 3) == "go ") {
-    }
-  }
-
-  return;
-}
-
 void takeUCIInput() {
   std::string input;
 
   SearchController uciStateControl;
   State uciGameState;
+  std::thread searchThread;
 
+  uciStateControl._uciOutput = true;
   while (std::getline(std::cin, input)) {
     std::vector<std::string> inputParts;
     inputParts = split(input, ' ');
     std::string commandName = inputParts.at(0);
-    std::thread searchThread;
     if (commandName == "isready") {
+      uciGameState = boardFromFEN(
+          "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
       std::cout << "readyok\n";
     } else if (commandName == "ucinewgame") {
+      uciGameState = boardFromFEN(
+          "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     } else if (commandName == "position") {
       std::string FEN = inputParts.at(1);
       if (FEN == "startpos") {
@@ -165,14 +140,25 @@ void takeUCIInput() {
         } else if (inputParts.at(i) == "mate") {
         } else if (inputParts.at(i) == "movetime") {
         } else if (inputParts.at(i) == "infinite") {
+          uciStateControl._timeLimit = INT_MAX;
+          uciStateControl._depthLimit = INT_MAX;
         }
-        search(uciGameState, uciStateControl);
       }
+      searchThread = std::thread(search, std::ref(uciGameState),
+                                 std::ref(uciStateControl));
     } else if (commandName == "stop") {
+      uciStateControl._stopSearch = true;
+      if (searchThread.joinable()) {
+        searchThread.join();
+      }
       // stop search
     } else if (commandName == "ponderhit") {
     } else if (commandName == "quit") {
-      exit(0);
+      uciStateControl._stopSearch = true;
+      if (searchThread.joinable()) {
+        searchThread.join();
+      }
+      break;
     } else {
       std::cout << "Unrecognized command: " << input << "\n";
     }

@@ -96,7 +96,22 @@ int negamax(int alpha, int beta, int depth, State &state,
     return qSearch(alpha, beta, state, sControl);
     // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
   }
+
   S_PVLINE line;
+
+  if (sControl.features[NULL_MOVE]) {
+    state._sideToMove *= -1;
+    if (state.isPositionLegal()) {
+      state._ply++;
+      int score = -negamax(-beta, -beta + 1, depth - 3, state, sControl, line);
+      state._ply--;
+      if (score >= beta) {
+        state._sideToMove *= -1;
+        return beta;
+      }
+    }
+    state._sideToMove *= -1;
+  }
 
   std::vector<int> moves = generatePseudoMoves(state);
   int insertNextMoveAt = 0;

@@ -46,7 +46,7 @@ int main(int argc, const char *argv[]) {
                    (gameState._sideToMove == WHITE ? 1 : -1)
             << "] " << pvLineToString(gameState.bestLine) << "\n" << std::endl;
 
-  //takePlayerMove();
+  // takePlayerMove();
 
   return 0;
 }

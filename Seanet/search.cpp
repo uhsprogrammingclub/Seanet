@@ -128,38 +128,25 @@ int negamax(int alpha, int beta, int depth, State &state,
   }
 
   // Killer moves
+  Move killers[3] = {killerMoves[state._ply * 3],
+                     killerMoves[state._ply * 3 + 1],
+                     killerMoves[state._ply * 3 + 2]};
+  int killerIndex[3] = {-1, -1, -1};
 
-  Move *killerMove1 = &killerMoves[state._ply * 3];
-  Move *killerMove2 = &killerMoves[state._ply * 3 + 1];
-  Move *killerMove3 = &killerMoves[state._ply * 3 + 2];
-  if (*killerMove1) {
-    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-         it <= moves.begin() + insertBadMoveAt; ++it) {
-      if (M_EQUALS(*it, *killerMove1)) {
-        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-        insertNextMoveAt++;
-        break;
-      }
+  for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+       it <= moves.begin() + insertBadMoveAt; ++it) {
+    if (M_EQUALS(*it, killers[0])) {
+      killerIndex[0] = (int)(it - moves.begin());
+    } else if (M_EQUALS(*it, killers[1])) {
+      killerIndex[1] = (int)(it - moves.begin());
+    } else if (M_EQUALS(*it, killers[2])) {
+      killerIndex[2] = (int)(it - moves.begin());
     }
   }
-  if (*killerMove2) {
-    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-         it <= moves.begin() + insertBadMoveAt; ++it) {
-      if (M_EQUALS(*it, *killerMove2)) {
-        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-        insertNextMoveAt++;
-        break;
-      }
-    }
-  }
-  if (*killerMove3) {
-    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-         it <= moves.begin() + insertBadMoveAt; ++it) {
-      if (M_EQUALS(*it, *killerMove3)) {
-        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-        insertNextMoveAt++;
-        break;
-      }
+  for (int i = 0; i < 3; i++) {
+    if (killerIndex[i] != -1) {
+      std::swap(moves[insertNextMoveAt], moves[killerIndex[i]]);
+      insertNextMoveAt++;
     }
   }
 

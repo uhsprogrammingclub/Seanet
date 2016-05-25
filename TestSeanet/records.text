@@ -5,3 +5,4 @@ test = [Bratko-Kopec]; date = 2016-05-21 12:41:52 ; correct = 3; seconds/positio
 test = [Bratko-Kopec]; date = 2016-05-22 20:45:16 ; correct = 7; seconds/position = 20; comments = "Nate - With fixed SAN (and piece-square)";
 
 test = [LCT-II]; date = 2016-05-22 21:20:59 ; correct = 1; seconds/position = 25; comments = Initial run;
+test = [Bratko-Kopec]; date = 2016-05-24 19:11:00 ; correct = 11; seconds/position = 25; comments = Stiven - SEE/killer move reordering;

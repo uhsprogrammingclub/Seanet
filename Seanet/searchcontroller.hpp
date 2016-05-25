@@ -14,11 +14,16 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+const int NUM_OF_FEATURES = 4;
+enum { PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING };
+
 class SearchController {
 public:
   int _depthLimit = 12;
   int _timeLimit = 60;
   int _uciOutput = false;
+
+  bool features[NUM_OF_FEATURES] = {true, true, true, true};
 
   bool _stopSearch = false;
   timeval _startTime;

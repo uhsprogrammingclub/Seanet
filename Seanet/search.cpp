@@ -9,60 +9,60 @@
 #include "search.hpp"
 
 int quiescencePly = 0;
-Move killerMoves[64 * 3]; // 64 mAX plys with 3 moves each.
+Move killerMoves[64 * 3];     // 64 mAX plys with 3 moves each.
+int historyHeuristic[64][64]; // historyHeuristic[from][to]
+
 /**
 Takes input of a state, time limit, and (optional) max depth, returns the best
 move for the state.sideToMove() as an int.
  **/
 void search(State &state, SearchController &sControl) {
   sControl.resetStats();
+
+  // reset heuristics
   for (int i = 0; i < 192; i++) {
     killerMoves[i] = 0;
+  }
+  for (int from = 0; from < 64; from++) {
+    for (int to = 0; to < 64; to++) {
+      historyHeuristic[from][to] = 0;
+    }
   }
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
-    S_PVLINE newLine;
-    negamax(INT_MIN + 1, INT_MAX - 1, depth, state, sControl, newLine);
+    negamax(INT_MIN + 1, INT_MAX - 1, depth, state, sControl, state.bestLine);
     if (sControl._stopSearch) {
       break;
     };
-    state.bestLine = newLine;
 
     timeval currTime;
     gettimeofday(&currTime, 0);
     int timeElapsed =
         (int)(timeToMS(currTime) - timeToMS(sControl._startTime)) + 1;
     if (sControl._uciOutput) {
-      std::cout << "info";
-      std::cout << " depth " << sControl._currDepth;
-      std::cout << " seldepth " << sControl._maxDepth;
-      std::cout << " time " << timeElapsed;
-      std::cout << " nodes " << sControl._totalNodes;
-      std::cout << " score cp " << state.bestLine.moves[0].eval;
-      std::cout << " nps "
-                << (int)(sControl._totalNodes / (timeElapsed / 1000.0));
-      std::cout << " pv " << pvLineToString(state.bestLine);
-      std::cout << std::endl;
+      std::cout << "info"
+                << " depth " << sControl._currDepth << " seldepth "
+                << sControl._maxDepth << " time " << timeElapsed << " nodes "
+                << sControl._totalNodes << " score cp "
+                << state.bestLine.moves[0].eval << " nps "
+                << (int)(sControl._totalNodes / (timeElapsed / 1000.0))
+                << " pv " << pvLineToString(state.bestLine) << std::endl;
     } else {
-      std::cout << sControl._currDepth;
-      std::cout << " [";
-      std::cout << state.bestLine.moves[0].eval;
-      std::cout << "] ";
-      std::cout << pvLineToString(state.bestLine);
-      std::cout << "; " << timeElapsed << " ms; ";
-      std::cout << (int)(sControl._totalNodes / (timeElapsed));
-      std::cout << " kn/s";
-      std::cout << "; "
+      std::cout << sControl._currDepth << " ["
+                << state.bestLine.moves[0].eval *
+                       (state._sideToMove == WHITE ? 1 : -1)
+                << "] " << pvLineToString(state.bestLine) << "; " << timeElapsed
+                << " ms; " << (int)(sControl._totalNodes / (timeElapsed))
+                << " kn/s"
+                << "; "
                 << (float)(100.0 * sControl._fhfNodes / sControl._fhNodes)
-                << "% fhf";
-      std::cout << "; "
+                << "% fhf"
+                << "; "
                 << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
-                << "% fh";
-      std::cout << "; " << (sControl._totalNodes / 1000) << "K nodes";
-      std::cout << "; seldepth ";
-      std::cout << sControl._maxDepth;
-      std::cout << std::endl;
+                << "% fh"
+                << "; " << (sControl._totalNodes / 1000) << "K nodes"
+                << "; seldepth " << sControl._maxDepth << std::endl;
     }
   }
 }
@@ -77,6 +77,11 @@ void addKillerMove(int ply, Move move) {
     std::swap(killerMoves[firstMoveIndex], killerMoves[firstMoveIndex + 1]);
     killerMoves[firstMoveIndex] = move;
   }
+}
+
+bool reorderByHH(Move i, Move j) {
+  return historyHeuristic[M_FROMSQ(i)][M_TOSQ(i)] >
+         historyHeuristic[M_FROMSQ(j)][M_TOSQ(j)];
 }
 
 int negamax(int alpha, int beta, int depth, State &state,
@@ -96,62 +101,67 @@ int negamax(int alpha, int beta, int depth, State &state,
   std::vector<int> moves = generatePseudoMoves(state);
   int insertNextMoveAt = 0;
   int insertBadMoveAt = (int)moves.size() - 1;
-  //  std::cout << *(moves.begin() + insertBadMoveAt +1);
-  //	std::cout << std::endl;
-  //  std::cout << *(moves.end());
-  //  std::cout << std::endl << std::endl;
 
   // PV-move reorder
-  for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-       it != moves.end(); ++it) {
-    if (M_EQUALS(*it, state.bestLine.moves[state._ply].move)) {
-      std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-      insertNextMoveAt++;
-      break;
+  if (sControl.features[PV_REORDERING]) {
+    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+         it != moves.end(); ++it) {
+      if (M_EQUALS(*it, state.bestLine.moves[state._ply].move)) {
+        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+        insertNextMoveAt++;
+        break;
+      }
     }
   }
   // Hash move reorder
   // TODO
 
   //   Reorder based on SEE
-  for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-       it <= moves.begin() + insertBadMoveAt; ++it) {
-    int seeEval = see(*it, state);
-    if (seeEval > 0) {
-      std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-      insertNextMoveAt++;
-    } else if (seeEval < 0) {
-      std::swap(moves[insertBadMoveAt], moves[it - moves.begin()]);
-      insertBadMoveAt--;
-      it--;
+  if (sControl.features[SEE_REORDERING]) {
+    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+         it <= moves.begin() + insertBadMoveAt; ++it) {
+      int seeEval = see(*it, state);
+      if (seeEval > 0) {
+        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+        insertNextMoveAt++;
+      } else if (seeEval < 0) {
+        std::swap(moves[insertBadMoveAt], moves[it - moves.begin()]);
+        insertBadMoveAt--;
+        it--;
+      }
     }
   }
 
   // Killer moves
-  Move killers[3] = {killerMoves[state._ply * 3],
-                     killerMoves[state._ply * 3 + 1],
-                     killerMoves[state._ply * 3 + 2]};
-  int killerIndex[3] = {-1, -1, -1};
+  if (sControl.features[KH_REORDERING]) {
+    Move killers[3] = {killerMoves[state._ply * 3],
+                       killerMoves[state._ply * 3 + 1],
+                       killerMoves[state._ply * 3 + 2]};
+    int killerIndex[3] = {-1, -1, -1};
 
-  for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-       it <= moves.begin() + insertBadMoveAt; ++it) {
-    if (M_EQUALS(*it, killers[0])) {
-      killerIndex[0] = (int)(it - moves.begin());
-    } else if (M_EQUALS(*it, killers[1])) {
-      killerIndex[1] = (int)(it - moves.begin());
-    } else if (M_EQUALS(*it, killers[2])) {
-      killerIndex[2] = (int)(it - moves.begin());
+    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+         it <= moves.begin() + insertBadMoveAt; ++it) {
+      if (M_EQUALS(*it, killers[0])) {
+        killerIndex[0] = (int)(it - moves.begin());
+      } else if (M_EQUALS(*it, killers[1])) {
+        killerIndex[1] = (int)(it - moves.begin());
+      } else if (M_EQUALS(*it, killers[2])) {
+        killerIndex[2] = (int)(it - moves.begin());
+      }
     }
-  }
-  for (int i = 0; i < 3; i++) {
-    if (killerIndex[i] != -1) {
-      std::swap(moves[insertNextMoveAt], moves[killerIndex[i]]);
-      insertNextMoveAt++;
+    for (int i = 0; i < 3; i++) {
+      if (killerIndex[i] != -1) {
+        std::swap(moves[insertNextMoveAt], moves[killerIndex[i]]);
+        insertNextMoveAt++;
+      }
     }
   }
 
   // Non captures sorted by history heuristic
-  // TODO
+  if (sControl.features[HH_REORDERING]) {
+    std::sort(moves.begin() + insertNextMoveAt,
+              moves.begin() + insertBadMoveAt + 1, reorderByHH);
+  }
 
   //  printf("Reordered moves: ");
   //  for (auto it = moves.begin(); it != moves.end(); ++it) {
@@ -189,19 +199,21 @@ int negamax(int alpha, int beta, int depth, State &state,
       }
       sControl._fhNodes++;
       if (!M_ISCAPTURE(move)) {
-        addKillerMove(state._ply, move);
+
+        if (sControl.features[KH_REORDERING]) {
+          addKillerMove(state._ply, move);
+        }
+        if (sControl.features[HH_REORDERING]) {
+          historyHeuristic[M_FROMSQ(move)][M_TOSQ(move)] += depth * depth;
+        }
       }
       return beta; // Fail hard beta-cutoff
     }
     if (score > alpha) {
       alpha = score; // Update value of "best path so far for maximizer"
-      pvLine.moves[0] =
-          S_MOVE{move, score * (state._sideToMove == WHITE ? 1 : -1)};
+      pvLine.moves[0] = S_MOVE{move, score};
       memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(S_MOVE));
       pvLine.moveCount = line.moveCount + 1;
-      if (depth > 4) {
-        // printf("score: %i\n", score);
-      }
     }
   }
   if (gameOver) {

@@ -458,7 +458,7 @@ int moveFromUCI(std::string uci) {
 std::string pvLineToString(S_PVLINE line) {
   std::string str;
   for (int i = 0; i < line.moveCount; i++) {
-    str += moveToUCI(line.moves[i].move);
+    str += moveToUCI(line.moves[i]);
     str += ' ';
   }
   return str;

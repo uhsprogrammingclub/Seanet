@@ -42,9 +42,8 @@ int main(int argc, const char *argv[]) {
   search(gameState, sControl);
 
   std::cout << "\nEvaluation:\n["
-            << gameState.bestLine.moves[0].eval *
-                   (gameState._sideToMove == WHITE ? 1 : -1)
-            << "] " << pvLineToString(gameState.bestLine) << "\n" << std::endl;
+            << gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)
+            << "] " << pvLineToString(gameState._bestLine) << "\n" << std::endl;
 
   // takePlayerMove();
 

@@ -31,7 +31,7 @@ void search(State &state, SearchController &sControl) {
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
-    negamax(INT_MIN + 1, INT_MAX - 1, depth, state, sControl, state.bestLine);
+    negamax(INT_MIN + 1, INT_MAX - 1, depth, state, sControl, state._bestLine);
     if (sControl._stopSearch) {
       break;
     };
@@ -44,17 +44,16 @@ void search(State &state, SearchController &sControl) {
       std::cout << "info"
                 << " depth " << sControl._currDepth << " seldepth "
                 << sControl._maxDepth << " time " << timeElapsed << " nodes "
-                << sControl._totalNodes << " score cp "
-                << state.bestLine.moves[0].eval << " nps "
+                << sControl._totalNodes << " score cp " << state._lineEval
+                << " nps "
                 << (int)(sControl._totalNodes / (timeElapsed / 1000.0))
-                << " pv " << pvLineToString(state.bestLine) << std::endl;
+                << " pv " << pvLineToString(state._bestLine) << std::endl;
     } else {
       std::cout << sControl._currDepth << " ["
-                << state.bestLine.moves[0].eval *
-                       (state._sideToMove == WHITE ? 1 : -1)
-                << "] " << pvLineToString(state.bestLine) << "; " << timeElapsed
-                << " ms; " << (int)(sControl._totalNodes / (timeElapsed))
-                << " kn/s"
+                << state._lineEval * (state._sideToMove == WHITE ? 1 : -1)
+                << "] " << pvLineToString(state._bestLine) << "; "
+                << timeElapsed << " ms; "
+                << (int)(sControl._totalNodes / (timeElapsed)) << " kn/s"
                 << "; "
                 << (float)(100.0 * sControl._fhfNodes / sControl._fhNodes)
                 << "% fhf"
@@ -121,7 +120,7 @@ int negamax(int alpha, int beta, int depth, State &state,
   if (sControl.features[PV_REORDERING]) {
     for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
          it != moves.end(); ++it) {
-      if (M_EQUALS(*it, state.bestLine.moves[state._ply].move)) {
+      if (M_EQUALS(*it, state._bestLine.moves[state._ply])) {
         std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
         insertNextMoveAt++;
         break;
@@ -226,9 +225,12 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
     if (score > alpha) {
       alpha = score; // Update value of "best path so far for maximizer"
-      pvLine.moves[0] = S_MOVE{move, score};
-      memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(S_MOVE));
+      pvLine.moves[0] = move;
+      memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(Move));
       pvLine.moveCount = line.moveCount + 1;
+      if (state._ply == 0) {
+        state._lineEval = score;
+      }
     }
   }
   if (gameOver) {

@@ -39,6 +39,23 @@ enum { BLACK = -1, NONE, WHITE };
 
 enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 
+typedef struct {
+  Move _move;
+  int _castleRights;
+  int _EPTarget;
+  int _halfMoveClock;
+} S_UNDO;
+
+typedef struct {
+  Move move;
+  int score;
+} S_MOVE_AND_SCORE;
+
+typedef struct {
+  int moveCount = 0;
+  Move moves[100];
+} S_PVLINE;
+
 #define CLRBIT(bb, i) (bb &= clearMask[i])
 #define SETBIT(bb, i) (bb |= setMask[i])
 #define UP(bb) (bb << 8)

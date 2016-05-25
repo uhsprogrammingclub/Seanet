@@ -51,7 +51,12 @@ void search(State &state, SearchController &sControl) {
       std::cout << " kn/s";
       std::cout << "; "
                 << (float)(100.0 * sControl._fhfNodes / sControl._fhNodes)
-                << "% fhf\n";
+                << "% fhf";
+      std::cout << "; "
+                << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
+                << "% fh";
+      std::cout << "; " << (sControl._totalNodes / 1000) << "K nodes";
+      std::cout << std::endl;
     }
   }
 }
@@ -71,15 +76,47 @@ int negamax(int alpha, int beta, int depth, State &state,
   S_PVLINE line;
 
   std::vector<int> moves = generatePseudoMoves(state);
+  int insertNextMoveAt = 0;
+  int insertBadMoveAt = (int)moves.size() - 1;
 
-  for (std::vector<int>::iterator it = moves.begin(); it != moves.end(); ++it) {
+  // PV-move reorder
+  for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+       it != moves.end(); ++it) {
     if (M_EQUALS(*it, state.bestLine.moves[state._ply].move)) {
-      Move x = *it;
-      moves.erase(it);
-      moves.insert(moves.begin(), x);
+      std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+      insertNextMoveAt++;
       break;
     }
   }
+  // Hash move reorder
+  // TODO
+
+  //   Reorder based on SEE
+  for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+       it != moves.begin() + insertBadMoveAt; ++it) {
+    int seeEval = see(*it, state);
+    if (seeEval > 0) {
+      std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+      insertNextMoveAt++;
+    } else if (seeEval < 0) {
+      std::swap(moves[insertBadMoveAt], moves[it - moves.begin()]);
+      insertBadMoveAt--;
+      it--;
+    }
+  }
+
+  // Killer moves
+  // TODO
+
+  // Non captures sorted by history heuristic
+  // TODO
+
+  //  printf("Reordered moves: ");
+  //  for (auto it = moves.begin(); it != moves.end(); ++it) {
+  //    std::cout << moveToUCI(*it) << "(" << see(*it, state) << "), ";
+  //  }
+  //  std::cout << '\n';
+
   int moveNum = 0;
   bool gameOver = true; // set to false if there's a legal move
   for (Move move : moves) {

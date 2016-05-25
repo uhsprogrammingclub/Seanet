@@ -32,6 +32,8 @@ const U64 FILE_BB[8] = {0x0101010101010101ULL, 0x0202020202020202ULL,
 
 enum { WHITES, BLACKS, PAWNS, KNIGHTS, BISHOPS, ROOKS, QUEENS, KINGS };
 enum Piece { EMPTY, wP, bP, wN, bN, wB, bB, wR, bR, wQ, bQ, wK, bK };
+const int MATERIAL_WORTH[13] = {0,   100,  -100, 325,   -325,   330,    -330,
+                                550, -550, 1000, -1000, 100000, -100000};
 
 enum { BLACK = -1, NONE, WHITE };
 

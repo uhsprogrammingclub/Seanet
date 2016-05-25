@@ -81,56 +81,45 @@ int evaluate(State &state) {
   for (int i = 0; allPieces[i] != -1; i++) {
     Piece piece = state._pieces[allPieces[i]];
 
+    score += MATERIAL_WORTH[piece];
     int x = i % 8;
     int y = (i - x) / 8;
 
     switch (piece) {
     case wP:
-      score += 100;
       score += whitePawnPS[x][y];
       break;
     case bP:
-      score -= 100;
       score += blackPawnPS[x][y];
       break;
     case wN:
-      score += 320;
       score += whiteKnightPS[x][y];
       break;
     case bN:
-      score -= 320;
       score += blackKnightPS[x][y];
       break;
     case wB:
-      score += 330;
       score += whiteBishopPS[x][y];
       break;
     case bB:
-      score -= 330;
       score += blackBishopPS[x][y];
       break;
     case wR:
-      score += 500;
       score += whiteRookPS[x][y];
       break;
     case bR:
-      score -= 500;
       score += blackRookPS[x][y];
       break;
     case wQ:
-      score += 900;
       score += whiteQueenPS[x][y];
       break;
     case bQ:
-      score -= 900;
       score += blackQueenPS[x][y];
       break;
     case wK:
-      score += 20000;
       score += whiteKingMiddlePS[x][y];
       break;
     case bK:
-      score -= 20000;
       score += blackKingMiddlePS[x][y];
       break;
     default:

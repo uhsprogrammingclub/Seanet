@@ -483,7 +483,7 @@ int getValue(int index, const State &s) {
 }
 
 U64 getLeastValuablePiece(U64 bb, const State &s) {
-  for (int pieces = PAWNS; pieces <= KINGS; pieces += 1) {
+  for (int pieces = PAWNS; pieces <= KINGS; pieces++) {
     long subset = bb & s._pieceBitboards[pieces];
     if (subset != 0) {
       return subset & -subset; // single bit
@@ -496,20 +496,21 @@ int see(Move move, const State &s) {
   int gain[32];
   int d = 0;
   int side = -s._sideToMove;
+  int attackedSquare = M_TOSQ(move);
   U64 fromSet = setMask[M_FROMSQ(move)];
   U64 occ = s.allPieces();
-  U64 attadef = attacksTo(M_TOSQ(move), s, side, occ);
-  gain[d] = getValue(M_TOSQ(move), s);
+  U64 attadef = attacksTo(attackedSquare, s, side, occ);
+  gain[d] = std::abs(MATERIAL_WORTH[s._pieces[attackedSquare]]);
   while (fromSet) {
     d++; // next depth and side
-    gain[d] = getValue(LS1B(fromSet), s) -
+    gain[d] = std::abs(MATERIAL_WORTH[s._pieces[LS1B(fromSet)]]) -
               gain[d - 1]; // speculative store, if defended
     if (std::max(-gain[d - 1], gain[d]) < 0) {
       break; // pruning does not influence the result
     }
     occ ^= fromSet; // reset bit in temporary occupancy (for x-Rays)
     side = -side;
-    attadef = attacksTo(M_TOSQ(move), s, side, occ);
+    attadef = attacksTo(attackedSquare, s, side, occ);
     fromSet = getLeastValuablePiece(attadef, s);
   }
   while (--d) {

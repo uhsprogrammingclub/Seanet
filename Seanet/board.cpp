@@ -22,7 +22,7 @@ void State::printBoard() const {
     string += "|\n";
     std::cout << y + 1 << string;
   }
-  std::cout << "  A B C D E F G H \n";
+  std::cout << "  A B C D E F G H " << std::endl;
 }
 
 void State::makeMove(Move &move) {
@@ -162,7 +162,7 @@ void State::makeMove(Move &move) {
     std::cout << "MOVE:" << moveToUCI(move);
     std::cout << "PIECE:" << movingP;
     std::cout
-        << "Unknown piece passed to makeMove() function. Exiting with error.";
+        << "Unknown piece passed to makeMove() function. Exiting with error.\n";
     exit(EXIT_FAILURE);
   }
 

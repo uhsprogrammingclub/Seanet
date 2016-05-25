@@ -7,6 +7,7 @@
 //
 
 #include "search.hpp"
+#include <algorithm>
 
 int quiescencePly = 0;
 Move killerMoves[64 * 3];     // 64 mAX plys with 3 moves each.
@@ -83,6 +84,24 @@ bool reorderByHH(Move i, Move j) {
          historyHeuristic[M_FROMSQ(j)][M_TOSQ(j)];
 }
 
+bool sortScoredMoves(const S_MOVE_AND_SCORE &i, const S_MOVE_AND_SCORE &j) {
+  return i.score > j.score;
+}
+
+void pickMove(int moveNum, std::vector<S_MOVE_AND_SCORE> &scoredMoves) {
+  int bestScore = INT_MIN;
+  int bestNum = moveNum;
+  for (std::vector<S_MOVE_AND_SCORE>::iterator it =
+           scoredMoves.begin() + moveNum;
+       it != scoredMoves.end(); it++) {
+    if (it->score > bestScore) {
+      bestScore = it->score;
+      bestNum = (int)(it - scoredMoves.begin());
+    }
+  }
+  std::swap(scoredMoves[moveNum], scoredMoves[bestNum]);
+}
+
 int negamax(int alpha, int beta, int depth, State &state,
             SearchController &sControl, S_PVLINE &pvLine) {
   sControl._totalNodes++;
@@ -112,70 +131,127 @@ int negamax(int alpha, int beta, int depth, State &state,
     state._sideToMove *= -1;
   }
 
-  std::vector<int> moves = generatePseudoMoves(state);
+  std::vector<Move> moves = generatePseudoMoves(state);
+  std::vector<S_MOVE_AND_SCORE> scoredMoves;
+  scoredMoves.reserve(moves.size());
   int insertNextMoveAt = 0;
   int insertBadMoveAt = (int)moves.size() - 1;
 
-  // PV-move reorder
-  if (sControl.features[PV_REORDERING]) {
-    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-         it != moves.end(); ++it) {
-      if (M_EQUALS(*it, state._bestLine.moves[state._ply])) {
-        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-        insertNextMoveAt++;
-        break;
-      }
-    }
-  }
-  // Hash move reorder
-  // TODO
+  for (std::vector<Move>::iterator it = moves.begin(); it != moves.end();
+       ++it) {
+    // PV-move reorder
 
-  //   Reorder based on SEE
-  if (sControl.features[SEE_REORDERING]) {
-    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-         it <= moves.begin() + insertBadMoveAt; ++it) {
+    if (sControl.features[PV_REORDERING] &&
+        M_EQUALS(*it, state._bestLine.moves[state._ply])) {
+      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
+      continue;
+    }
+
+    //   Reorder based on SEE
+    if (sControl.features[SEE_REORDERING] &&
+        state._pieces[M_TOSQ(*it)] != EMPTY) {
       int seeEval = see(*it, state);
       if (seeEval > 0) {
-        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-        insertNextMoveAt++;
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 900000 + seeEval});
+        continue;
       } else if (seeEval < 0) {
-        std::swap(moves[insertBadMoveAt], moves[it - moves.begin()]);
-        insertBadMoveAt--;
-        it--;
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, seeEval});
+        continue;
       }
     }
-  }
 
-  // Killer moves
-  if (sControl.features[KH_REORDERING]) {
-    Move killers[3] = {killerMoves[state._ply * 3],
-                       killerMoves[state._ply * 3 + 1],
-                       killerMoves[state._ply * 3 + 2]};
-    int killerIndex[3] = {-1, -1, -1};
-
-    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-         it <= moves.begin() + insertBadMoveAt; ++it) {
-      if (M_EQUALS(*it, killers[0])) {
-        killerIndex[0] = (int)(it - moves.begin());
-      } else if (M_EQUALS(*it, killers[1])) {
-        killerIndex[1] = (int)(it - moves.begin());
-      } else if (M_EQUALS(*it, killers[2])) {
-        killerIndex[2] = (int)(it - moves.begin());
+    // Killer moves
+    if (sControl.features[KH_REORDERING]) {
+      if (M_EQUALS(*it, killerMoves[state._ply * 3])) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 900000});
+        continue;
+      } else if (M_EQUALS(*it, killerMoves[state._ply * 3 + 1])) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 850000});
+        continue;
+      } else if (M_EQUALS(*it, killerMoves[state._ply * 3 + 2])) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 800000});
+        continue;
       }
     }
-    for (int i = 0; i < 3; i++) {
-      if (killerIndex[i] != -1) {
-        std::swap(moves[insertNextMoveAt], moves[killerIndex[i]]);
-        insertNextMoveAt++;
-      }
+
+    // Non captures sorted by history heuristic
+    if (sControl.features[HH_REORDERING]) {
+      scoredMoves.push_back(
+          S_MOVE_AND_SCORE{*it, historyHeuristic[M_FROMSQ(*it)][M_TOSQ(*it)]});
+      continue;
     }
+    scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 0});
   }
 
-  // Non captures sorted by history heuristic
-  if (sControl.features[HH_REORDERING]) {
-    std::sort(moves.begin() + insertNextMoveAt,
-              moves.begin() + insertBadMoveAt + 1, reorderByHH);
-  }
+  // std::sort(scoredMoves.begin(), scoredMoves.end(), sortScoredMoves);
+
+  //  printf("Sorted moves: ");
+  //  for (S_MOVE_AND_SCORE scoredMove : scoredMoves) {
+  //    std::cout << moveToUCI(scoredMove.move) << "(" << scoredMove.score <<
+  //    "), ";
+  //  }
+  //  std::cout << std::endl;
+
+  //  // PV-move reorder
+  //  if (sControl.features[PV_REORDERING]) {
+  //    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+  //         it != moves.end(); ++it) {
+  //      if (M_EQUALS(*it, state._bestLine.moves[state._ply])) {
+  //        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+  //        insertNextMoveAt++;
+  //        break;
+  //      }
+  //    }
+  //  }
+  //  // Hash move reorder
+  //  // TODO
+  //
+  //  //   Reorder based on SEE
+  //  if (sControl.features[SEE_REORDERING]) {
+  //    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+  //         it <= moves.begin() + insertBadMoveAt; ++it) {
+  //      int seeEval = see(*it, state);
+  //      if (seeEval > 0) {
+  //        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+  //        insertNextMoveAt++;
+  //      } else if (seeEval < 0) {
+  //        std::swap(moves[insertBadMoveAt], moves[it - moves.begin()]);
+  //        insertBadMoveAt--;
+  //        it--;
+  //      }
+  //    }
+  //  }
+  //
+  //  // Killer moves
+  //  if (sControl.features[KH_REORDERING]) {
+  //    Move killers[3] = {killerMoves[state._ply * 3],
+  //                       killerMoves[state._ply * 3 + 1],
+  //                       killerMoves[state._ply * 3 + 2]};
+  //    int killerIndex[3] = {-1, -1, -1};
+  //
+  //    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+  //         it <= moves.begin() + insertBadMoveAt; ++it) {
+  //      if (M_EQUALS(*it, killers[0])) {
+  //        killerIndex[0] = (int)(it - moves.begin());
+  //      } else if (M_EQUALS(*it, killers[1])) {
+  //        killerIndex[1] = (int)(it - moves.begin());
+  //      } else if (M_EQUALS(*it, killers[2])) {
+  //        killerIndex[2] = (int)(it - moves.begin());
+  //      }
+  //    }
+  //    for (int i = 0; i < 3; i++) {
+  //      if (killerIndex[i] != -1) {
+  //        std::swap(moves[insertNextMoveAt], moves[killerIndex[i]]);
+  //        insertNextMoveAt++;
+  //      }
+  //    }
+  //  }
+  //
+  //  // Non captures sorted by history heuristic
+  //  if (sControl.features[HH_REORDERING]) {
+  //    std::sort(moves.begin() + insertNextMoveAt,
+  //              moves.begin() + insertBadMoveAt + 1, reorderByHH);
+  //  }
 
   //  printf("Reordered moves: ");
   //  for (auto it = moves.begin(); it != moves.end(); ++it) {
@@ -184,15 +260,19 @@ int negamax(int alpha, int beta, int depth, State &state,
   //  std::cout << '\n';
 
   int moveNum = 0;
+  int legalNum = 0;
   bool gameOver = true; // set to false if there's a legal move
-  for (Move move : moves) {
+  while (moveNum < scoredMoves.size()) {
+    pickMove(moveNum, scoredMoves);
+    Move move = scoredMoves[moveNum].move;
+    moveNum++;
     state.makeMove(move);
 
     if (!state.isPositionLegal()) {
       state.takeMove();
       continue;
     }
-    moveNum++;
+    legalNum++;
     gameOver = false;
     if (state._ply == 0) {
       sControl._currMove = move;
@@ -208,7 +288,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     if (score >= beta) {
-      if (moveNum == 1) {
+      if (legalNum == 1) {
         sControl._fhfNodes++;
       }
       sControl._fhNodes++;

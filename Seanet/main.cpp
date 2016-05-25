@@ -36,8 +36,8 @@ int main(int argc, const char *argv[]) {
   gameState.printBoard();
 
   SearchController sControl;
-  sControl._depthLimit = 8;
-  sControl._timeLimit = 300;
+  sControl._depthLimit = 9;
+  sControl._timeLimit = 90;
   search(gameState, sControl);
 
   printf("Best move: %s (%i)\n",

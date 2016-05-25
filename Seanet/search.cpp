@@ -9,12 +9,16 @@
 #include "search.hpp"
 
 int quiescencePly = 0;
+Move killerMoves[64 * 3]; // 64 mAX plys with 3 moves each.
 /**
 Takes input of a state, time limit, and (optional) max depth, returns the best
 move for the state.sideToMove() as an int.
  **/
 void search(State &state, SearchController &sControl) {
   sControl.resetStats();
+  for (int i = 0; i < 192; i++) {
+    killerMoves[i] = 0;
+  }
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
@@ -63,6 +67,18 @@ void search(State &state, SearchController &sControl) {
   }
 }
 
+void addKillerMove(int ply, Move move) {
+  int firstMoveIndex = ply * 3;
+  if (M_EQUALS(move, killerMoves[firstMoveIndex])) {
+  } else if (M_EQUALS(move, killerMoves[firstMoveIndex + 1])) {
+    std::swap(killerMoves[firstMoveIndex], killerMoves[firstMoveIndex + 1]);
+  } else {
+    std::swap(killerMoves[firstMoveIndex + 1], killerMoves[firstMoveIndex + 2]);
+    std::swap(killerMoves[firstMoveIndex], killerMoves[firstMoveIndex + 1]);
+    killerMoves[firstMoveIndex] = move;
+  }
+}
+
 int negamax(int alpha, int beta, int depth, State &state,
             SearchController &sControl, S_PVLINE &pvLine) {
   sControl._totalNodes++;
@@ -80,10 +96,10 @@ int negamax(int alpha, int beta, int depth, State &state,
   std::vector<int> moves = generatePseudoMoves(state);
   int insertNextMoveAt = 0;
   int insertBadMoveAt = (int)moves.size() - 1;
-//  std::cout << *(moves.begin() + insertBadMoveAt +1);
-//	std::cout << std::endl;
-//  std::cout << *(moves.end());
-//  std::cout << std::endl << std::endl;
+  //  std::cout << *(moves.begin() + insertBadMoveAt +1);
+  //	std::cout << std::endl;
+  //  std::cout << *(moves.end());
+  //  std::cout << std::endl << std::endl;
 
   // PV-move reorder
   for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
@@ -112,7 +128,40 @@ int negamax(int alpha, int beta, int depth, State &state,
   }
 
   // Killer moves
-  // TODO
+
+  Move *killerMove1 = &killerMoves[state._ply * 3];
+  Move *killerMove2 = &killerMoves[state._ply * 3 + 1];
+  Move *killerMove3 = &killerMoves[state._ply * 3 + 2];
+  if (*killerMove1) {
+    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+         it <= moves.begin() + insertBadMoveAt; ++it) {
+      if (M_EQUALS(*it, *killerMove1)) {
+        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+        insertNextMoveAt++;
+        break;
+      }
+    }
+  }
+  if (*killerMove2) {
+    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+         it <= moves.begin() + insertBadMoveAt; ++it) {
+      if (M_EQUALS(*it, *killerMove2)) {
+        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+        insertNextMoveAt++;
+        break;
+      }
+    }
+  }
+  if (*killerMove3) {
+    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
+         it <= moves.begin() + insertBadMoveAt; ++it) {
+      if (M_EQUALS(*it, *killerMove3)) {
+        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
+        insertNextMoveAt++;
+        break;
+      }
+    }
+  }
 
   // Non captures sorted by history heuristic
   // TODO
@@ -152,6 +201,9 @@ int negamax(int alpha, int beta, int depth, State &state,
         sControl._fhfNodes++;
       }
       sControl._fhNodes++;
+      if (!M_ISCAPTURE(move)) {
+        addKillerMove(state._ply, move);
+      }
       return beta; // Fail hard beta-cutoff
     }
     if (score > alpha) {

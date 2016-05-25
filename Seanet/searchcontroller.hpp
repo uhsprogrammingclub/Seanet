@@ -10,6 +10,7 @@
 #define __Seanet__searchcontroller__
 
 #include "board.hpp"
+#include "hash.hpp"
 #include "util.hpp"
 #include <stdio.h>
 #include <sys/time.h>
@@ -27,6 +28,7 @@ public:
   int _maxDepth = 0;
   Move _currMove = 0;
   int _currMoveNumber = 0;
+  S_HASHTABLE table;
 
   void checkTimeLimit();
   void resetStats();

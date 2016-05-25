@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		36304D881CF2B509004ABD85 /* LCT-II.text in Sources */ = {isa = PBXBuildFile; fileRef = 36304D871CF2B509004ABD85 /* LCT-II.text */; };
+		3634CA071CF424AB00DFFB64 /* hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3634CA051CF424AB00DFFB64 /* hash.cpp */; };
+		3634CA081CF424AB00DFFB64 /* hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3634CA051CF424AB00DFFB64 /* hash.cpp */; };
 		36A30F9B1CEFE38E00B6FDAC /* searchcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871EB1CEC013E00F7007A /* searchcontroller.cpp */; };
 		36A30F9C1CEFE39300B6FDAC /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E51CEADC7900F7007A /* search.cpp */; };
 		36A30F9D1CEFE3AC00B6FDAC /* evaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E81CEADE8900F7007A /* evaluator.cpp */; };
@@ -47,6 +49,8 @@
 
 /* Begin PBXFileReference section */
 		36304D871CF2B509004ABD85 /* LCT-II.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LCT-II.text"; sourceTree = "<group>"; };
+		3634CA051CF424AB00DFFB64 /* hash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hash.cpp; sourceTree = "<group>"; };
+		3634CA061CF424AB00DFFB64 /* hash.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = hash.hpp; sourceTree = "<group>"; };
 		36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "Bratko-Kopec.text"; sourceTree = "<group>"; };
 		36A30F9A1CEFD0A600B6FDAC /* records.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = records.text; sourceTree = "<group>"; };
 		80053BD11CE57713006B1B81 /* Seanet */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Seanet; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -123,6 +127,8 @@
 				BF6871E91CEADE8900F7007A /* evaluator.hpp */,
 				BF6871EB1CEC013E00F7007A /* searchcontroller.cpp */,
 				BF6871EC1CEC013E00F7007A /* searchcontroller.hpp */,
+				3634CA051CF424AB00DFFB64 /* hash.cpp */,
+				3634CA061CF424AB00DFFB64 /* hash.hpp */,
 			);
 			path = Seanet;
 			sourceTree = "<group>";
@@ -221,6 +227,7 @@
 				80053BE01CE58033006B1B81 /* movegenerator.cpp in Sources */,
 				80053BD51CE57713006B1B81 /* main.cpp in Sources */,
 				BF6871ED1CEC013E00F7007A /* searchcontroller.cpp in Sources */,
+				3634CA071CF424AB00DFFB64 /* hash.cpp in Sources */,
 				80053BE31CE5804C006B1B81 /* util.cpp in Sources */,
 				BF6871EA1CEADE8900F7007A /* evaluator.cpp in Sources */,
 			);
@@ -232,6 +239,7 @@
 			files = (
 				36304D881CF2B509004ABD85 /* LCT-II.text in Sources */,
 				BFDDC6B01CE81DD900CBB8CC /* main.cpp in Sources */,
+				3634CA081CF424AB00DFFB64 /* hash.cpp in Sources */,
 				36A30F9C1CEFE39300B6FDAC /* search.cpp in Sources */,
 				36A30F9D1CEFE3AC00B6FDAC /* evaluator.cpp in Sources */,
 				BFDDC6B61CE8288100CBB8CC /* util.cpp in Sources */,

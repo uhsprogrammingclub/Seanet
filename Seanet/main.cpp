@@ -26,8 +26,10 @@ State gameState;
 int main(int argc, const char *argv[]) {
   // insert code here...
 
-  std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
-  FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+  std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  // FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0
+  // 1";
+  FEN = "rnb2bnr/pppkpppp/4q3/8/8/2N2N2/PPPPBPPP/R1BQK2R b KQ - 5 11";
 
   initPresets();
 
@@ -42,15 +44,22 @@ int main(int argc, const char *argv[]) {
   printf("Best move: %s (%i)\n",
          moveToUCI(gameState.bestLine.moves[0].move).c_str(),
          gameState.bestLine.moves[0].eval);
-
   exit(0);
-  takePlayerMove();
+  /*SearchController sControl;
+  sControl._timeLimit = 10;
+  while (true) {
+    gameState.printBoard();
+
+    takePlayerMove();
+    search(gameState, sControl);
+    Move m = gameState.bestLine.moves[0].move;
+    gameState.makeMove(m);
+  }*/
 
   return 0;
 }
 
 void takePlayerMove() {
-  gameState.printBoard();
   std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
 
   std::vector<int> pseudoMoves = generatePseudoMoves(gameState);
@@ -84,7 +93,6 @@ void takePlayerMove() {
       std::cout << "Illegal Move!\n";
     }
   }
-  takePlayerMove();
 }
 
 void startUCI() {

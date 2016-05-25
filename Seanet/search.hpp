@@ -10,6 +10,7 @@
 #define __Seanet__search__
 
 #include "evaluator.hpp"
+#include "hash.hpp"
 #include "movegenerator.hpp"
 #include "searchcontroller.hpp"
 #include "util.hpp"

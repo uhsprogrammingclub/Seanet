@@ -87,43 +87,43 @@ int evaluate(State &state) {
     switch (piece) {
     case wP:
       score += 100;
-      score += whitePawnPS[x][y];
+      // score += whitePawnPS[x][y];
       break;
     case bP:
       score -= 100;
-      score += blackPawnPS[x][y];
+      // score += blackPawnPS[x][y];
       break;
     case wN:
       score += 320;
-      score += whiteKnightPS[x][y];
+      // score += whiteKnightPS[x][y];
       break;
     case bN:
       score -= 320;
-      score += blackKnightPS[x][y];
+      // score += blackKnightPS[x][y];
       break;
     case wB:
       score += 330;
-      score += whiteBishopPS[x][y];
+      // score += whiteBishopPS[x][y];
       break;
     case bB:
       score -= 330;
-      score += blackBishopPS[x][y];
+      // score += blackBishopPS[x][y];
       break;
     case wR:
       score += 500;
-      score += whiteRookPS[x][y];
+      // score += whiteRookPS[x][y];
       break;
     case bR:
       score -= 500;
-      score += blackRookPS[x][y];
+      // score += blackRookPS[x][y];
       break;
     case wQ:
       score += 900;
-      score += whiteQueenPS[x][y];
+      // score += whiteQueenPS[x][y];
       break;
     case bQ:
       score -= 900;
-      score += blackQueenPS[x][y];
+      // score += blackQueenPS[x][y];
       break;
     case wK:
       score += 20000;
@@ -132,6 +132,8 @@ int evaluate(State &state) {
     case bK:
       score -= 20000;
       score += blackKingMiddlePS[x][y];
+      std::cout << "Black king on " << x << y << " with value "
+                << blackKingMiddlePS[x][y];
       break;
     default:
       break;
@@ -165,7 +167,7 @@ bool isGameOver(State &state) {
 void generateFlippedTables() {
   int MAXROWS = 8;
   int MAXCOLUMNS = 8;
-  for (int r = 0; r < (MAXROWS / 2); r++) {
+  for (int r = 0; r < (MAXROWS); r++) {
     for (int c = 0; c != MAXCOLUMNS; ++c) {
       blackPawnPS[r][c] = whitePawnPS[MAXROWS - 1 - r][c] * -1;
       blackKnightPS[r][c] = whiteKnightPS[MAXROWS - 1 - r][c] * -1;

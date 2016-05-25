@@ -62,10 +62,29 @@ int negamax(int alpha, int beta, int depth, State &state,
   }
   if (depth <= 0) {
     pvLine.moveCount = 0;
-    return qSearch(alpha, beta, state, sControl);
+    int score = qSearch(alpha, beta, state, sControl);
+    storeHashEntry(z.getZobristHash(state), depth, score, false, EXACT,
+                   &sControl.table);
+    return score;
     // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
   }
+
   S_PVLINE line;
+  S_HASHENTRY oldEntry =
+      probeHashTable(&sControl.table, z.getZobristHash(state));
+  if (oldEntry.zobrist == z.getZobristHash(state) && oldEntry.depth > depth) {
+    if (oldEntry.type == EXACT) {
+      return oldEntry.score;
+    }
+    if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
+      return alpha;
+    }
+    if (oldEntry.type == BETA && oldEntry.score >= beta) {
+      return beta;
+    }
+  }
+
+  NodeType flag = ALPHA;
 
   std::vector<int> moves = generatePseudoMoves(state);
 
@@ -100,9 +119,12 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     if (score >= beta) {
+      storeHashEntry(z.getZobristHash(state), depth, beta, false, BETA,
+                     &sControl.table);
       return beta; // Fail hard beta-cutoff
     }
     if (score > alpha) {
+      flag = EXACT;
       alpha = score; // Update value of "best path so far for maximizer"
       pvLine.moves[0] =
           S_MOVE{move, score * (state._sideToMove == WHITE ? 1 : -1)};
@@ -116,6 +138,8 @@ int negamax(int alpha, int beta, int depth, State &state,
   if (gameOver) {
     return evaluateGameOver(state);
   }
+  storeHashEntry(z.getZobristHash(state), depth, alpha, false, flag,
+                 &sControl.table);
   return alpha;
 }
 

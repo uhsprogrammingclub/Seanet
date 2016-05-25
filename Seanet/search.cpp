@@ -56,6 +56,8 @@ void search(State &state, SearchController &sControl) {
                 << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
                 << "% fh";
       std::cout << "; " << (sControl._totalNodes / 1000) << "K nodes";
+      std::cout << "; seldepth ";
+      std::cout << sControl._maxDepth;
       std::cout << std::endl;
     }
   }
@@ -78,6 +80,10 @@ int negamax(int alpha, int beta, int depth, State &state,
   std::vector<int> moves = generatePseudoMoves(state);
   int insertNextMoveAt = 0;
   int insertBadMoveAt = (int)moves.size() - 1;
+//  std::cout << *(moves.begin() + insertBadMoveAt +1);
+//	std::cout << std::endl;
+//  std::cout << *(moves.end());
+//  std::cout << std::endl << std::endl;
 
   // PV-move reorder
   for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
@@ -93,7 +99,7 @@ int negamax(int alpha, int beta, int depth, State &state,
 
   //   Reorder based on SEE
   for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-       it != moves.begin() + insertBadMoveAt; ++it) {
+       it <= moves.begin() + insertBadMoveAt; ++it) {
     int seeEval = see(*it, state);
     if (seeEval > 0) {
       std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);

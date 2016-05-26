@@ -123,23 +123,37 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
   initPresets();
 
   std::ifstream file("Silver-Suite.text");
-  std::vector<std::string> positions;
+  std::vector<KeyInfoMap> positions;
   std::string line;
 
-  int posLimit = 50;
+  int posLimit = 5;
 
   while (std::getline(file, line)) {
-    KeyInfoMap info = splitEDP(line);
-    positions.push_back(info["fen"]);
+    positions.push_back(splitEDP(line));
   }
-  bool control[] = {false, false, false, false, false};
-  bool allFeatures[] = {true, true, true, true, true};
-  std::vector<bool *> featureConfigs = {control, allFeatures};
+  std::random_shuffle(positions.begin(), positions.end());
 
+  bool control[] = {true, false, false, false, false};
+  bool allFeatures[] = {true, true, true, true, true};
+  std::vector<bool *> featureConfigs;
+
+  bool configs[(int)std::pow(2, NUM_OF_FEATURES)][NUM_OF_FEATURES];
+  for (int i = 1; i < std::pow(2, NUM_OF_FEATURES-1); i++) {
+    std::string s = std::bitset<NUM_OF_FEATURES>(i).to_string();
+    for (int j = 0; j < NUM_OF_FEATURES; j++) {
+      configs[i][j] = s[j] == '0' ? false : true;
+    }
+	  configs[i][1] = true;
+    featureConfigs.push_back(configs[i]);
+  }
+
+	std::random_shuffle(featureConfigs.begin(), featureConfigs.end());
+	featureConfigs.insert(featureConfigs.begin(), control);
+	
   std::vector<int> totalNodes(featureConfigs.size());
   std::vector<int> totalTime(featureConfigs.size());
 
-  for (int i = 0; i < featureConfigs.size() && i != posLimit; i++) {
+  for (int i = 0; i < featureConfigs.size(); i++) {
     bool *config = featureConfigs[i];
     SearchController sControl;
     sControl._output = false;
@@ -147,8 +161,14 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
     std::cout << "##### USING NEW FEATURES: " << sControl.featuresToString()
               << " #####\n" << std::endl;
     sControl._timeLimit = INT_MAX;
-    sControl._depthLimit = 5;
-    for (std::string FEN : positions) {
+    sControl._depthLimit = 6;
+    int posNum = 0;
+    for (KeyInfoMap info : positions) {
+      std::string FEN = info["fen"];
+      posNum++;
+      if (posNum > posLimit) {
+        break;
+      }
       runSearch(FEN, sControl);
       timeval currTime;
       gettimeofday(&currTime, 0);
@@ -157,7 +177,7 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
 
       totalNodes[i] += sControl._totalNodes;
       totalTime[i] += timeElapsed;
-      std::cout << i + 1 << ". " << FEN << std::endl;
+      std::cout << posNum << ". [" << info["id"] << "] " << FEN << std::endl;
       std::cout << timeElapsed << " ms; "
                 << (int)(sControl._totalNodes / (timeElapsed)) << " kn/s"
                 << "; "
@@ -173,22 +193,54 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
   float timeElapsedControl = totalTime[0] / 1000.0;
   int avgSpeedControl = (int)(totalNodes[0] / totalTime[0]);
   int nodesControl = totalNodes[0] / 1000;
-  for (int i = 0; i < featureConfigs.size() && i != posLimit; i++) {
+
+  double bestTimeChange = 0;
+  bool *bestTimeConfig = featureConfigs[0];
+
+  double bestSpeedChange = 0;
+  bool *bestSpeedConfig = featureConfigs[0];
+
+  double bestNodeChange = 0;
+  bool *bestNodeConfig = featureConfigs[0];
+  for (int i = 0; i < featureConfigs.size(); i++) {
     float timeElapsed = totalTime[i] / 1000.0;
     int avgSpeed = (int)(totalNodes[i] / totalTime[i]);
     int nodes = totalNodes[i] / 1000;
+
+    double timeChange =
+        100.0 * (timeElapsedControl - timeElapsed) / timeElapsedControl;
+    double speedChange = 100.0 * (avgSpeed - avgSpeedControl) / avgSpeedControl;
+    double nodeChange = 100.0 * (nodesControl - nodes) / nodesControl;
+
     std::cout << "Features: " << searchFeaturesToString(featureConfigs[i])
               << std::endl;
     std::cout << "Time elapsed: " << timeElapsed << " sec; ";
-    std::cout << 100.0 * (timeElapsed - timeElapsedControl) / timeElapsedControl
-              << "% change\n";
+    std::cout << timeChange << "% change\n";
     std::cout << "Average speed: " << avgSpeed << " kn/s; ";
-    std::cout << 100.0 * (avgSpeed - avgSpeedControl) / avgSpeedControl
-              << "% change\n";
+    std::cout << speedChange << "% change\n";
     std::cout << "Nodes computed: " << nodes << "K; ";
-    std::cout << 100.0 * (nodes - nodesControl) / nodesControl << "% change\n";
+    std::cout << nodeChange << "% change\n";
     std::cout << std::endl;
+
+    if (timeChange > bestTimeChange) {
+      bestTimeChange = timeChange;
+      bestTimeConfig = featureConfigs[i];
+    }
+    if (speedChange > bestSpeedChange) {
+      bestSpeedChange = speedChange;
+      bestSpeedConfig = featureConfigs[i];
+    }
+    if (nodeChange > bestNodeChange) {
+      bestNodeChange = nodeChange;
+      bestNodeConfig = featureConfigs[i];
+    }
   }
+  std::cout << "Highest time change: " << bestTimeChange << "% [ "
+            << searchFeaturesToString(bestTimeConfig) << "]" << std::endl;
+  std::cout << "Highest speed change: " << bestSpeedChange << "% [ "
+            << searchFeaturesToString(bestSpeedConfig) << "]" << std::endl;
+  std::cout << "Highest node change: " << bestNodeChange << "% [ "
+            << searchFeaturesToString(bestNodeConfig) << "]" << std::endl;
 }
 
 void perftTest(State &state, int depth) {

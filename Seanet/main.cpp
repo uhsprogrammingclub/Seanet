@@ -29,12 +29,17 @@ int main(int argc, const char *argv[]) {
   std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   // FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0
   // 1";
-  // FEN = "K7/8/8/3Q4/4q3/8/8/7k b - - 0 1";
+  // mirrored positions
+  //  FEN = "K7/8/8/3Q4/4q3/8/8/7k b - - 0 1";
+  //   FEN = "1rb1k2q/1p2r1bp/3n1p2/n1p4P/p4P1N/2P1N3/PB1R2P1/Q2K1BR1 b - - 0
+  //   1";
+  //  FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w - - 0 1";
 
   initPresets();
 
   gameState = boardFromFEN(FEN);
   gameState.printBoard();
+  std::cout << "Static board evaluation: " << evaluate(gameState) << std::endl;
 
   SearchController sControl;
   sControl._depthLimit = 9;

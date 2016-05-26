@@ -416,7 +416,7 @@ void initPresets() {
   generateMoveDatabase(true);
   generateOccupancyVariations(false);
   generateMoveDatabase(false);
-  generateFlippedTables();
+  //  generateFlippedTables();
 }
 
 std::string bbToString(U64 bb) {

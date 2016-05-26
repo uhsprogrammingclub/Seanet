@@ -126,20 +126,26 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
   std::vector<KeyInfoMap> positions;
   std::string line;
 
-  int posLimit = 5;
+  int posLimit = 50;
 
   while (std::getline(file, line)) {
     positions.push_back(splitEDP(line));
   }
   std::random_shuffle(positions.begin(), positions.end());
 
-  bool control[] = {true, false, false, false, true};
+  bool control[NUM_OF_FEATURES];
+  control[PV_REORDERING] = true;
+  control[SEE_REORDERING] = false;
+  control[KH_REORDERING] = false;
+  control[HH_REORDERING] = false;
+  control[NULL_MOVE] = true;
+
   const int degreesOfFreedom = 3;
   bool allFeatures[] = {true, true, true, true, true};
   std::vector<bool *> featureConfigs;
 
-  bool configs[(int)std::pow(2, NUM_OF_FEATURES)][NUM_OF_FEATURES];
-  for (int i = 1; i < std::pow(2, degreesOfFreedom)-1; i++) {
+  bool configs[(int)std::pow(2, degreesOfFreedom) - 2][NUM_OF_FEATURES];
+  for (int i = 1; i < std::pow(2, degreesOfFreedom) - 1; i++) {
 
     std::string s = std::bitset<degreesOfFreedom>(i).to_string();
     int degreesUsed = 0;
@@ -161,23 +167,24 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
 
   std::vector<int> totalNodes(featureConfigs.size());
   std::vector<int> totalTime(featureConfigs.size());
+  int posNum = 0;
+  for (KeyInfoMap info : positions) {
+    std::string FEN = info["fen"];
+    posNum++;
+    if (posNum > posLimit) {
+      break;
+    }
+    std::cout << "\n##### TESTING NEW POSITION #####" << std::endl;
+    std::cout << posNum << ". [" << info["id"] << "] " << FEN << std::endl
+              << std::endl;
+    for (int i = 0; i < featureConfigs.size(); i++) {
+      bool *config = featureConfigs[i];
+      SearchController sControl;
+      sControl._output = false;
+      std::copy(config, config + NUM_OF_FEATURES, sControl._features);
+      sControl._timeLimit = INT_MAX;
+      sControl._depthLimit = 5;
 
-  for (int i = 0; i < featureConfigs.size(); i++) {
-    bool *config = featureConfigs[i];
-    SearchController sControl;
-    sControl._output = false;
-    std::copy(config, config + NUM_OF_FEATURES, sControl._features);
-    std::cout << "##### USING NEW FEATURES: " << sControl.featuresToString()
-              << " #####\n" << std::endl;
-    sControl._timeLimit = INT_MAX;
-    sControl._depthLimit = 6;
-    int posNum = 0;
-    for (KeyInfoMap info : positions) {
-      std::string FEN = info["fen"];
-      posNum++;
-      if (posNum > posLimit) {
-        break;
-      }
       runSearch(FEN, sControl);
       timeval currTime;
       gettimeofday(&currTime, 0);
@@ -186,7 +193,7 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
 
       totalNodes[i] += sControl._totalNodes;
       totalTime[i] += timeElapsed;
-      std::cout << posNum << ". [" << info["id"] << "] " << FEN << std::endl;
+      std::cout << "[ " << sControl.featuresToString() << "]" << std::endl;
       std::cout << timeElapsed << " ms; "
                 << (int)(sControl._totalNodes / (timeElapsed)) << " kn/s"
                 << "; "
@@ -199,6 +206,7 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
                 << "; seldepth " << sControl._maxDepth << "\n" << std::endl;
     }
   }
+
   float timeElapsedControl = totalTime[0] / 1000.0;
   int avgSpeedControl = (int)(totalNodes[0] / totalTime[0]);
   int nodesControl = totalNodes[0] / 1000;

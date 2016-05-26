@@ -34,6 +34,8 @@ int main(int argc, const char *argv[]) {
   //   FEN = "1rb1k2q/1p2r1bp/3n1p2/n1p4P/p4P1N/2P1N3/PB1R2P1/Q2K1BR1 b - - 0
   //   1";
   //  FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w - - 0 1";
+  FEN = "2r1k2r/2pn1pp1/1p3n1p/p3PP2/4q2B/P1P5/2Q1N1PP/R4RK1 w q -";
+  // FEN = "4k2r/3n1pp1/1pr2n1p/p1p1PP2/4QR1B/P1P5/4N1PP/R5K1 w q - 2 2";
 
   initPresets();
 

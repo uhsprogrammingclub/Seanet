@@ -138,8 +138,8 @@ int negamax(int alpha, int beta, int depth, State &state,
 
   for (std::vector<Move>::iterator it = moves.begin(); it != moves.end();
        ++it) {
-    // PV-move reorder
 
+    // PV-move reorder
     if (sControl._features[PV_REORDERING] &&
         M_EQUALS(*it, state._bestLine.moves[state._ply])) {
       scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});

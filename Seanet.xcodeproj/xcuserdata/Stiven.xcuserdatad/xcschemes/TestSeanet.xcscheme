@@ -69,11 +69,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "&quot;[Speed]&quot;"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "&quot;[perft]&quot;"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "&quot;[fenFunctions]&quot;"

@@ -284,16 +284,24 @@ State boardFromFEN(std::string FEN) {
        it != castlingRights.end(); ++it) {
     switch (*it) {
     case 'Q':
-      b._castleRights |= WQCA;
+      if (b._pieces[0] == wR && b._pieces[4] == wK) {
+        b._castleRights |= WQCA;
+      }
       break;
     case 'K':
-      b._castleRights |= WKCA;
+      if (b._pieces[7] == wR && b._pieces[4] == wK) {
+        b._castleRights |= WKCA;
+      }
       break;
     case 'q':
-      b._castleRights |= BQCA;
+      if (b._pieces[56] == bR && b._pieces[60] == bK) {
+        b._castleRights |= BQCA;
+      }
       break;
     case 'k':
-      b._castleRights |= BKCA;
+      if (b._pieces[63] == bR && b._pieces[60] == bK) {
+        b._castleRights |= BKCA;
+      }
       break;
     }
   }
@@ -540,6 +548,16 @@ std::string searchFeaturesToString(bool *features) {
   }
   if (string == "") {
     string = "NONE";
+  }
+  return string;
+}
+
+std::string historyToString(const State &state) {
+  std::stack<S_UNDO> history = state._history;
+  std::string string = "";
+  while (!history.empty()) {
+    string = moveToUCI(history.top()._move) + " " + string;
+    history.pop();
   }
   return string;
 }

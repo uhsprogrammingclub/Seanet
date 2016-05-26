@@ -38,6 +38,9 @@ public:
   void makeMove(Move &move);
   void takeMove();
 
+  void makeNullMove();
+  void takeNullMove();
+
   void clearSquare(int index);
   void addPiece(Piece p, int index);
   void movePiece(int from, int to);

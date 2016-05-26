@@ -23,7 +23,7 @@ public:
   int _timeLimit = 60;
   int _uciOutput = false;
 
-  bool features[NUM_OF_FEATURES] = {true, true, true, false, false};
+  bool features[NUM_OF_FEATURES] = {true, true, true, true, true};
 
   bool _stopSearch = false;
   timeval _startTime;

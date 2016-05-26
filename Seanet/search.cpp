@@ -12,6 +12,7 @@
 int quiescencePly = 0;
 Move killerMoves[64 * 3];     // 64 mAX plys with 3 moves each.
 int historyHeuristic[64][64]; // historyHeuristic[from][to]
+S_PVLINE NULL_LINE;
 
 /**
 Takes input of a state, time limit, and (optional) max depth, returns the best
@@ -112,30 +113,26 @@ int negamax(int alpha, int beta, int depth, State &state,
   if (depth <= 0) {
     pvLine.moveCount = 0;
     return qSearch(alpha, beta, state, sControl);
-    // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
+  }
+
+  if (sControl.features[NULL_MOVE] && !state.isInCheck(state._sideToMove)) {
+
+    state.makeNullMove();
+    state._ply++;
+    int score =
+        -negamax(-beta, -beta + 1, depth - 3, state, sControl, NULL_LINE);
+    state._ply--;
+    state.takeNullMove();
+    if (score >= beta) {
+      return beta;
+    }
   }
 
   S_PVLINE line;
 
-  if (sControl.features[NULL_MOVE]) {
-    state._sideToMove *= -1;
-    if (state.isPositionLegal()) {
-      state._ply++;
-      int score = -negamax(-beta, -beta + 1, depth - 3, state, sControl, line);
-      state._ply--;
-      if (score >= beta) {
-        state._sideToMove *= -1;
-        return beta;
-      }
-    }
-    state._sideToMove *= -1;
-  }
-
   std::vector<Move> moves = generatePseudoMoves(state);
   std::vector<S_MOVE_AND_SCORE> scoredMoves;
   scoredMoves.reserve(moves.size());
-  int insertNextMoveAt = 0;
-  int insertBadMoveAt = (int)moves.size() - 1;
 
   for (std::vector<Move>::iterator it = moves.begin(); it != moves.end();
        ++it) {
@@ -151,8 +148,8 @@ int negamax(int alpha, int beta, int depth, State &state,
     if (sControl.features[SEE_REORDERING] &&
         state._pieces[M_TOSQ(*it)] != EMPTY) {
       int seeEval = see(*it, state);
-      if (seeEval > 0) {
-        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 900000 + seeEval});
+      if (seeEval >= 0) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 950000 + seeEval});
         continue;
       } else if (seeEval < 0) {
         scoredMoves.push_back(S_MOVE_AND_SCORE{*it, seeEval});
@@ -176,104 +173,27 @@ int negamax(int alpha, int beta, int depth, State &state,
 
     // Non captures sorted by history heuristic
     if (sControl.features[HH_REORDERING]) {
-      scoredMoves.push_back(
-          S_MOVE_AND_SCORE{*it, historyHeuristic[M_FROMSQ(*it)][M_TOSQ(*it)]});
+      int hhScore = historyHeuristic[M_FROMSQ(*it)][M_TOSQ(*it)];
+      if (hhScore > 700000) {
+        hhScore = 700000;
+      }
+      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, hhScore});
       continue;
     }
     scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 0});
   }
 
-  // std::sort(scoredMoves.begin(), scoredMoves.end(), sortScoredMoves);
-
-  //  printf("Sorted moves: ");
-  //  for (S_MOVE_AND_SCORE scoredMove : scoredMoves) {
-  //    std::cout << moveToUCI(scoredMove.move) << "(" << scoredMove.score <<
-  //    "), ";
-  //  }
-  //  std::cout << std::endl;
-
-  //  // PV-move reorder
-  //  if (sControl.features[PV_REORDERING]) {
-  //    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-  //         it != moves.end(); ++it) {
-  //      if (M_EQUALS(*it, state._bestLine.moves[state._ply])) {
-  //        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-  //        insertNextMoveAt++;
-  //        break;
-  //      }
-  //    }
-  //  }
-  //  // Hash move reorder
-  //  // TODO
-  //
-  //  //   Reorder based on SEE
-  //  if (sControl.features[SEE_REORDERING]) {
-  //    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-  //         it <= moves.begin() + insertBadMoveAt; ++it) {
-  //      int seeEval = see(*it, state);
-  //      if (seeEval > 0) {
-  //        std::swap(moves[insertNextMoveAt], moves[it - moves.begin()]);
-  //        insertNextMoveAt++;
-  //      } else if (seeEval < 0) {
-  //        std::swap(moves[insertBadMoveAt], moves[it - moves.begin()]);
-  //        insertBadMoveAt--;
-  //        it--;
-  //      }
-  //    }
-  //  }
-  //
-  //  // Killer moves
-  //  if (sControl.features[KH_REORDERING]) {
-  //    Move killers[3] = {killerMoves[state._ply * 3],
-  //                       killerMoves[state._ply * 3 + 1],
-  //                       killerMoves[state._ply * 3 + 2]};
-  //    int killerIndex[3] = {-1, -1, -1};
-  //
-  //    for (std::vector<int>::iterator it = moves.begin() + insertNextMoveAt;
-  //         it <= moves.begin() + insertBadMoveAt; ++it) {
-  //      if (M_EQUALS(*it, killers[0])) {
-  //        killerIndex[0] = (int)(it - moves.begin());
-  //      } else if (M_EQUALS(*it, killers[1])) {
-  //        killerIndex[1] = (int)(it - moves.begin());
-  //      } else if (M_EQUALS(*it, killers[2])) {
-  //        killerIndex[2] = (int)(it - moves.begin());
-  //      }
-  //    }
-  //    for (int i = 0; i < 3; i++) {
-  //      if (killerIndex[i] != -1) {
-  //        std::swap(moves[insertNextMoveAt], moves[killerIndex[i]]);
-  //        insertNextMoveAt++;
-  //      }
-  //    }
-  //  }
-  //
-  //  // Non captures sorted by history heuristic
-  //  if (sControl.features[HH_REORDERING]) {
-  //    std::sort(moves.begin() + insertNextMoveAt,
-  //              moves.begin() + insertBadMoveAt + 1, reorderByHH);
-  //  }
-
-  //  printf("Reordered moves: ");
-  //  for (auto it = moves.begin(); it != moves.end(); ++it) {
-  //    std::cout << moveToUCI(*it) << "(" << see(*it, state) << "), ";
-  //  }
-  //  std::cout << '\n';
-
-  int moveNum = 0;
-  int legalNum = 0;
-  bool gameOver = true; // set to false if there's a legal move
-  while (moveNum < scoredMoves.size()) {
+  int legal = 0;
+  for (int moveNum = 0; moveNum < scoredMoves.size(); moveNum++) {
     pickMove(moveNum, scoredMoves);
     Move move = scoredMoves[moveNum].move;
-    moveNum++;
     state.makeMove(move);
 
     if (!state.isPositionLegal()) {
       state.takeMove();
       continue;
     }
-    legalNum++;
-    gameOver = false;
+    legal++;
     if (state._ply == 0) {
       sControl._currMove = move;
       sControl._currMoveNumber++;
@@ -288,7 +208,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     if (score >= beta) {
-      if (legalNum == 1) {
+      if (legal == 1) {
         sControl._fhfNodes++;
       }
       sControl._fhNodes++;
@@ -313,7 +233,7 @@ int negamax(int alpha, int beta, int depth, State &state,
       }
     }
   }
-  if (gameOver) {
+  if (!legal) {
     return evaluateGameOver(state);
   }
   return alpha;

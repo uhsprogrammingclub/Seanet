@@ -42,28 +42,30 @@ void search(State &state, SearchController &sControl) {
     gettimeofday(&currTime, 0);
     int timeElapsed =
         (int)(timeToMS(currTime) - timeToMS(sControl._startTime)) + 1;
-    if (sControl._uciOutput) {
-      std::cout << "info"
-                << " depth " << sControl._currDepth << " seldepth "
-                << sControl._maxDepth << " time " << timeElapsed << " nodes "
-                << sControl._totalNodes << " score cp " << state._lineEval
-                << " nps "
-                << (int)(sControl._totalNodes / (timeElapsed / 1000.0))
-                << " pv " << pvLineToString(state._bestLine) << std::endl;
-    } else {
-      std::cout << sControl._currDepth << " ["
-                << state._lineEval * (state._sideToMove == WHITE ? 1 : -1)
-                << "] " << pvLineToString(state._bestLine) << "; "
-                << timeElapsed << " ms; "
-                << (int)(sControl._totalNodes / (timeElapsed)) << " kn/s"
-                << "; "
-                << (float)(100.0 * sControl._fhfNodes / sControl._fhNodes)
-                << "% fhf"
-                << "; "
-                << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
-                << "% fh"
-                << "; " << (sControl._totalNodes / 1000) << "K nodes"
-                << "; seldepth " << sControl._maxDepth << std::endl;
+    if (sControl._output) {
+      if (sControl._uciOutput) {
+        std::cout << "info"
+                  << " depth " << sControl._currDepth << " seldepth "
+                  << sControl._maxDepth << " time " << timeElapsed << " nodes "
+                  << sControl._totalNodes << " score cp " << state._lineEval
+                  << " nps "
+                  << (int)(sControl._totalNodes / (timeElapsed / 1000.0))
+                  << " pv " << pvLineToString(state._bestLine) << std::endl;
+      } else {
+        std::cout << sControl._currDepth << " ["
+                  << state._lineEval * (state._sideToMove == WHITE ? 1 : -1)
+                  << "] " << pvLineToString(state._bestLine) << "; "
+                  << timeElapsed << " ms; "
+                  << (int)(sControl._totalNodes / (timeElapsed)) << " kn/s"
+                  << "; "
+                  << (float)(100.0 * sControl._fhfNodes / sControl._fhNodes)
+                  << "% fhf"
+                  << "; "
+                  << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
+                  << "% fh"
+                  << "; " << (sControl._totalNodes / 1000) << "K nodes"
+                  << "; seldepth " << sControl._maxDepth << std::endl;
+      }
     }
   }
 }
@@ -115,7 +117,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     return qSearch(alpha, beta, state, sControl);
   }
 
-  if (sControl.features[NULL_MOVE] && !state.isInCheck(state._sideToMove)) {
+  if (sControl._features[NULL_MOVE] && !state.isInCheck(state._sideToMove)) {
 
     state.makeNullMove();
     state._ply++;
@@ -138,14 +140,14 @@ int negamax(int alpha, int beta, int depth, State &state,
        ++it) {
     // PV-move reorder
 
-    if (sControl.features[PV_REORDERING] &&
+    if (sControl._features[PV_REORDERING] &&
         M_EQUALS(*it, state._bestLine.moves[state._ply])) {
       scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
       continue;
     }
 
     //   Reorder based on SEE
-    if (sControl.features[SEE_REORDERING] &&
+    if (sControl._features[SEE_REORDERING] &&
         state._pieces[M_TOSQ(*it)] != EMPTY) {
       int seeEval = see(*it, state);
       if (seeEval >= 0) {
@@ -158,7 +160,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     // Killer moves
-    if (sControl.features[KH_REORDERING]) {
+    if (sControl._features[KH_REORDERING]) {
       if (M_EQUALS(*it, killerMoves[state._ply * 3])) {
         scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 900000});
         continue;
@@ -172,7 +174,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     // Non captures sorted by history heuristic
-    if (sControl.features[HH_REORDERING]) {
+    if (sControl._features[HH_REORDERING]) {
       int hhScore = historyHeuristic[M_FROMSQ(*it)][M_TOSQ(*it)];
       if (hhScore > 700000) {
         hhScore = 700000;
@@ -214,10 +216,10 @@ int negamax(int alpha, int beta, int depth, State &state,
       sControl._fhNodes++;
       if (!M_ISCAPTURE(move)) {
 
-        if (sControl.features[KH_REORDERING]) {
+        if (sControl._features[KH_REORDERING]) {
           addKillerMove(state._ply, move);
         }
-        if (sControl.features[HH_REORDERING]) {
+        if (sControl._features[HH_REORDERING]) {
           historyHeuristic[M_FROMSQ(move)][M_TOSQ(move)] += depth * depth;
         }
       }

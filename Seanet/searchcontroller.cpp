@@ -25,3 +25,7 @@ void SearchController::resetStats() {
   _currMoveNumber = 0;
   _stopSearch = false;
 }
+
+std::string SearchController::featuresToString() {
+  return searchFeaturesToString(_features);
+}

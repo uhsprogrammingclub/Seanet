@@ -14,16 +14,14 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-const int NUM_OF_FEATURES = 5;
-enum { PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE };
-
 class SearchController {
 public:
   int _depthLimit = 12;
   int _timeLimit = 60;
   int _uciOutput = false;
+  bool _output = true;
 
-  bool features[NUM_OF_FEATURES] = {true, true, true, true, true};
+  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true};
 
   bool _stopSearch = false;
   timeval _startTime;
@@ -37,6 +35,7 @@ public:
 
   void checkTimeLimit();
   void resetStats();
+  std::string featuresToString();
 };
 
 #endif /* defined(__Seanet__searchcontroller__) */

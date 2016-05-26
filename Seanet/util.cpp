@@ -338,9 +338,11 @@ KeyInfoMap splitEDP(std::string EDP) {
        it != subEDP.end(); ++it) {
     trim(*it);
     std::vector<std::string> sub = split(*it, ' ');
-    trim(sub[0]);
-    trim(sub[1]);
-    result[sub[0]] = sub[1];
+    if (sub.size() > 1) {
+      trim(sub[0]);
+      trim(sub[1]);
+      result[sub[0]] = sub[1];
+    }
   }
   return result;
 }
@@ -517,4 +519,27 @@ int see(Move move, const State &s) {
     gain[d - 1] = -std::max(-gain[d - 1], gain[d]);
   }
   return gain[0];
+}
+
+std::string searchFeaturesToString(bool *features) {
+  std::string string = "";
+  if (features[PV_REORDERING]) {
+    string += "PV_R ";
+  }
+  if (features[SEE_REORDERING]) {
+    string += "SEE_R ";
+  }
+  if (features[KH_REORDERING]) {
+    string += "KH_R ";
+  }
+  if (features[HH_REORDERING]) {
+    string += "HH_R ";
+  }
+  if (features[NULL_MOVE]) {
+    string += "NULL_M ";
+  }
+  if (string == "") {
+    string = "NONE";
+  }
+  return string;
 }

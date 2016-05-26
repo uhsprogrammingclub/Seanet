@@ -45,6 +45,7 @@ std::string moveToUCI(int move);
 int moveFromUCI(std::string uci);
 std::string pvLineToString(S_PVLINE line);
 int see(Move move, const State &s);
+std::string searchFeaturesToString(bool *features);
 
 // inline functions
 

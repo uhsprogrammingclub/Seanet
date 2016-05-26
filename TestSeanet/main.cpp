@@ -133,23 +133,32 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
   }
   std::random_shuffle(positions.begin(), positions.end());
 
-  bool control[] = {true, false, false, false, false};
+  bool control[] = {true, false, false, false, true};
+  const int degreesOfFreedom = 3;
   bool allFeatures[] = {true, true, true, true, true};
   std::vector<bool *> featureConfigs;
 
   bool configs[(int)std::pow(2, NUM_OF_FEATURES)][NUM_OF_FEATURES];
-  for (int i = 1; i < std::pow(2, NUM_OF_FEATURES-1); i++) {
-    std::string s = std::bitset<NUM_OF_FEATURES>(i).to_string();
+  for (int i = 1; i < std::pow(2, degreesOfFreedom)-1; i++) {
+
+    std::string s = std::bitset<degreesOfFreedom>(i).to_string();
+    int degreesUsed = 0;
     for (int j = 0; j < NUM_OF_FEATURES; j++) {
-      configs[i][j] = s[j] == '0' ? false : true;
+      configs[i][j] = true;
+      if (!control[j]) {
+        if (s[degreesUsed] == '0') {
+          configs[i][j] = false;
+        }
+        degreesUsed++;
+      }
     }
-	  configs[i][1] = true;
     featureConfigs.push_back(configs[i]);
   }
 
-	std::random_shuffle(featureConfigs.begin(), featureConfigs.end());
-	featureConfigs.insert(featureConfigs.begin(), control);
-	
+  std::random_shuffle(featureConfigs.begin(), featureConfigs.end());
+  featureConfigs.insert(featureConfigs.begin(), control);
+  featureConfigs.push_back(allFeatures);
+
   std::vector<int> totalNodes(featureConfigs.size());
   std::vector<int> totalTime(featureConfigs.size());
 

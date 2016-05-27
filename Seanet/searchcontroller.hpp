@@ -28,7 +28,7 @@ public:
   int _maxDepth = 0;
   Move _currMove = 0;
   int _currMoveNumber = 0;
-  S_HASHTABLE table;
+  HashTable table;
 
   void checkTimeLimit();
   void resetStats();

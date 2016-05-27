@@ -15,6 +15,7 @@ move for the state.sideToMove() as an int.
  **/
 void search(State &state, SearchController &sControl) {
   sControl.resetStats();
+  initHashTable(&sControl.table);
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
@@ -60,29 +61,34 @@ int negamax(int alpha, int beta, int depth, State &state,
   if ((sControl._totalNodes & 10240) == 0) {
     sControl.checkTimeLimit();
   }
+  U64 zHash = getZobristHash(state);
+
+  // Check if TT entry exists for given state, and return stored score
+  S_HASHENTRY oldEntry = probeHashTable(sControl.table, zHash);
+  if (oldEntry != NULL_ENTRY && oldEntry.zobrist == zHash) {
+    std::cout << "Found old entry!" << std::endl;
+    if (oldEntry.depth >= depth) {
+      std::cout << "Using old entry!" << std::endl;
+      if (oldEntry.type == EXACT) {
+        return oldEntry.score;
+      }
+      if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
+        return alpha;
+      }
+    }
+  }
+
+  // Check if search is at final depth
   if (depth <= 0) {
     pvLine.moveCount = 0;
     int score = qSearch(alpha, beta, state, sControl);
-    storeHashEntry(z.getZobristHash(state), depth, score, false, EXACT,
-                   &sControl.table);
+
+    storeHashEntry(zHash, depth, score, NO_MOVE, EXACT, sControl.table);
     return score;
     // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
   }
 
   S_PVLINE line;
-  S_HASHENTRY oldEntry =
-      probeHashTable(&sControl.table, z.getZobristHash(state));
-  if (oldEntry.zobrist == z.getZobristHash(state) && oldEntry.depth > depth) {
-    if (oldEntry.type == EXACT) {
-      return oldEntry.score;
-    }
-    if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
-      return alpha;
-    }
-    if (oldEntry.type == BETA && oldEntry.score >= beta) {
-      return beta;
-    }
-  }
 
   NodeType flag = ALPHA;
 
@@ -119,8 +125,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     if (score >= beta) {
-      storeHashEntry(z.getZobristHash(state), depth, beta, false, BETA,
-                     &sControl.table);
+      storeHashEntry(zHash, depth, beta, move, BETA, sControl.table);
       return beta; // Fail hard beta-cutoff
     }
     if (score > alpha) {
@@ -130,16 +135,14 @@ int negamax(int alpha, int beta, int depth, State &state,
           S_MOVE{move, score * (state._sideToMove == WHITE ? 1 : -1)};
       memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(S_MOVE));
       pvLine.moveCount = line.moveCount + 1;
-      if (depth > 4) {
-        // printf("score: %i\n", score);
-      }
     }
   }
   if (gameOver) {
     return evaluateGameOver(state);
   }
-  storeHashEntry(z.getZobristHash(state), depth, alpha, false, flag,
-                 &sControl.table);
+
+  storeHashEntry(zHash, depth, alpha, pvLine.moves[0].move, flag,
+                 sControl.table);
   return alpha;
 }
 

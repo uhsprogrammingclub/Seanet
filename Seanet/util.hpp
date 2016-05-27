@@ -12,6 +12,7 @@
 #include "board.hpp"
 #include "defs.h"
 #include "evaluator.hpp"
+#include "hash.hpp"
 #include "util.hpp"
 
 #include <cctype>

@@ -369,6 +369,7 @@ int *getSetBits(U64 bb) {
 }
 
 void initPresets() {
+
   initpopCountOfByte256();
   for (int i = 0; i < 64; i++) {
     setMask[i] = 1ULL << i;
@@ -415,6 +416,7 @@ void initPresets() {
   generateOccupancyVariations(false);
   generateMoveDatabase(false);
   generateFlippedTables();
+  initZobrists();
 }
 
 std::string bbToString(U64 bb) {

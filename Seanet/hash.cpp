@@ -8,66 +8,57 @@
 
 #include "hash.hpp"
 
-void initHashTable(S_HASHTABLE *table) {
-  table->numEntries = TABLE_SIZE / sizeof(S_HASHENTRY) - 2;
-  free(table->pTable);
-  table->pTable =
-      (S_HASHENTRY *)malloc(table->numEntries * sizeof(S_HASHENTRY));
-  clearHashTable(table);
-  std::cout << "Hash Table init complete with " << table->numEntries
-            << " entries." << std::endl;
+U64 zArray[64][12]; // Squares + piece types (2 colors * 6 pieces * 64
+                    // squares)
+U64 zSide;
+U64 zEP[8];
+U64 zCastle[4]; // Castling
+
+bool operator!=(const S_HASHENTRY &lhs, const S_HASHENTRY &rhs) {
+  return lhs.zobrist != rhs.zobrist || lhs.score != rhs.score ||
+         lhs.depth != rhs.depth || lhs.move != rhs.move || lhs.type != rhs.type;
 }
 
-void clearHashTable(S_HASHTABLE *table) {
+void initHashTable(HashTable *table) { table->rehash(TABLE_SIZE); }
 
-  S_HASHENTRY *hashEntry;
-  for (hashEntry = table->pTable; hashEntry < table->pTable + table->numEntries;
-       hashEntry++) {
-    hashEntry->zobrist = 0;
-    hashEntry->depth = 0;
-    hashEntry->score = 0;
-    hashEntry->ancient = 0;
-    hashEntry->type = UNSET;
+void clearHashTable(HashTable *table) {
+  for (auto itr : *table) {
+    table->erase(itr.first);
   }
 }
 
-void storeHashEntry(U64 zobrist, int depth, int score, bool ancient,
-                    NodeType type, S_HASHTABLE *table) {
-  int index = zobrist % table->numEntries;
-  assert(index > 0 && index < table->numEntries - 1);
-  if (table->pTable[index].zobrist > 0) {
-    if (table->pTable[index].ancient == false ||
-        (table->pTable[index].depth < depth &&
-         table->pTable[index].zobrist == zobrist)) {
-      table->pTable[index].zobrist = zobrist;
-      table->pTable[index].depth = depth;
-      table->pTable[index].score = score;
-      table->pTable[index].ancient = ancient;
-      table->pTable[index].type = type;
-    }
+void storeHashEntry(U64 zobrist, int depth, int score, Move move, NodeType type,
+                    HashTable &table) {
+  int index = zobrist % TABLE_SIZE;
+  assert(index >= 0 && index < TABLE_SIZE);
+  S_HASHENTRY entry{zobrist, depth, score, move, type};
+  if (table.find(index) == table.end()) {
+    table.emplace(zobrist, entry);
+    std::cout << "Storing index of depth " << depth << " Index: " << index
+              << " Zobrist: " << zobrist << " Score: " << score << std::endl;
+  } else if (table[index].depth <= depth) {
+    table[index] = entry;
+    std::cout << "Overrighting index of depth " << depth << " Index: " << index
+              << std::endl;
+  }
+}
+
+S_HASHENTRY probeHashTable(HashTable &table, U64 zobrist) {
+  int index = zobrist % TABLE_SIZE;
+  assert(index >= 0 && index < TABLE_SIZE);
+  if (table.find(index) != table.end()) {
+    auto a = table[index];
+    return a;
   } else {
-    table->pTable[index].zobrist = zobrist;
-    table->pTable[index].depth = depth;
-    table->pTable[index].score = score;
-    table->pTable[index].ancient = ancient;
-    table->pTable[index].type = type;
+    return NULL_ENTRY;
   }
 }
 
-S_HASHENTRY probeHashTable(S_HASHTABLE *table, U64 zobrist) {
-  int index = zobrist % table->numEntries;
-  assert(index > 0 && index < table->numEntries - 1);
-  if (table->pTable[index].zobrist == zobrist) {
-    return table->pTable[index];
-  } else {
-    return NULL_HASH_ENTRY;
-  }
-}
-
-void ZobristKeys::init() {
+void initZobrists() {
   timeval currTime;
   gettimeofday(&currTime, 0);
   int now = (int)(timeToMS(currTime));
+  srand(now);
 
   for (int i = 0; i < 64; i++) {
     for (int j = 0; j < 12; j++) {
@@ -82,16 +73,12 @@ void ZobristKeys::init() {
   }
 }
 
-int ZobristKeys::getIndex(U64 zHash) {
-  return (int)(zHash % 100 /*TranspositionTable.hashSize*/);
-}
-
-U64 ZobristKeys::rand64() {
+U64 rand64() {
   return rand() ^ ((U64)rand() << 15) ^ ((U64)rand() << 30) ^
          ((U64)rand() << 45) ^ ((U64)rand() << 60);
 }
 
-void ZobristKeys::updateHash(U64 &zKey, State s, Move m) {
+void updateHash(U64 &zKey, State &s, Move m) {
   int from = M_FROMSQ(m);
   int to = M_TOSQ(m);
   int pieceIndex = (int)(s._pieces[from]) - 1;
@@ -104,7 +91,7 @@ void ZobristKeys::updateHash(U64 &zKey, State s, Move m) {
   /* Function not complete */
 }
 
-U64 ZobristKeys::getZobristHash(State s) {
+U64 getZobristHash(const State &s) {
   U64 zKey = 0;
   for (int i = 0; i < 64; i++) {
     switch (s._pieces[i]) {

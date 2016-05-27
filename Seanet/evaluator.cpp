@@ -127,13 +127,11 @@ int evaluate(State &state) {
       break;
     case wK:
       score += 20000;
-      score += whiteKingMiddlePS[x][y];
+      // score += whiteKingMiddlePS[x][y];
       break;
     case bK:
       score -= 20000;
-      score += blackKingMiddlePS[x][y];
-      std::cout << "Black king on " << x << y << " with value "
-                << blackKingMiddlePS[x][y];
+      // score += blackKingMiddlePS[x][y];
       break;
     default:
       break;

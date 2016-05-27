@@ -19,47 +19,39 @@
 
 enum NodeType { UNSET, EXACT, ALPHA, BETA };
 
-const int TABLE_SIZE = 0x100000 * 2;
+const int TABLE_SIZE = 5 * pow(10, 4);
 
-class TranspositionTable {};
+extern U64
+    zArray[64][12]; // Squares + piece types (2 colors * 6 pieces * 64 squares)
+extern U64 zSide;
+extern U64 zEP[8];
+extern U64 zCastle[4]; // Castling
 
-struct ZobristKeys {
-  U64 zArray[64][12]; // Squares + piece types (2 colors * 6 pieces * 64
-                      // squares)
-  U64 zSide;
-  U64 zEP[8];
-  U64 zCastle[4]; // Castling
-
-  void init();
-  int getIndex(U64 zHash);
-  U64 getZobristHash(State s);
-  U64 rand64();
-  void updateHash(U64 &zKey, State s, Move m);
-};
-
-ZobristKeys z;
+void initZobrists();
+U64 getZobristHash(const State &s);
+U64 rand64();
+void updateHash(U64 &zKey, State &s, Move m);
 
 typedef struct {
   U64 zobrist;
   int depth;
   int score;
-  bool ancient;
+  Move move;
   NodeType type;
 
 } S_HASHENTRY;
 
-typedef struct {
-  S_HASHENTRY *pTable;
-  int numEntries;
-} S_HASHTABLE;
+bool operator!=(const S_HASHENTRY &lhs, const S_HASHENTRY &rhs);
 
-const S_HASHENTRY NULL_HASH_ENTRY{0, 0, 0, 0, UNSET};
+typedef std::unordered_map<int, S_HASHENTRY> HashTable;
 
-void initHashTable(S_HASHTABLE *table);
-void clearHashTable(S_HASHTABLE *table);
+void initHashTable(HashTable *table);
+void clearHashTable(HashTable *table);
 
-void storeHashEntry(U64 zobrist, int depth, int score, bool ancient,
-                    NodeType type, S_HASHTABLE *table);
-S_HASHENTRY probeHashTable(S_HASHTABLE *table, U64 zobrist);
+void storeHashEntry(U64 zobrist, int depth, int score, Move move, NodeType type,
+                    HashTable &table);
+S_HASHENTRY probeHashTable(HashTable &table, U64 zobrist);
+
+const S_HASHENTRY NULL_ENTRY = {0, 0, 0, 0, UNSET};
 
 #endif /* hash_hpp */

@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <vector>
 
+int calculatePhase(State &state);
 int evaluate(State &state);
 int evaluateGameOver(State &state);
 bool isGameOver(State &state);

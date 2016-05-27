@@ -2,6 +2,7 @@
                           // in one cpp file
 #include "board.hpp"
 #include "catch.hpp"
+#include "hash.hpp"
 #include "movegenerator.hpp"
 #include "search.hpp"
 #include "searchcontroller.hpp"
@@ -193,6 +194,7 @@ void speedTest(std::string testPath) {
       bool *config = featureConfigs[i];
       SearchController sControl;
       sControl._output = false;
+      clearHashTable(&sControl.table);
       std::copy(config, config + NUM_OF_FEATURES, sControl._features);
       sControl._timeLimit = INT_MAX;
       sControl._depthLimit = 10;
@@ -214,7 +216,8 @@ void speedTest(std::string testPath) {
                 << "; "
                 << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
                 << "% fh"
-                << "; " << (sControl._totalNodes / 1000) << "K nodes"
+                << "; " << (sControl._totalNodes / 1000) << "K nodes; "
+                << sControl._transpositions << " transpositions"
                 << "; seldepth " << sControl._maxDepth << "\n" << std::endl;
     }
   }

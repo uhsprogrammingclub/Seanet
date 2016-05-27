@@ -53,9 +53,24 @@ int whiteKingEndPS[64] = {-50, -30, -30, -30, -30, -30, -30, -50, -30, -30, 0,
                           -30, -50, -40, -30, -20, -20, -30, -40, -50};
 
 int allPieces[65];
+
+int calculatePhase(State &state) {
+  int totalPhase = PAWN_PHASE * 16 + KNIGHT_PHASE * 4 + BISHOP_PHASE * 4 +
+                   ROOK_PHASE * 4 + QUEEN_PHASE * 2;
+  int currentPhase =
+      countSetBits(state._pieceBitboards[PAWNS]) * PAWN_PHASE +
+      countSetBits(state._pieceBitboards[KNIGHTS]) * KNIGHT_PHASE +
+      countSetBits(state._pieceBitboards[BISHOPS]) * BISHOP_PHASE +
+      countSetBits(state._pieceBitboards[ROOKS]) * ROOK_PHASE +
+      countSetBits(state._pieceBitboards[QUEENS]) * QUEEN_PHASE;
+  return totalPhase - currentPhase;
+}
+
 int evaluate(State &state) {
   allPieces[0] = -1;
   getSetBits(state.allPieces(), allPieces);
+
+  int phase = calculatePhase(state);
 
   int score = 0;
   for (int i = 0; allPieces[i] != -1; i++) {
@@ -96,10 +111,16 @@ int evaluate(State &state) {
       score -= whiteQueenPS[63 - pcIndex];
       break;
     case wK:
-      score += whiteKingMiddlePS[pcIndex];
+      score += ((whiteKingMiddlePS[pcIndex] * (256 - phase)) +
+                (whiteKingEndPS[pcIndex] * phase)) /
+               256;
+      // score += whiteKingMiddlePS[pcIndex];
       break;
     case bK:
-      score -= whiteKingMiddlePS[63 - pcIndex];
+      score -= ((whiteKingMiddlePS[63 - pcIndex] * (256 - phase)) +
+                (whiteKingEndPS[63 - pcIndex] * phase)) /
+               256;
+      // score -= whiteKingMiddlePS[63 - pcIndex];
       break;
     default:
       break;

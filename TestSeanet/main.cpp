@@ -197,7 +197,7 @@ void speedTest(std::string testPath) {
       clearHashTable(&sControl.table);
       std::copy(config, config + NUM_OF_FEATURES, sControl._features);
       sControl._timeLimit = INT_MAX;
-      sControl._depthLimit = 10;
+      sControl._depthLimit = 7;
 
       runSearch(FEN, sControl);
       timeval currTime;

@@ -157,6 +157,9 @@ int negamax(int alpha, int beta, int depth, State &state,
     state._ply--;
     state.takeNullMove();
     if (score >= beta) {
+		if (sControl._features[TT_EVAL]) {
+			storeHashEntry(state._zHash, depth, beta, NO_MOVE, BETA, sControl.table);
+		}
       return beta;
     }
   }

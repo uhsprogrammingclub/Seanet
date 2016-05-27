@@ -126,7 +126,7 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
   std::vector<KeyInfoMap> positions;
   std::string line;
 
-  int posLimit = 10;
+  int posLimit = 50;
 
   while (std::getline(file, line)) {
     positions.push_back(splitEDP(line));
@@ -138,10 +138,10 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
   control[SEE_REORDERING] = true;
   control[KH_REORDERING] = true;
   control[HH_REORDERING] = true;
-  control[NULL_MOVE] = false;
+  control[NULL_MOVE] = true;
   control[TT_EVAL] = false;
 
-  const int degreesOfFreedom = 2;
+  const int degreesOfFreedom = 1;
   bool allFeatures[] = {true, true, true, true, true, true};
   std::vector<bool *> featureConfigs;
 
@@ -184,7 +184,7 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
       sControl._output = false;
       std::copy(config, config + NUM_OF_FEATURES, sControl._features);
       sControl._timeLimit = INT_MAX;
-      sControl._depthLimit = 5;
+      sControl._depthLimit = 7;
 
       runSearch(FEN, sControl);
       timeval currTime;

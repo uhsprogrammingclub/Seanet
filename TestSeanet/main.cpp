@@ -20,10 +20,38 @@ void engineTest(std::string testPath, std::string tag, std::string comments,
 void runSearch(std::string FEN, SearchController &sControl);
 void speedTest(std::string testPath);
 
+TEST_CASE("Ensuring Zobrist functions properly", "[Zobrist-Checking]") {
+  initPresets();
+
+  std::ifstream file("zobrist-checking.text");
+  std::string line;
+  std::vector<std::string> data;
+  std::vector<U64> firstRun;
+  std::vector<U64> secondRun;
+  while (std::getline(file, line)) {
+    data.push_back(line);
+  }
+  for (auto fen : data) {
+    State s = boardFromFEN(fen);
+    firstRun.push_back(getZobristHash(s));
+    std::cout << "FEN: " << fen << " " << getZobristHash(s) << std::endl;
+    secondRun.push_back(getZobristHash(s));
+  }
+
+  std::set<U64> Y(firstRun.begin(), firstRun.end());
+  REQUIRE(firstRun.size() == Y.size());
+  std::set<U64> Z(secondRun.begin(), secondRun.end());
+  REQUIRE(secondRun.size() == Z.size());
+
+  for (int i = 0; i < firstRun.size(); i++) {
+    REQUIRE(firstRun[i] == secondRun[i]);
+  }
+}
+
 TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
   State state;
 
-  std::ifstream file("perfttests.text");
+  std::ifstream file("zobrist-checking.text");
   std::string line;
   while (std::getline(file, line)) {
     std::string correctFEN;
@@ -218,7 +246,13 @@ void speedTest(std::string testPath) {
                 << "% fh"
                 << "; " << (sControl._totalNodes / 1000) << "K nodes; "
                 << sControl._transpositions << " transpositions"
-                << "; seldepth " << sControl._maxDepth << "\n" << std::endl;
+                << "; seldepth " << sControl._maxDepth << std::endl;
+      std::cout << "qNodes: " << sControl._qNodes
+                << " Main Nodes: " << sControl._mainNodes
+                << " Exact Nodes Used: " << sControl._exactNodes
+                << " Alpha Nodes Used: " << sControl._alphaNodes
+                << " Beta Nodes Used: " << sControl._betaNodes << "\n"
+                << std::endl;
     }
   }
 

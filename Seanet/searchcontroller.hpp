@@ -27,10 +27,15 @@ public:
   bool _stopSearch = false;
   timeval _startTime;
   int _totalNodes = 0;
+  int _qNodes = 0;
+  int _mainNodes = 0;
   int _fhNodes = 0;
   int _fhfNodes = 0;
   int _currDepth = 0;
   int _transpositions = 0;
+  int _exactNodes = 0;
+  int _alphaNodes = 0;
+  int _betaNodes = 0;
   int _maxDepth = 0;
   Move _currMove = 0;
   int _currMoveNumber = 0;

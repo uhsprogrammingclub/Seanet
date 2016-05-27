@@ -68,11 +68,19 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "[speed]"
-            isEnabled = "YES">
+            argument = "[Zobrist-Checking]"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "[LCT-II]"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "[Speed-Opening]"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "[Speed-Endgame]"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

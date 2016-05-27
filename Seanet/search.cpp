@@ -109,7 +109,7 @@ void pickMove(int moveNum, std::vector<S_MOVE_AND_SCORE> &scoredMoves) {
 int negamax(int alpha, int beta, int depth, State &state,
             SearchController &sControl, S_PVLINE &pvLine) {
   sControl._totalNodes++;
-
+  sControl._mainNodes++;
   if ((sControl._totalNodes & 10240) == 0) {
     sControl.checkTimeLimit();
   }
@@ -124,14 +124,17 @@ int negamax(int alpha, int beta, int depth, State &state,
       if (oldEntry.depth >= depth) {
         if (oldEntry.type == EXACT) {
           sControl._transpositions++;
+          sControl._exactNodes++;
           return oldEntry.score;
         }
         if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
           sControl._transpositions++;
+          sControl._alphaNodes++;
           return alpha;
         }
         if (oldEntry.type == BETA && oldEntry.score >= beta) {
           sControl._transpositions++;
+          sControl._betaNodes++;
           return beta;
         }
       }
@@ -143,8 +146,8 @@ int negamax(int alpha, int beta, int depth, State &state,
     pvLine.moveCount = 0;
     int score = qSearch(alpha, beta, state, sControl);
     if (sControl._features[TT_EVAL]) {
-      storeHashEntry(state._zHash, depth, score, NO_MOVE, EXACT,
-                     sControl.table);
+      // storeHashEntry(state._zHash, depth, score, NO_MOVE, EXACT,
+      // sControl.table);
     }
     return score;
     // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
@@ -184,11 +187,11 @@ int negamax(int alpha, int beta, int depth, State &state,
       scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
       continue;
     }
-
-    if (sControl._features[TT_EVAL] && M_EQUALS(*it, bestTTMove)) {
-      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 990000});
-      continue;
-    }
+    /*
+        if (sControl._features[TT_EVAL] && M_EQUALS(*it, bestTTMove)) {
+          scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 990000});
+          continue;
+        }*/
 
     //   Reorder based on SEE
     if (sControl._features[SEE_REORDERING] &&
@@ -300,6 +303,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
   }
   sControl._totalNodes++;
 
+  sControl._qNodes++;
   if ((sControl._totalNodes & 10240) == 0) {
     sControl.checkTimeLimit();
   }

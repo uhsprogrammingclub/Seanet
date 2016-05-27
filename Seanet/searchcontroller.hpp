@@ -20,10 +20,15 @@ public:
   int _depthLimit = 60;
   int _timeLimit = 60;
   int _uciOutput = false;
+  bool _output = true;
+
+  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true};
 
   bool _stopSearch = false;
   timeval _startTime;
   int _totalNodes = 0;
+  int _fhNodes = 0;
+  int _fhfNodes = 0;
   int _currDepth = 0;
   int _transpositions = 0;
   int _maxDepth = 0;
@@ -33,6 +38,7 @@ public:
 
   void checkTimeLimit();
   void resetStats();
+  std::string featuresToString();
 };
 
 #endif /* defined(__Seanet__searchcontroller__) */

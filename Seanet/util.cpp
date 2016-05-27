@@ -284,16 +284,24 @@ State boardFromFEN(std::string FEN) {
        it != castlingRights.end(); ++it) {
     switch (*it) {
     case 'Q':
-      b._castleRights |= WQCA;
+      if (b._pieces[0] == wR && b._pieces[4] == wK) {
+        b._castleRights |= WQCA;
+      }
       break;
     case 'K':
-      b._castleRights |= WKCA;
+      if (b._pieces[7] == wR && b._pieces[4] == wK) {
+        b._castleRights |= WKCA;
+      }
       break;
     case 'q':
-      b._castleRights |= BQCA;
+      if (b._pieces[56] == bR && b._pieces[60] == bK) {
+        b._castleRights |= BQCA;
+      }
       break;
     case 'k':
-      b._castleRights |= BKCA;
+      if (b._pieces[63] == bR && b._pieces[60] == bK) {
+        b._castleRights |= BKCA;
+      }
       break;
     }
   }
@@ -338,9 +346,11 @@ KeyInfoMap splitEDP(std::string EDP) {
        it != subEDP.end(); ++it) {
     trim(*it);
     std::vector<std::string> sub = split(*it, ' ');
-    trim(sub[0]);
-    trim(sub[1]);
-    result[sub[0]] = sub[1];
+    if (sub.size() > 1) {
+      trim(sub[0]);
+      trim(sub[1]);
+      result[sub[0]] = sub[1];
+    }
   }
   return result;
 }
@@ -470,7 +480,7 @@ int moveFromUCI(std::string uci) {
 std::string pvLineToString(S_PVLINE line) {
   std::string str;
   for (int i = 0; i < line.moveCount; i++) {
-    str += moveToUCI(line.moves[i].move);
+    str += moveToUCI(line.moves[i]);
     str += ' ';
   }
   return str;
@@ -495,7 +505,7 @@ int getValue(int index, const State &s) {
 }
 
 U64 getLeastValuablePiece(U64 bb, const State &s) {
-  for (int pieces = PAWNS; pieces <= KINGS; pieces += 1) {
+  for (int pieces = PAWNS; pieces <= KINGS; pieces++) {
     long subset = bb & s._pieceBitboards[pieces];
     if (subset != 0) {
       return subset & -subset; // single bit
@@ -508,24 +518,58 @@ int see(Move move, const State &s) {
   int gain[32];
   int d = 0;
   int side = -s._sideToMove;
+  int attackedSquare = M_TOSQ(move);
   U64 fromSet = setMask[M_FROMSQ(move)];
   U64 occ = s.allPieces();
-  U64 attadef = attacksTo(M_TOSQ(move), s, side, occ);
-  gain[d] = getValue(M_TOSQ(move), s);
+  U64 attadef = attacksTo(attackedSquare, s, side, occ);
+  gain[d] = std::abs(MATERIAL_WORTH[s._pieces[attackedSquare]]);
   while (fromSet) {
     d++; // next depth and side
-    gain[d] = getValue(LS1B(fromSet), s) -
+    gain[d] = std::abs(MATERIAL_WORTH[s._pieces[LS1B(fromSet)]]) -
               gain[d - 1]; // speculative store, if defended
     if (std::max(-gain[d - 1], gain[d]) < 0) {
       break; // pruning does not influence the result
     }
     occ ^= fromSet; // reset bit in temporary occupancy (for x-Rays)
     side = -side;
-    attadef = attacksTo(M_TOSQ(move), s, side, occ);
+    attadef = attacksTo(attackedSquare, s, side, occ);
     fromSet = getLeastValuablePiece(attadef, s);
   }
   while (--d) {
     gain[d - 1] = -std::max(-gain[d - 1], gain[d]);
   }
   return gain[0];
+}
+
+std::string searchFeaturesToString(bool *features) {
+  std::string string = "";
+  if (features[PV_REORDERING]) {
+    string += "PV_R ";
+  }
+  if (features[SEE_REORDERING]) {
+    string += "SEE_R ";
+  }
+  if (features[KH_REORDERING]) {
+    string += "KH_R ";
+  }
+  if (features[HH_REORDERING]) {
+    string += "HH_R ";
+  }
+  if (features[NULL_MOVE]) {
+    string += "NULL_M ";
+  }
+  if (string == "") {
+    string = "NONE";
+  }
+  return string;
+}
+
+std::string historyToString(const State &state) {
+  std::stack<S_UNDO> history = state._history;
+  std::string string = "";
+  while (!history.empty()) {
+    string = moveToUCI(history.top()._move) + " " + string;
+    history.pop();
+  }
+  return string;
 }

@@ -37,6 +37,7 @@ int main(int argc, const char *argv[]) {
 
   gameState = boardFromFEN(FEN);
   gameState.printBoard();
+  std::cout << "Static board evaluation: " << evaluate(gameState) << std::endl;
 
   clock_t begin = clock();
 
@@ -82,7 +83,7 @@ void takePlayerMove() {
 
   printf("Legal moves (%lu):", legalMoves.size());
   for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
-    std::cout << moveToUCI(*it) << ", ";
+    std::cout << moveToUCI(*it) << "(" << see(*it, gameState) << "), ";
   }
   std::cout << '\n';
 

@@ -7,8 +7,13 @@
 //
 
 #include "search.hpp"
+#include <algorithm>
 
 int quiescencePly = 0;
+Move killerMoves[64 * 3];     // 64 mAX plys with 3 moves each.
+int historyHeuristic[64][64]; // historyHeuristic[from][to]
+S_PVLINE NULL_LINE;
+
 /**
 Takes input of a state, time limit, and (optional) max depth, returns the best
 move for the state.sideToMove() as an int.
@@ -19,39 +24,76 @@ void search(State &state, SearchController &sControl) {
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
-    S_PVLINE newLine;
-    negamax(INT_MIN + 1, INT_MAX - 1, depth, state, sControl, newLine);
+    negamax(INT_MIN + 1, INT_MAX - 1, depth, state, sControl, state._bestLine);
     if (sControl._stopSearch) {
       break;
     };
-    state.bestLine = newLine;
 
     timeval currTime;
     gettimeofday(&currTime, 0);
     int timeElapsed =
         (int)(timeToMS(currTime) - timeToMS(sControl._startTime)) + 1;
-    if (sControl._uciOutput) {
-      std::cout << "info";
-      std::cout << " depth " << sControl._currDepth;
-      std::cout << " seldepth " << sControl._maxDepth;
-      std::cout << " time " << timeElapsed;
-      std::cout << " nodes " << sControl._totalNodes;
-      std::cout << " score cp " << state.bestLine.moves[0].eval;
-      std::cout << " nps "
-                << (int)(sControl._totalNodes / (timeElapsed / 1000.0));
-      std::cout << " pv " << pvLineToString(state.bestLine);
-      std::cout << std::endl;
-    } else {
-      std::cout << sControl._currDepth;
-      std::cout << " [";
-      std::cout << state.bestLine.moves[0].eval;
-      std::cout << "] ";
-      std::cout << pvLineToString(state.bestLine);
-      std::cout << "(" << timeElapsed << " ms)";
-      std::cout << (int)(sControl._totalNodes / (timeElapsed));
-      std::cout << " kn/s\n";
+    if (sControl._output) {
+      if (sControl._uciOutput) {
+        std::cout << "info"
+                  << " depth " << sControl._currDepth << " seldepth "
+                  << sControl._maxDepth << " time " << timeElapsed << " nodes "
+                  << sControl._totalNodes << " score cp " << state._lineEval
+                  << " nps "
+                  << (int)(sControl._totalNodes / (timeElapsed / 1000.0))
+                  << " pv " << pvLineToString(state._bestLine) << std::endl;
+      } else {
+        std::cout << sControl._currDepth << " ["
+                  << state._lineEval * (state._sideToMove == WHITE ? 1 : -1)
+                  << "] " << pvLineToString(state._bestLine) << "; "
+                  << timeElapsed << " ms; "
+                  << (int)(sControl._totalNodes / (timeElapsed)) << " kn/s"
+                  << "; "
+                  << (float)(100.0 * sControl._fhfNodes / sControl._fhNodes)
+                  << "% fhf"
+                  << "; "
+                  << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
+                  << "% fh"
+                  << "; " << (sControl._totalNodes / 1000) << "K nodes"
+                  << "; seldepth " << sControl._maxDepth << std::endl;
+      }
     }
   }
+}
+
+void addKillerMove(int ply, Move move) {
+  int firstMoveIndex = ply * 3;
+  if (M_EQUALS(move, killerMoves[firstMoveIndex])) {
+  } else if (M_EQUALS(move, killerMoves[firstMoveIndex + 1])) {
+    std::swap(killerMoves[firstMoveIndex], killerMoves[firstMoveIndex + 1]);
+  } else {
+    std::swap(killerMoves[firstMoveIndex + 1], killerMoves[firstMoveIndex + 2]);
+    std::swap(killerMoves[firstMoveIndex], killerMoves[firstMoveIndex + 1]);
+    killerMoves[firstMoveIndex] = move;
+  }
+}
+
+bool reorderByHH(Move i, Move j) {
+  return historyHeuristic[M_FROMSQ(i)][M_TOSQ(i)] >
+         historyHeuristic[M_FROMSQ(j)][M_TOSQ(j)];
+}
+
+bool sortScoredMoves(const S_MOVE_AND_SCORE &i, const S_MOVE_AND_SCORE &j) {
+  return i.score > j.score;
+}
+
+void pickMove(int moveNum, std::vector<S_MOVE_AND_SCORE> &scoredMoves) {
+  int bestScore = INT_MIN;
+  int bestNum = moveNum;
+  for (std::vector<S_MOVE_AND_SCORE>::iterator it =
+           scoredMoves.begin() + moveNum;
+       it != scoredMoves.end(); it++) {
+    if (it->score > bestScore) {
+      bestScore = it->score;
+      bestNum = (int)(it - scoredMoves.begin());
+    }
+  }
+  std::swap(scoredMoves[moveNum], scoredMoves[bestNum]);
 }
 
 int negamax(int alpha, int beta, int depth, State &state,
@@ -98,23 +140,66 @@ int negamax(int alpha, int beta, int depth, State &state,
 
   std::vector<int> moves = generatePseudoMoves(state);
 
-  for (std::vector<int>::iterator it = moves.begin(); it != moves.end(); ++it) {
-    if (M_EQUALS(*it, state.bestLine.moves[state._ply].move)) {
-      Move x = *it;
-      moves.erase(it);
-      moves.insert(moves.begin(), x);
-      break;
+  for (std::vector<Move>::iterator it = moves.begin(); it != moves.end();
+       ++it) {
+
+    // PV-move reorder
+    if (sControl._features[PV_REORDERING] &&
+        M_EQUALS(*it, state._bestLine.moves[state._ply])) {
+      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
+      continue;
     }
+
+    //   Reorder based on SEE
+    if (sControl._features[SEE_REORDERING] &&
+        state._pieces[M_TOSQ(*it)] != EMPTY) {
+      int seeEval = see(*it, state);
+      if (seeEval >= 0) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 950000 + seeEval});
+        continue;
+      } else if (seeEval < 0) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, seeEval});
+        continue;
+      }
+    }
+
+    // Killer moves
+    if (sControl._features[KH_REORDERING]) {
+      if (M_EQUALS(*it, killerMoves[state._ply * 3])) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 900000});
+        continue;
+      } else if (M_EQUALS(*it, killerMoves[state._ply * 3 + 1])) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 850000});
+        continue;
+      } else if (M_EQUALS(*it, killerMoves[state._ply * 3 + 2])) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 800000});
+        continue;
+      }
+    }
+
+    // Non captures sorted by history heuristic
+    if (sControl._features[HH_REORDERING]) {
+      int hhScore = historyHeuristic[M_FROMSQ(*it)][M_TOSQ(*it)];
+      if (hhScore > 700000) {
+        hhScore = 700000;
+      }
+      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, hhScore});
+      continue;
+    }
+    scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 0});
   }
-  bool gameOver = true; // set to false if there's a legal move
-  for (Move move : moves) {
+
+  int legal = 0;
+  for (int moveNum = 0; moveNum < scoredMoves.size(); moveNum++) {
+    pickMove(moveNum, scoredMoves);
+    Move move = scoredMoves[moveNum].move;
     state.makeMove(move);
 
     if (!state.isPositionLegal()) {
       state.takeMove();
       continue;
     }
-    gameOver = false;
+    legal++;
     if (state._ply == 0) {
       sControl._currMove = move;
       sControl._currMoveNumber++;
@@ -135,13 +220,12 @@ int negamax(int alpha, int beta, int depth, State &state,
     if (score > alpha) {
       flag = EXACT;
       alpha = score; // Update value of "best path so far for maximizer"
-      pvLine.moves[0] =
-          S_MOVE{move, score * (state._sideToMove == WHITE ? 1 : -1)};
-      memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(S_MOVE));
+      pvLine.moves[0] = move;
+      memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(Move));
       pvLine.moveCount = line.moveCount + 1;
     }
   }
-  if (gameOver) {
+  if (!legal) {
     return evaluateGameOver(state);
   }
 
@@ -173,7 +257,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
     if (alpha < stand_pat) {
       alpha = stand_pat;
     }
-
+    int moveNum = 0;
     for (Move move : moves) {
       if (!inCheck) {
         if ((state._pieces[M_TOSQ(move)] == EMPTY && !M_ISPROMOTION(move)) ||
@@ -188,6 +272,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
         state.takeMove();
         continue;
       }
+      moveNum++;
       gameOver = false;
       state._ply++;
       quiescencePly++;
@@ -197,10 +282,16 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
 
       state.takeMove();
 
-      if (score >= beta)
+      if (score >= beta) {
+        if (moveNum == 1) {
+          sControl._fhfNodes++;
+        }
+        sControl._fhNodes++;
         return beta;
-      if (score > alpha)
+      }
+      if (score > alpha) {
         alpha = score;
+      }
     }
   }
   if (alpha == beta) { // check game over for beta cutoff

@@ -22,12 +22,41 @@ void State::printBoard() const {
     string += "|\n";
     std::cout << y + 1 << string;
   }
-  std::cout << "  A B C D E F G H \n";
+  std::cout << "  A B C D E F G H " << std::endl;
+}
+
+void State::makeNullMove() {
+  if (_sideToMove == BLACK) {
+    _fullMoveCounter++;
+  }
+  _history.emplace(S_UNDO{0, _castleRights, _EPTarget, _halfMoveClock});
+  _halfMoveClock++;
+  _sideToMove = -_sideToMove;
+  _EPTarget = -1;
+}
+
+void State::takeNullMove() {
+  if (_history.empty()) {
+    return;
+  }
+  if (_sideToMove == WHITE) {
+    _fullMoveCounter--;
+  }
+  S_UNDO undo = _history.top();
+  _history.pop();
+  _halfMoveClock = undo._halfMoveClock;
+  _EPTarget = undo._EPTarget;
+  _castleRights = undo._castleRights;
+  _sideToMove = -_sideToMove;
 }
 
 void State::makeMove(Move &move) {
   _history.emplace(S_UNDO{move, _castleRights, _EPTarget, _halfMoveClock});
   _halfMoveClock++;
+  if (_sideToMove == BLACK) {
+    _fullMoveCounter++;
+  }
+
   int from = M_FROMSQ(move);
   int to = M_TOSQ(move);
   Piece movingP = _pieces[from];
@@ -162,7 +191,7 @@ void State::makeMove(Move &move) {
     std::cout << "MOVE:" << moveToUCI(move);
     std::cout << "PIECE:" << movingP;
     std::cout
-        << "Unknown piece passed to makeMove() function. Exiting with error.";
+        << "Unknown piece passed to makeMove() function. Exiting with error.\n";
     exit(EXIT_FAILURE);
   }
 
@@ -187,9 +216,18 @@ void State::takeMove() {
   if (_history.empty()) {
     return;
   }
+  if (_sideToMove == WHITE) {
+    _fullMoveCounter--;
+  }
+
   S_UNDO undo = _history.top();
   _history.pop();
-  int move = undo._move;
+  Move move = undo._move;
+  if (!move) {
+    printBoard();
+    std::cout << "Trying to Undo a NULL move.\n";
+    exit(EXIT_FAILURE);
+  }
   _halfMoveClock = undo._halfMoveClock;
   _EPTarget = undo._EPTarget;
   _castleRights = undo._castleRights;

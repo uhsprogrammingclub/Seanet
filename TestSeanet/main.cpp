@@ -16,6 +16,7 @@ void perftTest(State &b, int depth);
 void divide(std::string FEN, int depth);
 void engineTest(std::string testPath, std::string tag, std::string comments,
                 int secondsPerPosition = 25);
+void runSearch(std::string FEN, SearchController &sControl);
 
 TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
   State state;
@@ -35,13 +36,15 @@ TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
 
 TEST_CASE("Running Bratko-Kopec Tests", "[Bratko-Kopec]") {
   engineTest("Bratko-Kopec.text", "[Bratko-Kopec]",
-             "Nate - Shits and giggles"); // Add descriptive comments with each
+             "Stiven - PV_REORDERING, SEE_REORDERING, KH_REORDERING, "
+             "HH_REORDERING, NULL_MOVE"); // Add descriptive comments
+                                          // with each
                                           // full run
 }
 TEST_CASE("Running LCT-II Tests", "[LCT-II]") {
-  engineTest(
-      "LCT-II.text", "[LCT-II]",
-      "Nate - Initial run"); // Add descriptive comments with each full run
+  engineTest("LCT-II.text", "[LCT-II]",
+             "Stiven - SEE/killer move reordering"); // Add descriptive comments
+                                                     // with each full run
 }
 
 TEST_CASE("Running PERFT tests", "[perft]") {
@@ -116,6 +119,147 @@ TEST_CASE("Running PERFT tests", "[perft]") {
          (float(clock() - startTime) / (CLOCKS_PER_SEC * 60.0)));
 }
 
+TEST_CASE("Running Feature Speed Test", "[Speed]") {
+  initPresets();
+
+  std::ifstream file("Silver-Suite.text");
+  std::vector<KeyInfoMap> positions;
+  std::string line;
+
+  int posLimit = 50;
+
+  while (std::getline(file, line)) {
+    positions.push_back(splitEDP(line));
+  }
+  std::random_shuffle(positions.begin(), positions.end());
+
+  bool control[NUM_OF_FEATURES];
+  control[PV_REORDERING] = true;
+  control[SEE_REORDERING] = false;
+  control[KH_REORDERING] = false;
+  control[HH_REORDERING] = false;
+  control[NULL_MOVE] = true;
+
+  const int degreesOfFreedom = 3;
+  bool allFeatures[] = {true, true, true, true, true};
+  std::vector<bool *> featureConfigs;
+
+  bool configs[(int)std::pow(2, degreesOfFreedom) - 2][NUM_OF_FEATURES];
+  for (int i = 1; i < std::pow(2, degreesOfFreedom) - 1; i++) {
+
+    std::string s = std::bitset<degreesOfFreedom>(i).to_string();
+    int degreesUsed = 0;
+    for (int j = 0; j < NUM_OF_FEATURES; j++) {
+      configs[i][j] = true;
+      if (!control[j]) {
+        if (s[degreesUsed] == '0') {
+          configs[i][j] = false;
+        }
+        degreesUsed++;
+      }
+    }
+    featureConfigs.push_back(configs[i]);
+  }
+
+  std::random_shuffle(featureConfigs.begin(), featureConfigs.end());
+  featureConfigs.insert(featureConfigs.begin(), control);
+  featureConfigs.push_back(allFeatures);
+
+  std::vector<int> totalNodes(featureConfigs.size());
+  std::vector<int> totalTime(featureConfigs.size());
+  int posNum = 0;
+  for (KeyInfoMap info : positions) {
+    std::string FEN = info["fen"];
+    posNum++;
+    if (posNum > posLimit) {
+      break;
+    }
+    std::cout << "\n##### TESTING NEW POSITION #####" << std::endl;
+    std::cout << posNum << ". [" << info["id"] << "] " << FEN << std::endl
+              << std::endl;
+    for (int i = 0; i < featureConfigs.size(); i++) {
+      bool *config = featureConfigs[i];
+      SearchController sControl;
+      sControl._output = false;
+      std::copy(config, config + NUM_OF_FEATURES, sControl._features);
+      sControl._timeLimit = INT_MAX;
+      sControl._depthLimit = 5;
+
+      runSearch(FEN, sControl);
+      timeval currTime;
+      gettimeofday(&currTime, 0);
+      int timeElapsed =
+          (int)(timeToMS(currTime) - timeToMS(sControl._startTime)) + 1;
+
+      totalNodes[i] += sControl._totalNodes;
+      totalTime[i] += timeElapsed;
+      std::cout << "[ " << sControl.featuresToString() << "]" << std::endl;
+      std::cout << timeElapsed << " ms; "
+                << (int)(sControl._totalNodes / (timeElapsed)) << " kn/s"
+                << "; "
+                << (float)(100.0 * sControl._fhfNodes / sControl._fhNodes)
+                << "% fhf"
+                << "; "
+                << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
+                << "% fh"
+                << "; " << (sControl._totalNodes / 1000) << "K nodes"
+                << "; seldepth " << sControl._maxDepth << "\n" << std::endl;
+    }
+  }
+
+  float timeElapsedControl = totalTime[0] / 1000.0;
+  int avgSpeedControl = (int)(totalNodes[0] / totalTime[0]);
+  int nodesControl = totalNodes[0] / 1000;
+
+  double bestTimeChange = 0;
+  bool *bestTimeConfig = featureConfigs[0];
+
+  double bestSpeedChange = 0;
+  bool *bestSpeedConfig = featureConfigs[0];
+
+  double bestNodeChange = 0;
+  bool *bestNodeConfig = featureConfigs[0];
+  for (int i = 0; i < featureConfigs.size(); i++) {
+    float timeElapsed = totalTime[i] / 1000.0;
+    int avgSpeed = (int)(totalNodes[i] / totalTime[i]);
+    int nodes = totalNodes[i] / 1000;
+
+    double timeChange =
+        100.0 * (timeElapsedControl - timeElapsed) / timeElapsedControl;
+    double speedChange = 100.0 * (avgSpeed - avgSpeedControl) / avgSpeedControl;
+    double nodeChange = 100.0 * (nodesControl - nodes) / nodesControl;
+
+    std::cout << "Features: " << searchFeaturesToString(featureConfigs[i])
+              << std::endl;
+    std::cout << "Time elapsed: " << timeElapsed << " sec; ";
+    std::cout << timeChange << "% change\n";
+    std::cout << "Average speed: " << avgSpeed << " kn/s; ";
+    std::cout << speedChange << "% change\n";
+    std::cout << "Nodes computed: " << nodes << "K; ";
+    std::cout << nodeChange << "% change\n";
+    std::cout << std::endl;
+
+    if (timeChange > bestTimeChange) {
+      bestTimeChange = timeChange;
+      bestTimeConfig = featureConfigs[i];
+    }
+    if (speedChange > bestSpeedChange) {
+      bestSpeedChange = speedChange;
+      bestSpeedConfig = featureConfigs[i];
+    }
+    if (nodeChange > bestNodeChange) {
+      bestNodeChange = nodeChange;
+      bestNodeConfig = featureConfigs[i];
+    }
+  }
+  std::cout << "Highest time change: " << bestTimeChange << "% [ "
+            << searchFeaturesToString(bestTimeConfig) << "]" << std::endl;
+  std::cout << "Highest speed change: " << bestSpeedChange << "% [ "
+            << searchFeaturesToString(bestSpeedConfig) << "]" << std::endl;
+  std::cout << "Highest node change: " << bestNodeChange << "% [ "
+            << searchFeaturesToString(bestNodeConfig) << "]" << std::endl;
+}
+
 void perftTest(State &state, int depth) {
 
   if (depth == 0) {
@@ -135,6 +279,11 @@ void perftTest(State &state, int depth) {
   }
 }
 
+void runSearch(std::string FEN, SearchController &sControl) {
+  State state = boardFromFEN(FEN);
+  search(state, sControl);
+}
+
 void engineTest(std::string testPath, std::string tag, std::string comments,
                 int secondsPerPosition) {
   State state;
@@ -149,9 +298,9 @@ void engineTest(std::string testPath, std::string tag, std::string comments,
     sControl._timeLimit = secondsPerPosition;
     sControl._depthLimit = INT_MAX;
     search(state, sControl);
-    std::string result = moveToSAN(state.bestLine.moves[0].move, state).c_str();
-    printf("FEN: %s, Engine BM (eval): %s (%i), Given BM: %s",
-           info["fen"].c_str(), result.c_str(), state.bestLine.moves[0].eval,
+    std::string result = moveToSAN(state._bestLine.moves[0], state).c_str();
+    printf("FEN: %s, Engine BM (eval): %s (%i), Given BM: %s\n",
+           info["fen"].c_str(), result.c_str(), state._lineEval,
            info["bm"].c_str());
     CHECK(result == info["bm"].c_str());
     if (result == info["bm"]) {

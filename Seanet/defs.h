@@ -32,10 +32,32 @@ const U64 FILE_BB[8] = {0x0101010101010101ULL, 0x0202020202020202ULL,
 
 enum { WHITES, BLACKS, PAWNS, KNIGHTS, BISHOPS, ROOKS, QUEENS, KINGS };
 enum Piece { EMPTY, wP, bP, wN, bN, wB, bB, wR, bR, wQ, bQ, wK, bK };
+const int MATERIAL_WORTH[13] = {0,   100,  -100, 325,   -325,   330,    -330,
+                                550, -550, 1000, -1000, 100000, -100000};
 
 enum { BLACK = -1, NONE, WHITE };
 
 enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
+
+typedef struct {
+  Move _move;
+  int _castleRights;
+  int _EPTarget;
+  int _halfMoveClock;
+} S_UNDO;
+
+typedef struct {
+  Move move;
+  int score;
+} S_MOVE_AND_SCORE;
+
+typedef struct {
+  int moveCount = 0;
+  Move moves[100];
+} S_PVLINE;
+
+const int NUM_OF_FEATURES = 5;
+enum { PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE };
 
 #define CLRBIT(bb, i) (bb &= clearMask[i])
 #define SETBIT(bb, i) (bb |= setMask[i])

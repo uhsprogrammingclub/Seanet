@@ -18,23 +18,6 @@
 class State;
 class Undo;
 
-typedef struct {
-  Move _move;
-  int _castleRights;
-  int _EPTarget;
-  int _halfMoveClock;
-} S_UNDO;
-
-typedef struct {
-  Move move;
-  int eval;
-} S_MOVE;
-
-typedef struct {
-  int moveCount = 0;
-  S_MOVE moves[100];
-} S_PVLINE;
-
 #include "util.hpp"
 
 class State {
@@ -47,12 +30,16 @@ public:
   int _fullMoveCounter;
   int _sideToMove;
   std::stack<S_UNDO> _history;
-  S_PVLINE bestLine;
+  S_PVLINE _bestLine;
+  int _lineEval;
   int _ply = 0;
 
   void printBoard() const;
   void makeMove(Move &move);
   void takeMove();
+
+  void makeNullMove();
+  void takeNullMove();
 
   void clearSquare(int index);
   void addPiece(Piece p, int index);

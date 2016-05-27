@@ -33,6 +33,7 @@ public:
   S_PVLINE _bestLine;
   int _lineEval;
   int _ply = 0;
+  U64 _zHash = 0;
 
   void printBoard() const;
   void makeMove(Move &move);

@@ -135,13 +135,14 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
 
   bool control[NUM_OF_FEATURES];
   control[PV_REORDERING] = true;
-  control[SEE_REORDERING] = false;
-  control[KH_REORDERING] = false;
-  control[HH_REORDERING] = false;
+  control[SEE_REORDERING] = true;
+  control[KH_REORDERING] = true;
+  control[HH_REORDERING] = true;
   control[NULL_MOVE] = true;
+  control[TT_EVAL] = false;
 
-  const int degreesOfFreedom = 3;
-  bool allFeatures[] = {true, true, true, true, true};
+  const int degreesOfFreedom = 1;
+  bool allFeatures[] = {true, true, true, true, true, true};
   std::vector<bool *> featureConfigs;
 
   bool configs[(int)std::pow(2, degreesOfFreedom) - 2][NUM_OF_FEATURES];
@@ -183,7 +184,7 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
       sControl._output = false;
       std::copy(config, config + NUM_OF_FEATURES, sControl._features);
       sControl._timeLimit = INT_MAX;
-      sControl._depthLimit = 5;
+      sControl._depthLimit = 7;
 
       runSearch(FEN, sControl);
       timeval currTime;

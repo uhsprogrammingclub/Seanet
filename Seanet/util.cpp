@@ -308,6 +308,7 @@ State boardFromFEN(std::string FEN) {
   b._EPTarget = uciToIndex(enPassantTarget);
   b._halfMoveClock = halfMoveClock;
   b._fullMoveCounter = fullMoveCounter;
+  b._zHash = getZobristHash(b);
   return b;
 }
 
@@ -435,7 +436,6 @@ void initPresets() {
   generateMoveDatabase(true);
   generateOccupancyVariations(false);
   generateMoveDatabase(false);
-  generateFlippedTables();
   initZobrists();
 }
 
@@ -557,6 +557,9 @@ std::string searchFeaturesToString(bool *features) {
   }
   if (features[NULL_MOVE]) {
     string += "NULL_M ";
+  }
+  if (features[TT_EVAL]) {
+    string += "TT_EVAL ";
   }
   if (string == "") {
     string = "NONE";

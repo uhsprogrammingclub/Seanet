@@ -21,6 +21,16 @@ move for the state.sideToMove() as an int.
 void search(State &state, SearchController &sControl) {
   sControl.resetStats();
   initHashTable(&sControl.table);
+
+  // reset heuristics
+  for (int i = 0; i < 192; i++) {
+    killerMoves[i] = 0;
+  }
+  for (int from = 0; from < 64; from++) {
+    for (int to = 0; to < 64; to++) {
+      historyHeuristic[from][to] = 0;
+    }
+  }
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
@@ -103,23 +113,25 @@ int negamax(int alpha, int beta, int depth, State &state,
   if ((sControl._totalNodes & 10240) == 0) {
     sControl.checkTimeLimit();
   }
-  U64 zHash = getZobristHash(state);
 
   // Check if TT entry exists for given state, and return stored score
-  S_HASHENTRY oldEntry = probeHashTable(sControl.table, zHash);
-  if (oldEntry != NULL_ENTRY && oldEntry.zobrist == zHash) {
-    if (oldEntry.depth >= depth) {
-      if (oldEntry.type == EXACT) {
-        sControl._transpositions++;
-        return oldEntry.score;
-      }
-      if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
-        sControl._transpositions++;
-        return alpha;
-      }
-      if (oldEntry.type == BETA && oldEntry.score >= beta) {
-        sControl._transpositions++;
-        return beta;
+
+  if (sControl._features[TT_EVAL]) {
+    S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
+    if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
+      if (oldEntry.depth >= depth) {
+        if (oldEntry.type == EXACT) {
+          sControl._transpositions++;
+          return oldEntry.score;
+        }
+        if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
+          sControl._transpositions++;
+          return alpha;
+        }
+        if (oldEntry.type == BETA && oldEntry.score >= beta) {
+          sControl._transpositions++;
+          return beta;
+        }
       }
     }
   }
@@ -128,17 +140,34 @@ int negamax(int alpha, int beta, int depth, State &state,
   if (depth <= 0) {
     pvLine.moveCount = 0;
     int score = qSearch(alpha, beta, state, sControl);
-
-    storeHashEntry(zHash, depth, score, NO_MOVE, EXACT, sControl.table);
+    if (sControl._features[TT_EVAL]) {
+      storeHashEntry(state._zHash, depth, score, NO_MOVE, EXACT,
+                     sControl.table);
+    }
     return score;
     // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
+  }
+
+  if (sControl._features[NULL_MOVE] && !state.isInCheck(state._sideToMove)) {
+
+    state.makeNullMove();
+    state._ply++;
+    int score =
+        -negamax(-beta, -beta + 1, depth - 3, state, sControl, NULL_LINE);
+    state._ply--;
+    state.takeNullMove();
+    if (score >= beta) {
+      return beta;
+    }
   }
 
   S_PVLINE line;
 
   NodeType flag = ALPHA;
 
-  std::vector<int> moves = generatePseudoMoves(state);
+  std::vector<Move> moves = generatePseudoMoves(state);
+  std::vector<S_MOVE_AND_SCORE> scoredMoves;
+  scoredMoves.reserve(moves.size());
 
   for (std::vector<Move>::iterator it = moves.begin(); it != moves.end();
        ++it) {
@@ -214,7 +243,22 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     if (score >= beta) {
-      storeHashEntry(zHash, depth, beta, move, BETA, sControl.table);
+      if (sControl._features[TT_EVAL]) {
+        storeHashEntry(state._zHash, depth, beta, move, BETA, sControl.table);
+      }
+      if (legal == 1) {
+        sControl._fhfNodes++;
+      }
+      sControl._fhNodes++;
+      if (!M_ISCAPTURE(move)) {
+
+        if (sControl._features[KH_REORDERING]) {
+          addKillerMove(state._ply, move);
+        }
+        if (sControl._features[HH_REORDERING]) {
+          historyHeuristic[M_FROMSQ(move)][M_TOSQ(move)] += depth * depth;
+        }
+      }
       return beta; // Fail hard beta-cutoff
     }
     if (score > alpha) {
@@ -223,14 +267,18 @@ int negamax(int alpha, int beta, int depth, State &state,
       pvLine.moves[0] = move;
       memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(Move));
       pvLine.moveCount = line.moveCount + 1;
+      if (state._ply == 0) {
+        state._lineEval = score;
+      }
     }
   }
   if (!legal) {
     return evaluateGameOver(state);
   }
-
-  storeHashEntry(zHash, depth, alpha, pvLine.moves[0].move, flag,
-                 sControl.table);
+  if (sControl._features[TT_EVAL]) {
+    storeHashEntry(state._zHash, depth, alpha, pvLine.moves[0], flag,
+                   sControl.table);
+  }
   return alpha;
 }
 

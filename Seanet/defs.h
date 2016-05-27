@@ -44,6 +44,7 @@ typedef struct {
   int _castleRights;
   int _EPTarget;
   int _halfMoveClock;
+  U64 _zHash;
 } S_UNDO;
 
 typedef struct {
@@ -56,8 +57,15 @@ typedef struct {
   Move moves[100];
 } S_PVLINE;
 
-const int NUM_OF_FEATURES = 5;
-enum { PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE };
+const int NUM_OF_FEATURES = 6;
+enum {
+  PV_REORDERING,
+  SEE_REORDERING,
+  KH_REORDERING,
+  HH_REORDERING,
+  NULL_MOVE,
+  TT_EVAL
+};
 
 #define CLRBIT(bb, i) (bb &= clearMask[i])
 #define SETBIT(bb, i) (bb |= setMask[i])

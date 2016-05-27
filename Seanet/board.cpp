@@ -29,10 +29,11 @@ void State::makeNullMove() {
   if (_sideToMove == BLACK) {
     _fullMoveCounter++;
   }
-  _history.emplace(S_UNDO{0, _castleRights, _EPTarget, _halfMoveClock});
+  _history.emplace(S_UNDO{0, _castleRights, _EPTarget, _halfMoveClock, _zHash});
   _halfMoveClock++;
   _sideToMove = -_sideToMove;
   _EPTarget = -1;
+  _zHash = getZobristHash(*this);
 }
 
 void State::takeNullMove() {
@@ -48,10 +49,12 @@ void State::takeNullMove() {
   _EPTarget = undo._EPTarget;
   _castleRights = undo._castleRights;
   _sideToMove = -_sideToMove;
+  _zHash = undo._zHash;
 }
 
 void State::makeMove(Move &move) {
-  _history.emplace(S_UNDO{move, _castleRights, _EPTarget, _halfMoveClock});
+  _history.emplace(
+      S_UNDO{move, _castleRights, _EPTarget, _halfMoveClock, _zHash});
   _halfMoveClock++;
   if (_sideToMove == BLACK) {
     _fullMoveCounter++;
@@ -211,6 +214,7 @@ void State::makeMove(Move &move) {
 
   _sideToMove = -_sideToMove;
   _history.top()._move = move;
+  _zHash = getZobristHash(*this);
 }
 void State::takeMove() {
   if (_history.empty()) {
@@ -232,6 +236,7 @@ void State::takeMove() {
   _EPTarget = undo._EPTarget;
   _castleRights = undo._castleRights;
   _sideToMove = -_sideToMove;
+  _zHash = undo._zHash;
   int from = M_FROMSQ(move);
   int to = M_TOSQ(move);
   movePiece(to, from);

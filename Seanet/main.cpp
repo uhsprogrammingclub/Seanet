@@ -32,56 +32,57 @@ int main(int argc, const char *argv[]) {
   // FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0
   // 1";
   FEN = "8/8/4K3/4P3/8/4k3/8/8 w - - 0 1";
+  // mirrored positions
+  //  FEN = "K7/8/8/3Q4/4q3/8/8/7k b - - 0 1";
+  //   FEN = "1rb1k2q/1p2r1bp/3n1p2/n1p4P/p4P1N/2P1N3/PB1R2P1/Q2K1BR1 b - - 0
+  //   1";
+  //  FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w - - 0 1";
+  FEN = "2r1k2r/2pn1pp1/1p3n1p/p3PP2/4q2B/P1P5/2Q1N1PP/R4RK1 w q -";
+  // FEN = "4k2r/3n1pp1/1pr2n1p/p1p1PP2/4QR1B/P1P5/4N1PP/R5K1 w q - 2 2";
 
   initPresets();
 
   gameState = boardFromFEN(FEN);
   gameState.printBoard();
-  std::cout << "Static board evaluation: " << evaluate(gameState) << std::endl;
+	std::cout << "Static board evaluation: " << evaluate(gameState) << std::endl;
+	
+	SearchController sControl;
+	sControl._depthLimit = 9;
+	sControl._timeLimit = 90;
+	search(gameState, sControl);
 
   clock_t begin = clock();
 
-  SearchController sControl;
-  // sControl._depthLimit = 12;
 
-  sControl._depthLimit = 15;
-  search(gameState, sControl);
-
-  printf("Best move: %s (%i)\n",
-         moveToUCI(gameState.bestLine.moves[0].move).c_str(),
-         gameState.bestLine.moves[0].eval);
+	std::cout << "\nEvaluation:\n["
+	<< gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)
+	<< "] " << pvLineToString(gameState._bestLine) << "\n" << std::endl;
   std::cout << "TRANSPOSITIONS: " << sControl._transpositions << std::endl;
-  double elapsed_secs = double(clock() - begin) / CLOCKS_PER_SEC;
-  std::cout << elapsed_secs << std::endl;
-  std::cout << "EXPLORED NODES: " << sControl._totalNodes << std::endl;
-
   /*SearchController sControl;
   sControl._timeLimit = 10;
   while (true) {
     gameState.printBoard();
-
-    takePlayerMove();
     search(gameState, sControl);
     Move m = gameState.bestLine.moves[0].move;
     gameState.makeMove(m);
   }*/
 
-  return 0;
-}
-
-void takePlayerMove() {
-  std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
-
-  std::vector<int> pseudoMoves = generatePseudoMoves(gameState);
-  std::vector<int> legalMoves;
-
-  for (auto it = pseudoMoves.begin(); it != pseudoMoves.end(); ++it) {
-    if (gameState.isLegalMove(*it)) {
-      legalMoves.push_back(*it);
-    }
   }
 
-  printf("Legal moves (%lu):", legalMoves.size());
+void takePlayerMove() {
+	gameState.printBoard();
+	std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
+	
+	std::vector<int> pseudoMoves = generatePseudoMoves(gameState);
+	std::vector<int> legalMoves;
+	
+	for (auto it = pseudoMoves.begin(); it != pseudoMoves.end(); ++it) {
+		if (gameState.isLegalMove(*it)) {
+			legalMoves.push_back(*it);
+		}
+	}
+	
+	printf("Legal moves (%lu):", legalMoves.size());
   for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
     std::cout << moveToUCI(*it) << "(" << see(*it, gameState) << "), ";
   }

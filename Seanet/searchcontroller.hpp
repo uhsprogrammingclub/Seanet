@@ -22,7 +22,7 @@ public:
   int _uciOutput = false;
   bool _output = true;
 
-  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true};
+  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true, true};
 
   bool _stopSearch = false;
   timeval _startTime;

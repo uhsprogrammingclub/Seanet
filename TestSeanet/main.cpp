@@ -146,7 +146,7 @@ TEST_CASE("Running Feature Speed Test", "[speed]") {
   bool allFeatures[] = {true, true, true, true, true, true};
   std::vector<bool *> featureConfigs;
 
-  bool configs[(int)std::pow(2, degreesOfFreedom) - 2][NUM_OF_FEATURES];
+  bool configs[(int)std::pow(2, degreesOfFreedom) - 1][NUM_OF_FEATURES];
   for (int i = 1; i < std::pow(2, degreesOfFreedom) - 1; i++) {
 
     std::string s = std::bitset<degreesOfFreedom>(i).to_string();

@@ -66,14 +66,18 @@ int negamax(int alpha, int beta, int depth, State &state,
   // Check if TT entry exists for given state, and return stored score
   S_HASHENTRY oldEntry = probeHashTable(sControl.table, zHash);
   if (oldEntry != NULL_ENTRY && oldEntry.zobrist == zHash) {
-    std::cout << "Found old entry!" << std::endl;
     if (oldEntry.depth >= depth) {
-      std::cout << "Using old entry!" << std::endl;
       if (oldEntry.type == EXACT) {
+        sControl._transpositions++;
         return oldEntry.score;
       }
       if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
+        sControl._transpositions++;
         return alpha;
+      }
+      if (oldEntry.type == BETA && oldEntry.score >= beta) {
+        sControl._transpositions++;
+        return beta;
       }
     }
   }

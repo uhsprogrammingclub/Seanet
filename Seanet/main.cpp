@@ -14,6 +14,7 @@
 #include "searchcontroller.hpp"
 #include "util.hpp"
 #include <algorithm>
+#include <ctime>
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -37,20 +38,21 @@ int main(int argc, const char *argv[]) {
   gameState = boardFromFEN(FEN);
   gameState.printBoard();
 
+  clock_t begin = clock();
+
   SearchController sControl;
-  sControl._depthLimit = 1;
-  sControl._timeLimit = 60;
+  // sControl._depthLimit = 12;
+
+  sControl._depthLimit = 15;
   search(gameState, sControl);
 
   printf("Best move: %s (%i)\n",
          moveToUCI(gameState.bestLine.moves[0].move).c_str(),
          gameState.bestLine.moves[0].eval);
-
-  for (auto iterator : sControl.table) {
-    std::cout << "KEY:" << iterator.first << " VALUES: ( "
-              << iterator.second.depth << " " << iterator.second.score << " )"
-              << std::endl;
-  }
+  std::cout << "TRANSPOSITIONS: " << sControl._transpositions << std::endl;
+  double elapsed_secs = double(clock() - begin) / CLOCKS_PER_SEC;
+  std::cout << elapsed_secs << std::endl;
+  std::cout << "EXPLORED NODES: " << sControl._totalNodes << std::endl;
 
   /*SearchController sControl;
   sControl._timeLimit = 10;

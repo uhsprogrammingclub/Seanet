@@ -33,13 +33,9 @@ void storeHashEntry(U64 zobrist, int depth, int score, Move move, NodeType type,
   assert(index >= 0 && index < TABLE_SIZE);
   S_HASHENTRY entry{zobrist, depth, score, move, type};
   if (table.find(index) == table.end()) {
-    table.emplace(zobrist, entry);
-    std::cout << "Storing index of depth " << depth << " Index: " << index
-              << " Zobrist: " << zobrist << " Score: " << score << std::endl;
+    table.emplace(index, entry);
   } else if (table[index].depth <= depth) {
     table[index] = entry;
-    std::cout << "Overrighting index of depth " << depth << " Index: " << index
-              << std::endl;
   }
 }
 

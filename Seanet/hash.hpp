@@ -19,7 +19,7 @@
 
 enum NodeType { UNSET, EXACT, ALPHA, BETA };
 
-const int TABLE_SIZE = 5 * pow(10, 4);
+const int TABLE_SIZE = 5 * pow(10, 5);
 
 extern U64
     zArray[64][12]; // Squares + piece types (2 colors * 6 pieces * 64 squares)

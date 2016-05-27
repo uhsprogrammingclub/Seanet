@@ -353,6 +353,16 @@ void initpopCountOfByte256() {
 
 void getSetBits(U64 bb, int *setBits) {
   int i = 0;
+  /*int j = 0;
+  while (bb != 0) {
+    if ((bb & 1) == 1) {
+      setBits[j] = i;
+      j++;
+    }
+    bb = bb >> 1;
+    i++;
+  }*/
+
   while (bb) {
     int index = LS1B(bb);
     setBits[i] = index;

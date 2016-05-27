@@ -17,7 +17,7 @@
 
 class SearchController {
 public:
-  int _depthLimit = 12;
+  int _depthLimit = 60;
   int _timeLimit = 60;
   int _uciOutput = false;
 
@@ -25,6 +25,7 @@ public:
   timeval _startTime;
   int _totalNodes = 0;
   int _currDepth = 0;
+  int _transpositions = 0;
   int _maxDepth = 0;
   Move _currMove = 0;
   int _currMoveNumber = 0;

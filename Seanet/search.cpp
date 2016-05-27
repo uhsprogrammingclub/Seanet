@@ -122,15 +122,15 @@ int negamax(int alpha, int beta, int depth, State &state,
       if (oldEntry.depth >= depth) {
         if (oldEntry.type == EXACT) {
           sControl._transpositions++;
-          return oldEntry.score;
+          // return oldEntry.score;
         }
         if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
           sControl._transpositions++;
-          return alpha;
+          // return alpha;
         }
         if (oldEntry.type == BETA && oldEntry.score >= beta) {
           sControl._transpositions++;
-          return beta;
+          // return beta;
         }
       }
     }

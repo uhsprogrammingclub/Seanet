@@ -2,6 +2,7 @@
                           // in one cpp file
 #include "board.hpp"
 #include "catch.hpp"
+#include "hash.hpp"
 #include "movegenerator.hpp"
 #include "search.hpp"
 #include "searchcontroller.hpp"
@@ -119,7 +120,7 @@ TEST_CASE("Running PERFT tests", "[perft]") {
          (float(clock() - startTime) / (CLOCKS_PER_SEC * 60.0)));
 }
 
-TEST_CASE("Running Feature Speed Test", "[Speed]") {
+TEST_CASE("Running Feature Speed Test", "[speed]") {
   initPresets();
 
   std::ifstream file("Silver-Suite.text");
@@ -182,6 +183,7 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
       bool *config = featureConfigs[i];
       SearchController sControl;
       sControl._output = false;
+      clearHashTable(&sControl.table);
       std::copy(config, config + NUM_OF_FEATURES, sControl._features);
       sControl._timeLimit = INT_MAX;
       sControl._depthLimit = 7;
@@ -203,7 +205,8 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
                 << "; "
                 << (float)(100.0 * sControl._fhNodes / sControl._totalNodes)
                 << "% fh"
-                << "; " << (sControl._totalNodes / 1000) << "K nodes"
+                << "; " << (sControl._totalNodes / 1000) << "K nodes; "
+                << sControl._transpositions << " transpositions"
                 << "; seldepth " << sControl._maxDepth << "\n" << std::endl;
     }
   }

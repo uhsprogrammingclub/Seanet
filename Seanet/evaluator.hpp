@@ -18,6 +18,11 @@ int evaluate(State &state);
 int evaluateGameOver(State &state);
 bool isGameOver(State &state);
 bool isGameOver(State &state, std::vector<Move> moves);
-// void generateFlippedTables();
+
+const int PAWN_PHASE = 0;
+const int KNIGHT_PHASE = 1;
+const int BISHOP_PHASE = 1;
+const int ROOK_PHASE = 2;
+const int QUEEN_PHASE = 4;
 
 #endif /* defined(__Seanet__evaluator__) */

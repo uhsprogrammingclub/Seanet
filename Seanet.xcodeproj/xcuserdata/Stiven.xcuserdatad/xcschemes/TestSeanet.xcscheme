@@ -68,7 +68,11 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "&quot;[Speed]&quot;"
+            argument = "&quot;[Speed-Opening]&quot;"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "&quot;[Speed-Endgame]&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

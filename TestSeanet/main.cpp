@@ -17,6 +17,7 @@ void divide(std::string FEN, int depth);
 void engineTest(std::string testPath, std::string tag, std::string comments,
                 int secondsPerPosition = 25);
 void runSearch(std::string FEN, SearchController &sControl);
+void speedTest(std::string testPath);
 
 TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
   State state;
@@ -119,10 +120,20 @@ TEST_CASE("Running PERFT tests", "[perft]") {
          (float(clock() - startTime) / (CLOCKS_PER_SEC * 60.0)));
 }
 
-TEST_CASE("Running Feature Speed Test", "[Speed]") {
+TEST_CASE("Running Feature Speed Test on Opening Positions",
+          "[Speed-Opening]") {
+  speedTest("Silver-Suite.text");
+}
+
+TEST_CASE("Running Feature Speed Test on Endgame Positions",
+          "[Speed-Endgame]") {
+  speedTest("Sune-Larson-Endgame.text");
+}
+
+void speedTest(std::string testPath) {
   initPresets();
 
-  std::ifstream file("Silver-Suite.text");
+  std::ifstream file(testPath);
   std::vector<KeyInfoMap> positions;
   std::string line;
 
@@ -184,7 +195,7 @@ TEST_CASE("Running Feature Speed Test", "[Speed]") {
       sControl._output = false;
       std::copy(config, config + NUM_OF_FEATURES, sControl._features);
       sControl._timeLimit = INT_MAX;
-      sControl._depthLimit = 7;
+      sControl._depthLimit = 10;
 
       runSearch(FEN, sControl);
       timeval currTime;

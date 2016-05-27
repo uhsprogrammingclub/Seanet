@@ -116,9 +116,11 @@ int negamax(int alpha, int beta, int depth, State &state,
 
   // Check if TT entry exists for given state, and return stored score
 
+  Move bestTTMove = NO_MOVE;
   if (sControl._features[TT_EVAL]) {
     S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
     if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
+      bestTTMove = oldEntry.move;
       if (oldEntry.depth >= depth) {
         if (oldEntry.type == EXACT) {
           sControl._transpositions++;
@@ -157,9 +159,10 @@ int negamax(int alpha, int beta, int depth, State &state,
     state._ply--;
     state.takeNullMove();
     if (score >= beta) {
-		if (sControl._features[TT_EVAL]) {
-			storeHashEntry(state._zHash, depth, beta, NO_MOVE, BETA, sControl.table);
-		}
+      if (sControl._features[TT_EVAL]) {
+        storeHashEntry(state._zHash, depth, beta, NO_MOVE, BETA,
+                       sControl.table);
+      }
       return beta;
     }
   }
@@ -179,6 +182,11 @@ int negamax(int alpha, int beta, int depth, State &state,
     if (sControl._features[PV_REORDERING] &&
         M_EQUALS(*it, state._bestLine.moves[state._ply])) {
       scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
+      continue;
+    }
+
+    if (sControl._features[TT_EVAL] && M_EQUALS(*it, bestTTMove)) {
+      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 990000});
       continue;
     }
 

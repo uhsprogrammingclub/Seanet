@@ -17,9 +17,15 @@ void SearchController::checkTimeLimit() {
 void SearchController::resetStats() {
   gettimeofday(&_startTime, 0);
   _totalNodes = 0;
+  _fhNodes = 1;
+  _fhfNodes = 1;
   _currDepth = 0;
   _maxDepth = 0;
   _currMove = 0;
   _currMoveNumber = 0;
   _stopSearch = false;
+}
+
+std::string SearchController::featuresToString() {
+  return searchFeaturesToString(_features);
 }

@@ -29,7 +29,8 @@ void State::makeNullMove() {
   if (_sideToMove == BLACK) {
     _fullMoveCounter++;
   }
-  _history.emplace(S_UNDO{0, _castleRights, _EPTarget, _halfMoveClock, _zHash});
+  _history.emplace(
+      S_UNDO{NO_MOVE, _castleRights, _EPTarget, _halfMoveClock, _zHash});
   _halfMoveClock++;
   _sideToMove = -_sideToMove;
   _EPTarget = -1;

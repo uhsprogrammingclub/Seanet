@@ -23,6 +23,14 @@ public:
   bool _output = true;
 
   bool _features[NUM_OF_FEATURES] = {true, true, true, true, true, true, true};
+  // Timing
+  int _timeLimit = 60; // i.e. seconds.move
+  int _wTime;          // Amount of time white has left
+  int _bTime;          // Amount of time black has left
+  int _wInc = 0;       // White increment/move
+  int _bInc = 0;       // Black increment/move
+  int _moveToGo;       // Number of moves before next time control
+  int _nodeLimit;      // Limit to how many nodes searched
 
   bool _stopSearch = false;
   timeval _startTime;

@@ -131,13 +131,15 @@ int negamax(int alpha, int beta, int depth, State &state,
       if (sControl._features[TT_EVAL]) {
         if (oldEntry.depth >= depth) {
           if (oldEntry.type == EXACT) {
-
+			  sControl._exactNodes++;
             return oldEntry.score;
           }
           if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
+			  sControl._alphaNodes++;
             return alpha;
           }
           if (oldEntry.type == BETA && oldEntry.score >= beta) {
+			  sControl._betaNodes++;
             return beta;
           }
         }

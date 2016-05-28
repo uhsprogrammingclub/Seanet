@@ -251,10 +251,10 @@ void speedTest(std::string testPath) {
                 << sControl._transpositions << " transpositions"
                 << "; seldepth " << sControl._maxDepth << std::endl;
       std::cout << "qNodes: " << sControl._qNodes
-                << " Main Nodes: " << sControl._mainNodes
-                << " Exact Nodes Used: " << sControl._exactNodes
-                << " Alpha Nodes Used: " << sControl._alphaNodes
-                << " Beta Nodes Used: " << sControl._betaNodes << "\n"
+                << "; Main Nodes: " << sControl._mainNodes
+                << "; Exact Nodes Used: " << sControl._exactNodes
+                << "; Alpha Nodes Used: " << sControl._alphaNodes
+                << "; Beta Nodes Used: " << sControl._betaNodes << "\n"
                 << std::endl;
     }
   }

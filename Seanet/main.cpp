@@ -43,47 +43,19 @@ int main(int argc, const char *argv[]) {
   initPresets();
 
   gameState = boardFromFEN(FEN);
-  // gameState.printBoard();
-  /*std::cout << "Static board evaluation: " << evaluate(gameState) <<
-  std::endl;
 
-  SearchController sControl;
-  sControl._depthLimit = 9;
-  sControl._timeLimit = 90;
-  search(gameState, sControl);*/
-
-  startUCI();
-
-  // clock_t begin = clock();
-  /*
-    std::cout << "\nEvaluation:\n["
-              << gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)
-              << "] " << pvLineToString(gameState._bestLine) << "\n" <<
-    std::endl;
-    std::cout << "TRANSPOSITIONS: " << sControl._transpositions << std::endl;*/
+  while (true) {
+    takePlayerMove();
+  }
 }
 
 void takePlayerMove() {
   gameState.printBoard();
-	std::cout << "Static board evaluation: " << evaluate(gameState) << std::endl;
-	
-	SearchController sControl;
-	sControl._depthLimit = 9;
-	sControl._timeLimit = 90;
-	search(gameState, sControl);
+  std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
+  std::cout << "Static board evaluation: " << evaluate(gameState) << std::endl;
 
-	std::cout << "\nEvaluation:\n["
-	<< gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)
-	<< "] " << pvLineToString(gameState._bestLine) << "\n" << std::endl;
-  std::cout << "TRANSPOSITIONS: " << sControl._transpositions << std::endl;
-  /*SearchController sControl;
-  sControl._timeLimit = 10;
-  while (true) {
-    gameState.printBoard();
-    search(gameState, sControl);
-    Move m = gameState.bestLine.moves[0].move;
-    gameState.makeMove(m);
-  }*/
+  std::vector<int> pseudoMoves = generatePseudoMoves(gameState);
+  std::vector<int> legalMoves;
 
   for (auto it = pseudoMoves.begin(); it != pseudoMoves.end(); ++it) {
     if (gameState.isLegalMove(*it)) {
@@ -91,19 +63,28 @@ void takePlayerMove() {
     }
   }
 
-  printf("Legal moves (%lu):", legalMoves.size());
-  for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
-    std::cout << moveToUCI(*it) << "(" << see(*it, gameState) << "), ";
-  }
-  std::cout << '\n';
+  //  printf("Legal moves (%lu):", legalMoves.size());
+  //  for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
+  //    std::cout << moveToUCI(*it) << "(" << see(*it, gameState) << "), ";
+  //  }
+  //  std::cout << '\n';
 
   std::string userMove;
-  std::cout << "Enter the next move!\n";
+  std::cout << "Enter the next action:" << std::endl;
   std::getline(std::cin, userMove);
   if (userMove == "undo") {
     gameState.takeMove();
   } else if (userMove == "uci") {
     startUCI();
+  } else if (userMove == "search") {
+    SearchController sControl;
+    sControl._depthLimit = 9;
+    sControl._timeLimit = 90;
+    search(gameState, sControl);
+    std::cout << "\nEvaluation:\n["
+              << gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)
+              << "] " << pvLineToString(gameState._bestLine) << "\n"
+              << std::endl;
   } else {
     int move = moveFromUCI(userMove);
     if (std::find(legalMoves.begin(), legalMoves.end(), move) !=

@@ -551,6 +551,9 @@ std::string searchFeaturesToString(bool *features) {
   if (features[TT_EVAL]) {
     string += "TT_EVAL ";
   }
+	if (features[TT_REORDERING]) {
+		string += "TT_R ";
+	}
   if (string == "") {
     string = "NONE";
   }

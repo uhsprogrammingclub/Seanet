@@ -57,14 +57,15 @@ typedef struct {
   Move moves[100];
 } S_PVLINE;
 
-const int NUM_OF_FEATURES = 6;
+const int NUM_OF_FEATURES = 7;
 enum {
   PV_REORDERING,
   SEE_REORDERING,
   KH_REORDERING,
   HH_REORDERING,
   NULL_MOVE,
-  TT_EVAL
+  TT_EVAL,
+  TT_REORDERING
 };
 
 #define CLRBIT(bb, i) (bb &= clearMask[i])

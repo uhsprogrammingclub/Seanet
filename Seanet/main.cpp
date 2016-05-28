@@ -51,9 +51,6 @@ int main(int argc, const char *argv[]) {
 	sControl._timeLimit = 90;
 	search(gameState, sControl);
 
-  clock_t begin = clock();
-
-
 	std::cout << "\nEvaluation:\n["
 	<< gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)
 	<< "] " << pvLineToString(gameState._bestLine) << "\n" << std::endl;

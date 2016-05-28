@@ -143,7 +143,9 @@ void speedTest(std::string testPath) {
   while (std::getline(file, line)) {
     positions.push_back(splitEDP(line));
   }
-  std::random_shuffle(positions.begin(), positions.end());
+  if (posLimit < positions.size()) {
+    std::random_shuffle(positions.begin(), positions.end());
+  }
 
   bool control[NUM_OF_FEATURES];
   control[PV_REORDERING] = true;
@@ -151,10 +153,11 @@ void speedTest(std::string testPath) {
   control[KH_REORDERING] = true;
   control[HH_REORDERING] = true;
   control[NULL_MOVE] = true;
-  control[TT_EVAL] = false;
+  control[TT_EVAL] = true;
+  control[TT_REORDERING] = false;
 
   const int degreesOfFreedom = 1;
-  bool allFeatures[] = {true, true, true, true, true, true};
+  bool allFeatures[] = {true, true, true, true, true, true, true};
   std::vector<bool *> featureConfigs;
 
   bool configs[(int)std::pow(2, degreesOfFreedom) - 1][NUM_OF_FEATURES];

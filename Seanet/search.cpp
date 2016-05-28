@@ -117,22 +117,23 @@ int negamax(int alpha, int beta, int depth, State &state,
   // Check if TT entry exists for given state, and return stored score
 
   Move bestTTMove = NO_MOVE;
-  if (sControl._features[TT_EVAL]) {
+  if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
     S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
     if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
+      sControl._transpositions++;
       bestTTMove = oldEntry.move;
-      if (oldEntry.depth >= depth) {
-        if (oldEntry.type == EXACT) {
-          sControl._transpositions++;
-          return oldEntry.score;
-        }
-        if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
-          sControl._transpositions++;
-          return alpha;
-        }
-        if (oldEntry.type == BETA && oldEntry.score >= beta) {
-          sControl._transpositions++;
-          return beta;
+      if (sControl._features[TT_EVAL]) {
+        if (oldEntry.depth >= depth) {
+          if (oldEntry.type == EXACT) {
+
+            return oldEntry.score;
+          }
+          if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
+            return alpha;
+          }
+          if (oldEntry.type == BETA && oldEntry.score >= beta) {
+            return beta;
+          }
         }
       }
     }
@@ -142,10 +143,6 @@ int negamax(int alpha, int beta, int depth, State &state,
   if (depth <= 0) {
     pvLine.moveCount = 0;
     int score = qSearch(alpha, beta, state, sControl);
-    if (sControl._features[TT_EVAL]) {
-      storeHashEntry(state._zHash, depth, score, NO_MOVE, EXACT,
-                     sControl.table);
-    }
     return score;
     // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
   }
@@ -159,7 +156,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     state._ply--;
     state.takeNullMove();
     if (score >= beta) {
-      if (sControl._features[TT_EVAL]) {
+      if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
         storeHashEntry(state._zHash, depth, beta, NO_MOVE, BETA,
                        sControl.table);
       }
@@ -170,9 +167,12 @@ int negamax(int alpha, int beta, int depth, State &state,
   S_PVLINE line;
 
   NodeType flag = ALPHA;
-
-  std::vector<Move> moves = generatePseudoMoves(state);
   std::vector<S_MOVE_AND_SCORE> scoredMoves;
+  if (bestTTMove) {
+    scoredMoves.push_back(S_MOVE_AND_SCORE{bestTTMove, 990000});
+  }
+  std::vector<Move> moves = generatePseudoMoves(state);
+
   scoredMoves.reserve(moves.size());
 
   for (std::vector<Move>::iterator it = moves.begin(); it != moves.end();
@@ -185,8 +185,7 @@ int negamax(int alpha, int beta, int depth, State &state,
       continue;
     }
 
-    if (sControl._features[TT_EVAL] && M_EQUALS(*it, bestTTMove)) {
-      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 990000});
+    if (sControl._features[TT_REORDERING] && M_EQUALS(*it, bestTTMove)) {
       continue;
     }
 
@@ -230,6 +229,7 @@ int negamax(int alpha, int beta, int depth, State &state,
   }
 
   int legal = 0;
+  int bestScore = INT_MIN;
   for (int moveNum = 0; moveNum < scoredMoves.size(); moveNum++) {
     pickMove(moveNum, scoredMoves);
     Move move = scoredMoves[moveNum].move;
@@ -253,40 +253,47 @@ int negamax(int alpha, int beta, int depth, State &state,
       return 0;
     }
 
-    if (score >= beta) {
-      if (sControl._features[TT_EVAL]) {
-        storeHashEntry(state._zHash, depth, beta, move, BETA, sControl.table);
-      }
-      if (legal == 1) {
-        sControl._fhfNodes++;
-      }
-      sControl._fhNodes++;
-      if (!M_ISCAPTURE(move)) {
-
-        if (sControl._features[KH_REORDERING]) {
-          addKillerMove(state._ply, move);
-        }
-        if (sControl._features[HH_REORDERING]) {
-          historyHeuristic[M_FROMSQ(move)][M_TOSQ(move)] += depth * depth;
-        }
-      }
-      return beta; // Fail hard beta-cutoff
-    }
-    if (score > alpha) {
-      flag = EXACT;
-      alpha = score; // Update value of "best path so far for maximizer"
+    if (score > bestScore) {
+      bestScore = score;
       pvLine.moves[0] = move;
-      memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(Move));
-      pvLine.moveCount = line.moveCount + 1;
-      if (state._ply == 0) {
-        state._lineEval = score;
+      if (score > alpha) {
+        if (score >= beta) {
+          if (sControl._features[TT_EVAL] ||
+              sControl._features[TT_REORDERING]) {
+            storeHashEntry(state._zHash, depth, beta, pvLine.moves[0], BETA,
+                           sControl.table);
+          }
+          if (legal == 1) {
+            sControl._fhfNodes++;
+          }
+          sControl._fhNodes++;
+          if (!M_ISCAPTURE(move)) {
+
+            if (sControl._features[KH_REORDERING]) {
+              addKillerMove(state._ply, move);
+            }
+            if (sControl._features[HH_REORDERING]) {
+              historyHeuristic[M_FROMSQ(move)][M_TOSQ(move)] += depth * depth;
+            }
+          }
+          return beta; // Fail hard beta-cutoff
+        }
+
+        flag = EXACT;
+        alpha = score; // Update value of "best path so far for maximizer"
+        pvLine.moves[0] = move;
+        memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(Move));
+        pvLine.moveCount = line.moveCount + 1;
+        if (state._ply == 0) {
+          state._lineEval = score;
+        }
       }
     }
   }
   if (!legal) {
     return evaluateGameOver(state);
   }
-  if (sControl._features[TT_EVAL]) {
+  if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
     storeHashEntry(state._zHash, depth, alpha, pvLine.moves[0], flag,
                    sControl.table);
   }
@@ -294,7 +301,6 @@ int negamax(int alpha, int beta, int depth, State &state,
 }
 
 int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
-  // printf("Quiescence Ply: %i\n", quiescencePly);
   if (state._ply > sControl._maxDepth) {
     sControl._maxDepth = state._ply;
   }
@@ -304,6 +310,24 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
     sControl.checkTimeLimit();
   }
 
+  if (sControl._features[TT_EVAL]) {
+    S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
+    if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
+      sControl._transpositions++;
+      if (oldEntry.type == EXACT) {
+        return oldEntry.score;
+      }
+      if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
+        return alpha;
+      }
+      if (oldEntry.type == BETA && oldEntry.score >= beta) {
+        return beta;
+      }
+    }
+  }
+
+  NodeType flag = ALPHA;
+
   bool inCheck = state.isInCheck(state._sideToMove);
   std::vector<int> moves = generatePseudoMoves(state, inCheck);
   bool gameOver = true; // assume game is over until we find a legal move
@@ -311,6 +335,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
   int stand_pat = evaluate(state) * (state._sideToMove == WHITE ? 1 : -1);
   if (stand_pat >= beta) {
     alpha = beta;
+    flag = BETA;
   } else {
 
     if (alpha < stand_pat) {
@@ -346,21 +371,29 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
           sControl._fhfNodes++;
         }
         sControl._fhNodes++;
-        return beta;
+        alpha = beta;
+        flag = BETA;
+        break;
       }
       if (score > alpha) {
+        flag = EXACT;
         alpha = score;
       }
     }
   }
   if (alpha == beta) { // check game over for beta cutoff
     if (isGameOver(state, moves)) {
-      return evaluateGameOver(state);
+      flag = EXACT;
+      alpha = evaluateGameOver(state);
     }
   } else {
     if (gameOver && (inCheck || isGameOver(state, moves))) {
-      return evaluateGameOver(state);
+      flag = EXACT;
+      alpha = evaluateGameOver(state);
     }
+  }
+  if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+    storeHashEntry(state._zHash, 0, alpha, NO_MOVE, flag, sControl.table);
   }
   return alpha;
 }

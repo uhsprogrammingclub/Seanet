@@ -31,6 +31,7 @@ void search(State &state, SearchController &sControl) {
       historyHeuristic[from][to] = 0;
     }
   }
+
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
@@ -68,6 +69,11 @@ void search(State &state, SearchController &sControl) {
                   << "; seldepth " << sControl._maxDepth << std::endl;
       }
     }
+  }
+
+  if (sControl._uciOutput) {
+    std::cout << "bestmove " << moveToUCI(state._bestLine.moves[0])
+              << " ponder " << moveToUCI(state._bestLine.moves[1]) << std::endl;
   }
 }
 

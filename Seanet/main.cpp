@@ -22,7 +22,7 @@
 void startUCI();
 void takeUCIInput();
 
-void takePlayerMove();
+void takeAction();
 State gameState;
 
 int main(int argc, const char *argv[]) {
@@ -45,11 +45,11 @@ int main(int argc, const char *argv[]) {
   gameState = boardFromFEN(FEN);
 
   while (true) {
-    takePlayerMove();
+    takeAction();
   }
 }
 
-void takePlayerMove() {
+void takeAction() {
   gameState.printBoard();
   std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
   std::cout << "Static board evaluation: " << evaluate(gameState) << std::endl;
@@ -62,12 +62,6 @@ void takePlayerMove() {
       legalMoves.push_back(*it);
     }
   }
-
-  //  printf("Legal moves (%lu):", legalMoves.size());
-  //  for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
-  //    std::cout << moveToUCI(*it) << "(" << see(*it, gameState) << "), ";
-  //  }
-  //  std::cout << '\n';
 
   std::string userMove;
   std::cout << "Enter the next action:" << std::endl;

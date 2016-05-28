@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		361C08531CF8CE6100F972C9 /* zobrist-checking.text in Sources */ = {isa = PBXBuildFile; fileRef = 361C08521CF8CE6100F972C9 /* zobrist-checking.text */; };
 		36304D881CF2B509004ABD85 /* LCT-II.text in Sources */ = {isa = PBXBuildFile; fileRef = 36304D871CF2B509004ABD85 /* LCT-II.text */; };
 		3634CA071CF424AB00DFFB64 /* hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3634CA051CF424AB00DFFB64 /* hash.cpp */; };
 		3634CA081CF424AB00DFFB64 /* hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3634CA051CF424AB00DFFB64 /* hash.cpp */; };
@@ -50,6 +51,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		361C08521CF8CE6100F972C9 /* zobrist-checking.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "zobrist-checking.text"; sourceTree = "<group>"; };
 		36304D871CF2B509004ABD85 /* LCT-II.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LCT-II.text"; sourceTree = "<group>"; };
 		3634CA051CF424AB00DFFB64 /* hash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hash.cpp; sourceTree = "<group>"; };
 		3634CA061CF424AB00DFFB64 /* hash.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = hash.hpp; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 				36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */,
 				36A30F9A1CEFD0A600B6FDAC /* records.text */,
 				36304D871CF2B509004ABD85 /* LCT-II.text */,
+				361C08521CF8CE6100F972C9 /* zobrist-checking.text */,
 			);
 			path = TestSeanet;
 			sourceTree = "<group>";
@@ -245,6 +248,7 @@
 			files = (
 				80B87A4D1CF831F400313E28 /* Sune-Larson-Endgame.text in Sources */,
 				36304D881CF2B509004ABD85 /* LCT-II.text in Sources */,
+				361C08531CF8CE6100F972C9 /* zobrist-checking.text in Sources */,
 				BFDDC6B01CE81DD900CBB8CC /* main.cpp in Sources */,
 				3634CA081CF424AB00DFFB64 /* hash.cpp in Sources */,
 				36A30F9C1CEFE39300B6FDAC /* search.cpp in Sources */,

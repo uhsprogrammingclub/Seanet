@@ -43,6 +43,27 @@ int main(int argc, const char *argv[]) {
   initPresets();
 
   gameState = boardFromFEN(FEN);
+  // gameState.printBoard();
+  /*std::cout << "Static board evaluation: " << evaluate(gameState) <<
+  std::endl;
+
+  SearchController sControl;
+  sControl._depthLimit = 9;
+  sControl._timeLimit = 90;
+  search(gameState, sControl);*/
+
+  startUCI();
+
+  // clock_t begin = clock();
+  /*
+    std::cout << "\nEvaluation:\n["
+              << gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)
+              << "] " << pvLineToString(gameState._bestLine) << "\n" <<
+    std::endl;
+    std::cout << "TRANSPOSITIONS: " << sControl._transpositions << std::endl;*/
+}
+
+void takePlayerMove() {
   gameState.printBoard();
 	std::cout << "Static board evaluation: " << evaluate(gameState) << std::endl;
 	
@@ -64,22 +85,13 @@ int main(int argc, const char *argv[]) {
     gameState.makeMove(m);
   }*/
 
+  for (auto it = pseudoMoves.begin(); it != pseudoMoves.end(); ++it) {
+    if (gameState.isLegalMove(*it)) {
+      legalMoves.push_back(*it);
+    }
   }
 
-void takePlayerMove() {
-	gameState.printBoard();
-	std::cout << "FEN: " << boardToFEN(gameState) << std::endl;
-	
-	std::vector<int> pseudoMoves = generatePseudoMoves(gameState);
-	std::vector<int> legalMoves;
-	
-	for (auto it = pseudoMoves.begin(); it != pseudoMoves.end(); ++it) {
-		if (gameState.isLegalMove(*it)) {
-			legalMoves.push_back(*it);
-		}
-	}
-	
-	printf("Legal moves (%lu):", legalMoves.size());
+  printf("Legal moves (%lu):", legalMoves.size());
   for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
     std::cout << moveToUCI(*it) << "(" << see(*it, gameState) << "), ";
   }
@@ -107,7 +119,7 @@ void startUCI() {
   std::cout << "id name Seanet 0.1b\n";
   std::cout << "id author Stiven Deleur, Nathaniel Corley\n";
 
-  std::cout << "uciok\n";
+  std::cout << "uciok\n" << std::endl;
   takeUCIInput();
 }
 
@@ -118,8 +130,17 @@ void takeUCIInput() {
   State uciGameState;
   std::thread searchThread;
 
+  bool searching = false;
+
   uciStateControl._uciOutput = true;
   while (std::getline(std::cin, input)) {
+
+    if (uciStateControl._stopSearch == true) {
+      if (searchThread.joinable()) {
+        searchThread.join();
+      }
+    }
+
     std::vector<std::string> inputParts;
     inputParts = split(input, ' ');
     std::string commandName = inputParts.at(0);
@@ -152,25 +173,47 @@ void takeUCIInput() {
         uciGameState.makeMove(move);
       }
     } else if (commandName == "go") {
+
       for (int i = 1; i < inputParts.size(); i++) {
         if (inputParts.at(i) == "searchmoves") {
         } else if (inputParts.at(i) == "ponder") {
+          uciStateControl._timeLimit = INT_MAX;
+          uciStateControl._depthLimit = INT_MAX;
         } else if (inputParts.at(i) == "wtime") {
+          uciStateControl._wTime = std::stoi(inputParts.at(i + 1));
+
         } else if (inputParts.at(i) == "btime") {
+          uciStateControl._bTime = std::stoi(inputParts.at(i + 1));
+
         } else if (inputParts.at(i) == "winc") {
+          uciStateControl._wInc = std::stoi(inputParts.at(i + 1));
+
         } else if (inputParts.at(i) == "binc") {
+          uciStateControl._bInc = std::stoi(inputParts.at(i + 1));
+
         } else if (inputParts.at(i) == "movestogo") {
+          uciStateControl._moveToGo = std::stoi(inputParts.at(i + 1));
+
         } else if (inputParts.at(i) == "depth") {
+          uciStateControl._maxDepth = std::stoi(inputParts.at(i + 1));
+
         } else if (inputParts.at(i) == "nodes") {
+          uciStateControl._nodeLimit = std::stoi(inputParts.at(i + 1));
+
         } else if (inputParts.at(i) == "mate") {
         } else if (inputParts.at(i) == "movetime") {
+
+          uciStateControl._timeLimit = std::stoi(inputParts.at(i + 1)) / 1000;
+
         } else if (inputParts.at(i) == "infinite") {
           uciStateControl._timeLimit = INT_MAX;
           uciStateControl._depthLimit = INT_MAX;
         }
       }
+      searching = true;
       searchThread = std::thread(search, std::ref(uciGameState),
                                  std::ref(uciStateControl));
+
     } else if (commandName == "stop") {
       uciStateControl._stopSearch = true;
       if (searchThread.joinable()) {
@@ -178,12 +221,15 @@ void takeUCIInput() {
       }
       // stop search
     } else if (commandName == "ponderhit") {
+
     } else if (commandName == "quit") {
       uciStateControl._stopSearch = true;
       if (searchThread.joinable()) {
         searchThread.join();
       }
       break;
+    } else if (commandName == "uci") {
+      // Using UCI protocol...
     } else {
       std::cout << "Unrecognized command: " << input << "\n";
     }

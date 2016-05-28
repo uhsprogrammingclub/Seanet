@@ -31,6 +31,7 @@ void search(State &state, SearchController &sControl) {
       historyHeuristic[from][to] = 0;
     }
   }
+
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
@@ -68,6 +69,11 @@ void search(State &state, SearchController &sControl) {
                   << "; seldepth " << sControl._maxDepth << std::endl;
       }
     }
+  }
+
+  if (sControl._uciOutput) {
+    std::cout << "bestmove " << moveToUCI(state._bestLine.moves[0])
+              << " ponder " << moveToUCI(state._bestLine.moves[1]) << std::endl;
   }
 }
 
@@ -109,7 +115,7 @@ void pickMove(int moveNum, std::vector<S_MOVE_AND_SCORE> &scoredMoves) {
 int negamax(int alpha, int beta, int depth, State &state,
             SearchController &sControl, S_PVLINE &pvLine) {
   sControl._totalNodes++;
-
+  sControl._mainNodes++;
   if ((sControl._totalNodes & 10240) == 0) {
     sControl.checkTimeLimit();
   }
@@ -306,6 +312,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
   }
   sControl._totalNodes++;
 
+  sControl._qNodes++;
   if ((sControl._totalNodes & 10240) == 0) {
     sControl.checkTimeLimit();
   }

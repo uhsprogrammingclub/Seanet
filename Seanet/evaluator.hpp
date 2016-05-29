@@ -21,10 +21,14 @@ int evaluateGameOver(State &state);
 bool isGameOver(State &state);
 bool isGameOver(State &state, std::vector<Move> moves);
 
-const int PAWN_PHASE = 0;
-const int KNIGHT_PHASE = 1;
-const int BISHOP_PHASE = 1;
-const int ROOK_PHASE = 2;
-const int QUEEN_PHASE = 4;
+int countIsolatedPawns(State &state);
+int countIsolaniPawns(State &state);
+int countDoubledPawns(State &state);
+int countConnectedPawns(State &state);
+int countBackwardPawns(State &state);
+int countBlockedPawns(State &state);
+int countPassedPawns(State &state);
+int countHoles(State &state);
+int countKingPawnShields(State &state);
 
 #endif /* defined(__Seanet__evaluator__) */

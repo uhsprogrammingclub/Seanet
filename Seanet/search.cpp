@@ -66,11 +66,10 @@ void search(State &state, SearchController &sControl) {
       }
     } else {
       eval = negamax(alpha, beta, depth, state, sControl, state._bestLine);
-      if (sControl._stopSearch) {
-        break;
-      };
     }
-
+    if (sControl._stopSearch) {
+      break;
+    };
     if (DEBUG) {
       assert(eval = state._lineEval);
     } else if (eval != state._lineEval) {

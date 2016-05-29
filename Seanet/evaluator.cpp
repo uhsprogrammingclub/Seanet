@@ -61,7 +61,7 @@ int calculatePhase(State &state) {
       countSetBits(state._pieceBitboards[BISHOPS]) * MATERIAL_PHASE[wB] +
       countSetBits(state._pieceBitboards[ROOKS]) * MATERIAL_PHASE[wR] +
       countSetBits(state._pieceBitboards[QUEENS]) * MATERIAL_PHASE[wQ];
-	return ((TOTAL_PHASE - currentPhase) * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE;
+  return ((TOTAL_PHASE - currentPhase) * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE;
 }
 
 int calculateMaterial(State &state) {
@@ -160,4 +160,58 @@ bool isGameOver(State &state, std::vector<Move> moves) {
 
 bool isGameOver(State &state) {
   return isGameOver(state, generatePseudoMoves(state));
+}
+
+int countIsolatedPawns(State &state) {
+  int count = 0;
+
+  return count;
+}
+
+int countIsolaniPawns(State &state) {
+  int count = 0;
+
+  return count;
+}
+
+int countDoubledPawns(State &state) {
+  int count = 0;
+
+  return count;
+}
+
+int countConnectedPawns(State &state) {
+  int count = 0;
+
+  return count;
+}
+
+int countBackwardPawns(State &state) {
+  int count = 0;
+
+  return count;
+}
+
+int countBlockedPawns(State &state) {
+  int count = 0;
+
+  return count;
+}
+
+int countPassedPawns(State &state) {
+  int count = 0;
+
+  return count;
+}
+
+int countHoles(State &state) {
+  int count = 0;
+
+  return count;
+}
+
+int countKingPawnShields(State &state) {
+  int count = 0;
+
+  return count;
 }

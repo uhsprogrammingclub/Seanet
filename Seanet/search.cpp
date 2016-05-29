@@ -160,6 +160,9 @@ int negamax(int alpha, int beta, int depth, State &state,
             sControl._exactNodes++;
             pvLine.moves[0] = oldEntry.move;
             pvLine.moveCount = 1;
+            if (state._ply == 0) {
+              state._lineEval = oldEntry.score;
+            }
             return oldEntry.score;
           }
           if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {

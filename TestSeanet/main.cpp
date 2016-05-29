@@ -66,15 +66,18 @@ TEST_CASE("Checking boardToFEN() and boardFromFEN()", "[fenFunctions]") {
 
 TEST_CASE("Running Bratko-Kopec Tests", "[Bratko-Kopec]") {
   engineTest("Bratko-Kopec.text", "[Bratko-Kopec]",
-             "Stiven - PV_REORDERING, SEE_REORDERING, KH_REORDERING, "
-             "HH_REORDERING, NULL_MOVE"); // Add descriptive comments
-                                          // with each
-                                          // full run
+             "Stiven - PV_R SEE_R KH_R HH_R NULL_M TT_EVAL TT_R PVS"); // Add
+  // descriptive
+  // comments
+  // with each
+  // full run
 }
 TEST_CASE("Running LCT-II Tests", "[LCT-II]") {
   engineTest("LCT-II.text", "[LCT-II]",
-             "Stiven - SEE/killer move reordering"); // Add descriptive comments
-                                                     // with each full run
+             "Stiven - PV_R SEE_R KH_R HH_R NULL_M TT_EVAL TT_R PVS"); // Add
+  // descriptive
+  // comments
+  // with each full run
 }
 
 TEST_CASE("Running PERFT tests", "[perft]") {

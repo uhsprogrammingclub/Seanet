@@ -114,11 +114,12 @@ int negamax(int alpha, int beta, int depth, State &state,
   // Check if TT entry exists for given state, and return stored score
 
   Move bestTTMove = NO_MOVE;
-  if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+  if (!DEBUG || sControl._features[TT_EVAL] ||
+      sControl._features[TT_REORDERING]) {
     S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
     if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
       sControl._transpositions++;
-      if (sControl._features[TT_EVAL]) {
+      if (!DEBUG || sControl._features[TT_EVAL]) {
         if (oldEntry.depth >= depth) {
           if (oldEntry.type == EXACT) {
             sControl._exactNodes++;
@@ -134,7 +135,7 @@ int negamax(int alpha, int beta, int depth, State &state,
           }
         }
       }
-      if (sControl._features[TT_REORDERING]) {
+      if (!DEBUG || sControl._features[TT_REORDERING]) {
         bestTTMove = oldEntry.move;
       }
     }
@@ -148,7 +149,8 @@ int negamax(int alpha, int beta, int depth, State &state,
     // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
   }
 
-  if (sControl._features[NULL_MOVE] && !state.isInCheck(state._sideToMove)) {
+  if ((!DEBUG || sControl._features[NULL_MOVE]) &&
+      !state.isInCheck(state._sideToMove)) {
 
     state.makeNullMove();
     state._ply++;
@@ -157,7 +159,8 @@ int negamax(int alpha, int beta, int depth, State &state,
     state._ply--;
     state.takeNullMove();
     if (score >= beta) {
-      if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+      if (!DEBUG || sControl._features[TT_EVAL] ||
+          sControl._features[TT_REORDERING]) {
         storeHashEntry(state._zHash, depth, beta, NO_MOVE, BETA,
                        sControl.table);
       }
@@ -180,7 +183,8 @@ int negamax(int alpha, int beta, int depth, State &state,
     state._ply--;
     state.takeMove();
     if (score >= beta) {
-      if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+      if (!DEBUG || sControl._features[TT_EVAL] ||
+          sControl._features[TT_REORDERING]) {
         storeHashEntry(state._zHash, depth, beta, bestTTMove, BETA,
                        sControl.table);
       }
@@ -206,7 +210,7 @@ int negamax(int alpha, int beta, int depth, State &state,
        ++it) {
 
     // PV-move reorder
-    if (sControl._features[TT_REORDERING]) {
+    if (!DEBUG || sControl._features[TT_REORDERING]) {
       if (bestTTMove && M_EQUALS(*it, bestTTMove)) {
         continue;
       }
@@ -217,7 +221,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     //   Reorder based on SEE
-    if (sControl._features[SEE_REORDERING] &&
+    if ((!DEBUG || sControl._features[SEE_REORDERING]) &&
         state._pieces[M_TOSQ(*it)] != EMPTY) {
       int seeEval = see(*it, state);
       if (seeEval >= 0) {
@@ -230,7 +234,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     // Killer moves
-    if (sControl._features[KH_REORDERING]) {
+    if (!DEBUG || sControl._features[KH_REORDERING]) {
       if (M_EQUALS(*it, killerMoves[state._ply * 3])) {
         scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 900000});
         continue;
@@ -244,7 +248,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
 
     // Non captures sorted by history heuristic
-    if (sControl._features[HH_REORDERING]) {
+    if (!DEBUG || sControl._features[HH_REORDERING]) {
       int hhScore = historyHeuristic[M_FROMSQ(*it)][M_TOSQ(*it)];
       if (hhScore > 700000) {
         hhScore = 700000;
@@ -272,7 +276,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
     state._ply++;
     int score;
-    if (flag == EXACT && sControl._features[PV_SEARCH]) {
+    if (flag == EXACT && (!DEBUG || sControl._features[PV_SEARCH])) {
       score = -negamax(-alpha - 1, -alpha, depth - 1, state, sControl, line);
       if ((score > alpha) && (score < beta)) // Check for failure.
         score = -negamax(-beta, -alpha, depth - 1, state, sControl, line);
@@ -288,7 +292,8 @@ int negamax(int alpha, int beta, int depth, State &state,
 
     if (score > alpha) {
       if (score >= beta) {
-        if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+        if (!DEBUG || sControl._features[TT_EVAL] ||
+            sControl._features[TT_REORDERING]) {
           storeHashEntry(state._zHash, depth, beta, move, BETA, sControl.table);
         }
         if (legal == 1) {
@@ -297,10 +302,10 @@ int negamax(int alpha, int beta, int depth, State &state,
         sControl._fhNodes++;
         if (!M_ISCAPTURE(move)) {
 
-          if (sControl._features[KH_REORDERING]) {
+          if (!DEBUG || sControl._features[KH_REORDERING]) {
             addKillerMove(state._ply, move);
           }
-          if (sControl._features[HH_REORDERING]) {
+          if (!DEBUG || sControl._features[HH_REORDERING]) {
             historyHeuristic[M_FROMSQ(move)][M_TOSQ(move)] += depth * depth;
           }
         }
@@ -320,7 +325,8 @@ int negamax(int alpha, int beta, int depth, State &state,
   if (!legal) {
     return evaluateGameOver(state);
   }
-  if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+  if (!DEBUG || sControl._features[TT_EVAL] ||
+      sControl._features[TT_REORDERING]) {
     if (flag == ALPHA) {
       storeHashEntry(state._zHash, depth, alpha, NO_MOVE, flag, sControl.table);
     } else {
@@ -342,7 +348,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
     sControl.checkTimeLimit();
   }
 
-  if (sControl._features[TT_EVAL]) {
+  if (!DEBUG || sControl._features[TT_EVAL]) {
     S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
     if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
       sControl._transpositions++;
@@ -424,7 +430,8 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
       alpha = evaluateGameOver(state);
     }
   }
-  if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+  if (!DEBUG || sControl._features[TT_EVAL] ||
+      sControl._features[TT_REORDERING]) {
     storeHashEntry(state._zHash, 0, alpha, NO_MOVE, flag, sControl.table);
   }
   return alpha;

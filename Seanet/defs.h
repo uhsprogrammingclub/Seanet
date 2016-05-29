@@ -11,6 +11,8 @@
 
 #include <map>
 
+#define DEBUG true
+
 typedef unsigned long long U64;
 typedef int Move;
 typedef std::map<std::string, std::string> KeyInfoMap;

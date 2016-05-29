@@ -85,7 +85,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "&quot;[LCT-II]&quot;"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-r console"

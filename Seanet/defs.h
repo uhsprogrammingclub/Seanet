@@ -35,6 +35,11 @@ enum Piece { EMPTY, wP, bP, wN, bN, wB, bB, wR, bR, wQ, bQ, wK, bK };
 const int MATERIAL_WORTH[13] = {0,   100,  -100, 325,   -325,   330,    -330,
                                 550, -550, 1000, -1000, 100000, -100000};
 
+const int MATERIAL_PHASE[13] = {0, 0, 0, 1, 1, 1, 1, 2, 2, 4, 4, 0, 0};
+const int TOTAL_PHASE = 24;
+
+// enum { MATERIAL_WHITE, MATERIAL_BLACK };
+
 enum { BLACK = -1, NONE, WHITE };
 
 enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };

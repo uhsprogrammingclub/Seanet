@@ -55,24 +55,35 @@ int whiteKingEndPS[64] = {-50, -30, -30, -30, -30, -30, -30, -50, -30, -30, 0,
 int allPieces[65];
 
 int calculatePhase(State &state) {
-  int totalPhase = PAWN_PHASE * 16 + KNIGHT_PHASE * 4 + BISHOP_PHASE * 4 +
-                   ROOK_PHASE * 4 + QUEEN_PHASE * 2;
   int currentPhase =
-      countSetBits(state._pieceBitboards[PAWNS]) * PAWN_PHASE +
-      countSetBits(state._pieceBitboards[KNIGHTS]) * KNIGHT_PHASE +
-      countSetBits(state._pieceBitboards[BISHOPS]) * BISHOP_PHASE +
-      countSetBits(state._pieceBitboards[ROOKS]) * ROOK_PHASE +
-      countSetBits(state._pieceBitboards[QUEENS]) * QUEEN_PHASE;
-  return totalPhase - currentPhase;
+      countSetBits(state._pieceBitboards[PAWNS]) * MATERIAL_PHASE[wP] +
+      countSetBits(state._pieceBitboards[KNIGHTS]) * MATERIAL_PHASE[wK] +
+      countSetBits(state._pieceBitboards[BISHOPS]) * MATERIAL_PHASE[wB] +
+      countSetBits(state._pieceBitboards[ROOKS]) * MATERIAL_PHASE[wR] +
+      countSetBits(state._pieceBitboards[QUEENS]) * MATERIAL_PHASE[wQ];
+	return ((TOTAL_PHASE - currentPhase) * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE;
+}
+
+int calculateMaterial(State &state) {
+  allPieces[0] = -1;
+  getSetBits(state.allPieces(), allPieces);
+
+  int score = 0;
+  for (int i = 0; allPieces[i] != -1; i++) {
+    int pcIndex = allPieces[i];
+    Piece piece = state._pieces[pcIndex];
+
+    score += MATERIAL_WORTH[piece];
+  }
+
+  return score;
 }
 
 int evaluate(State &state) {
   allPieces[0] = -1;
   getSetBits(state.allPieces(), allPieces);
 
-  int phase = calculatePhase(state);
-
-  int score = 0;
+  int score = state._material;
   for (int i = 0; allPieces[i] != -1; i++) {
     int pcIndex = allPieces[i];
     Piece piece = state._pieces[pcIndex];
@@ -111,14 +122,14 @@ int evaluate(State &state) {
       score -= whiteQueenPS[63 - pcIndex];
       break;
     case wK:
-      score += ((whiteKingMiddlePS[pcIndex] * (256 - phase)) +
-                (whiteKingEndPS[pcIndex] * phase)) /
+      score += ((whiteKingMiddlePS[pcIndex] * (256 - state._phase)) +
+                (whiteKingEndPS[pcIndex] * state._phase)) /
                256;
       // score += whiteKingMiddlePS[pcIndex];
       break;
     case bK:
-      score -= ((whiteKingMiddlePS[63 - pcIndex] * (256 - phase)) +
-                (whiteKingEndPS[63 - pcIndex] * phase)) /
+      score -= ((whiteKingMiddlePS[63 - pcIndex] * (256 - state._phase)) +
+                (whiteKingEndPS[63 - pcIndex] * state._phase)) /
                256;
       // score -= whiteKingMiddlePS[63 - pcIndex];
       break;

@@ -309,6 +309,8 @@ State boardFromFEN(std::string FEN) {
   b._halfMoveClock = halfMoveClock;
   b._fullMoveCounter = fullMoveCounter;
   b._zHash = getZobristHash(b);
+  b._phase = calculatePhase(b);
+  b._material = calculateMaterial(b);
   return b;
 }
 

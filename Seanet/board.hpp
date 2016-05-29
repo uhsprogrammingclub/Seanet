@@ -34,6 +34,8 @@ public:
   int _lineEval;
   int _ply = 0;
   U64 _zHash = 0;
+  int _phase = 0;
+  int _material = 0;
 
   void printBoard() const;
   void makeMove(Move &move);
@@ -64,13 +66,18 @@ inline void State::clearSquare(int index) {
     CLRBIT(_pieceBitboards[bitboardForPiece(p)], index);
     CLRBIT(_pieceBitboards[sideBitboardForPiece(p)], index);
     _pieces[index] = EMPTY;
+    _material -= MATERIAL_WORTH[p];
+    _phase += (MATERIAL_PHASE[p] * 256) / TOTAL_PHASE;
   }
-};
+}
+
 inline void State::addPiece(Piece p, int index) {
   clearSquare(index);
   SETBIT(_pieceBitboards[bitboardForPiece(p)], index);
   SETBIT(_pieceBitboards[sideBitboardForPiece(p)], index);
   _pieces[index] = p;
+  _material += MATERIAL_WORTH[p];
+  _phase -= (MATERIAL_PHASE[p] * 256) / TOTAL_PHASE;
 }
 
 inline void State::movePiece(int from, int to) {

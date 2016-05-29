@@ -127,19 +127,21 @@ int negamax(int alpha, int beta, int depth, State &state,
     S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
     if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
       sControl._transpositions++;
-      bestTTMove = oldEntry.move;
+      if (sControl._features[TT_REORDERING]) {
+        bestTTMove = oldEntry.move;
+      }
       if (sControl._features[TT_EVAL]) {
         if (oldEntry.depth >= depth) {
           if (oldEntry.type == EXACT) {
-			  sControl._exactNodes++;
+            sControl._exactNodes++;
             return oldEntry.score;
           }
           if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
-			  sControl._alphaNodes++;
+            sControl._alphaNodes++;
             return alpha;
           }
           if (oldEntry.type == BETA && oldEntry.score >= beta) {
-			  sControl._betaNodes++;
+            sControl._betaNodes++;
             return beta;
           }
         }
@@ -175,10 +177,39 @@ int negamax(int alpha, int beta, int depth, State &state,
   S_PVLINE line;
 
   NodeType flag = ALPHA;
-  std::vector<S_MOVE_AND_SCORE> scoredMoves;
-  if (bestTTMove) {
-    scoredMoves.push_back(S_MOVE_AND_SCORE{bestTTMove, 990000});
+  int legal = 0;
+  int bestScore = INT_MIN;
+
+  if (sControl._features[TT_REORDERING] && bestTTMove) {
+    // scoredMoves.push_back(S_MOVE_AND_SCORE{bestTTMove, 990000});
+    state.makeMove(bestTTMove);
+
+    legal++;
+
+    state._ply++;
+    int score = -negamax(-beta, -alpha, depth - 1, state, sControl, line);
+    state._ply--;
+    state.takeMove();
+    bestScore = score;
+    if (score >= beta) {
+      if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+        storeHashEntry(state._zHash, depth, beta, bestTTMove, BETA,
+                       sControl.table);
+      }
+      return beta;
+    }
+    if (score > alpha) {
+      alpha = score;
+      flag = EXACT;
+      pvLine.moves[0] = bestTTMove;
+      memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(Move));
+      pvLine.moveCount = line.moveCount + 1;
+      if (state._ply == 0) {
+        state._lineEval = score;
+      }
+    }
   }
+  std::vector<S_MOVE_AND_SCORE> scoredMoves;
   std::vector<Move> moves = generatePseudoMoves(state);
 
   scoredMoves.reserve(moves.size());
@@ -187,14 +218,16 @@ int negamax(int alpha, int beta, int depth, State &state,
        ++it) {
 
     // PV-move reorder
-    if (sControl._features[PV_REORDERING] &&
-        M_EQUALS(*it, state._bestLine.moves[state._ply])) {
-      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
-      continue;
-    }
-
-    if (sControl._features[TT_REORDERING] && M_EQUALS(*it, bestTTMove)) {
-      continue;
+    if (bestTTMove) {
+      if (M_EQUALS(*it, bestTTMove)) {
+        continue;
+      }
+    } else {
+      if (sControl._features[PV_REORDERING] &&
+          M_EQUALS(*it, state._bestLine.moves[state._ply])) {
+        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
+        continue;
+      }
     }
 
     //   Reorder based on SEE
@@ -236,8 +269,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 0});
   }
 
-  int legal = 0;
-  int bestScore = INT_MIN;
+  pvLine.moves[0] = NO_MOVE;
   for (int moveNum = 0; moveNum < scoredMoves.size(); moveNum++) {
     pickMove(moveNum, scoredMoves);
     Move move = scoredMoves[moveNum].move;

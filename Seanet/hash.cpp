@@ -150,5 +150,8 @@ U64 getZobristHash(const State &s) {
   if ((s._castleRights & BQCA) != 0) {
     zKey ^= zCastle[3];
   }
+  if (s._EPTarget != -1) {
+    zKey ^= zEP[s._EPTarget % 8];
+  }
   return zKey;
 }

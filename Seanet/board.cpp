@@ -88,9 +88,11 @@ void State::makeMove(Move &move) {
     int toX = to % 8;
     if (fromX != toX && !M_ISCAPTURE(move)) {
       if (_EPTarget == -1) {
+		  printBoard();
         printf("ERROR: EN PASSANT ON INVALID SQUARE! Move: %s (%i); captured "
                "Piece: %i\n",
-               moveToUCI(move).c_str(), move, _pieces[to]);
+               moveToUCI(move).c_str(), move, M_CAPTUREDP(move));
+		  exit(EXIT_FAILURE);
       }
       clearSquare(_EPTarget);
       M_SETEP(move, true);
@@ -192,8 +194,9 @@ void State::makeMove(Move &move) {
     break;
   }
   default:
-    std::cout << "MOVE:" << moveToUCI(move);
-    std::cout << "PIECE:" << movingP;
+    printBoard();
+    std::cout << "MOVE: " << moveToUCI(move) << "\n";
+    std::cout << "PIECE: " << movingP << "\n";
     std::cout
         << "Unknown piece passed to makeMove() function. Exiting with error.\n";
     exit(EXIT_FAILURE);

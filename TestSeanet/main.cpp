@@ -187,7 +187,7 @@ void speedTest(std::string testPath) {
   control[TT_EVAL] = true;
   control[TT_REORDERING] = true;
   control[PV_SEARCH] = true;
-  control[ASPIRATION_WINDOW] = false;
+  control[ASPIRATION_WINDOWS] = false;
 
   const int degreesOfFreedom = 1;
   bool allFeatures[] = {true, true, true, true, true, true, true, true, true};
@@ -229,7 +229,7 @@ void speedTest(std::string testPath) {
     for (int i = 0; i < featureConfigs.size(); i++) {
       bool *config = featureConfigs[i];
       SearchController sControl;
-      sControl._output = false;
+      //sControl._output = false;
       clearHashTable(&sControl.table);
       std::copy(config, config + NUM_OF_FEATURES, sControl._features);
       sControl._timeLimit = INT_MAX;

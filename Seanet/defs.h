@@ -48,6 +48,8 @@ enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 
 const int MAX_DEPTH = 64;
 
+const int ASP_WINDOW = 30;
+
 typedef struct {
   Move _move;
   int _castleRights;
@@ -76,7 +78,7 @@ enum {
   TT_EVAL,
   TT_REORDERING,
   PV_SEARCH,
-  ASPIRATION_WINDOW
+  ASPIRATION_WINDOWS
 };
 
 #define CLRBIT(bb, i) (bb &= clearMask[i])

@@ -37,22 +37,43 @@ void search(State &state, SearchController &sControl) {
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
-    negamax(alpha, beta, depth, state, sControl, state._bestLine);
+    int eval;
     if (sControl._stopSearch) {
       break;
     };
-    if (!DEBUG || sControl._features[ASPIRATION_WINDOW]) {
+    if (!DEBUG || sControl._features[ASPIRATION_WINDOWS]) {
       while (true) {
-        if ((state._lineEval <= alpha) || (state._lineEval >= beta)) {
-          alpha = -INFINITY; // We fell outside the window, so try again with a
-          beta = INFINITY;   //  full-width window (and the same depth).
+        eval = negamax(alpha, beta, depth, state, sControl, state._bestLine);
+        if (eval <= alpha) {
+          alpha -= ASP_WINDOW;
           continue;
         }
-        alpha = state._lineEval - 50;
-        beta = state._lineEval + 50;
+        if (eval >= beta) {
+          beta += ASP_WINDOW;
+          continue;
+        }
+        //        if ((state._lineEval <= alpha) || (state._lineEval >= beta)) {
+        //          alpha = -INFINITY; // We fell outside the window, so try
+        //          again with a
+        //          beta = INFINITY;   //  full-width window (and the same
+        //          depth).
+        //          continue;
+        //        }
+        alpha = eval - ASP_WINDOW;
+        beta = eval + ASP_WINDOW;
         break;
       }
+    } else {
+      eval = negamax(alpha, beta, depth, state, sControl, state._bestLine);
     }
+
+    if (DEBUG) {
+      assert(eval = state._lineEval);
+    } else if (eval != state._lineEval) {
+      std::cout << "eval != state._lineEval: " << eval
+                << " != " << state._lineEval << std::endl;
+      std::cout << "alpha: " << alpha << "; beta: " << beta << std::endl;
+    };
 
     timeval currTime;
     gettimeofday(&currTime, 0);

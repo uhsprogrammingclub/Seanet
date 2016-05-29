@@ -39,6 +39,8 @@ enum { BLACK = -1, NONE, WHITE };
 
 enum { WKCA = 0b0001, WQCA = 0b0010, BKCA = 0b0100, BQCA = 0b1000 };
 
+const int MAX_DEPTH = 64;
+
 typedef struct {
   Move _move;
   int _castleRights;
@@ -54,7 +56,7 @@ typedef struct {
 
 typedef struct {
   int moveCount = 0;
-  Move moves[100];
+  Move moves[MAX_DEPTH];
 } S_PVLINE;
 
 const int NUM_OF_FEATURES = 8;

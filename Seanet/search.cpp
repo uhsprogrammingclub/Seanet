@@ -32,7 +32,6 @@ void search(State &state, SearchController &sControl) {
       historyHeuristic[from][to] = 0;
     }
   }
-
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;

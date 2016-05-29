@@ -21,6 +21,7 @@ move for the state.sideToMove() as an int.
 void search(State &state, SearchController &sControl) {
   sControl.resetStats();
   initHashTable(&sControl.table);
+  state._bestLine = S_PVLINE();
 
   // reset heuristics
   for (int i = 0; i < 192; i++) {
@@ -89,15 +90,6 @@ void addKillerMove(int ply, Move move) {
   }
 }
 
-bool reorderByHH(Move i, Move j) {
-  return historyHeuristic[M_FROMSQ(i)][M_TOSQ(i)] >
-         historyHeuristic[M_FROMSQ(j)][M_TOSQ(j)];
-}
-
-bool sortScoredMoves(const S_MOVE_AND_SCORE &i, const S_MOVE_AND_SCORE &j) {
-  return i.score > j.score;
-}
-
 void pickMove(int moveNum, std::vector<S_MOVE_AND_SCORE> &scoredMoves) {
   int bestScore = INT_MIN;
   int bestNum = moveNum;
@@ -127,9 +119,6 @@ int negamax(int alpha, int beta, int depth, State &state,
     S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
     if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
       sControl._transpositions++;
-      if (sControl._features[TT_REORDERING]) {
-        bestTTMove = oldEntry.move;
-      }
       if (sControl._features[TT_EVAL]) {
         if (oldEntry.depth >= depth) {
           if (oldEntry.type == EXACT) {
@@ -145,6 +134,9 @@ int negamax(int alpha, int beta, int depth, State &state,
             return beta;
           }
         }
+      }
+      if (sControl._features[TT_REORDERING]) {
+        bestTTMove = oldEntry.move;
       }
     }
   }
@@ -178,10 +170,8 @@ int negamax(int alpha, int beta, int depth, State &state,
 
   NodeType flag = ALPHA;
   int legal = 0;
-  int bestScore = INT_MIN;
 
-  if (sControl._features[TT_REORDERING] && bestTTMove) {
-    // scoredMoves.push_back(S_MOVE_AND_SCORE{bestTTMove, 990000});
+  if (bestTTMove) {
     state.makeMove(bestTTMove);
 
     legal++;
@@ -190,7 +180,6 @@ int negamax(int alpha, int beta, int depth, State &state,
     int score = -negamax(-beta, -alpha, depth - 1, state, sControl, line);
     state._ply--;
     state.takeMove();
-    bestScore = score;
     if (score >= beta) {
       if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
         storeHashEntry(state._zHash, depth, beta, bestTTMove, BETA,
@@ -218,16 +207,14 @@ int negamax(int alpha, int beta, int depth, State &state,
        ++it) {
 
     // PV-move reorder
-    if (bestTTMove) {
-      if (M_EQUALS(*it, bestTTMove)) {
+    if (sControl._features[TT_REORDERING]) {
+      if (bestTTMove && M_EQUALS(*it, bestTTMove)) {
         continue;
       }
-    } else {
-      if (sControl._features[PV_REORDERING] &&
-          M_EQUALS(*it, state._bestLine.moves[state._ply])) {
-        scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
-        continue;
-      }
+    } else if (state._ply == 0 && sControl._features[PV_REORDERING] &&
+               M_EQUALS(*it, state._bestLine.moves[state._ply])) {
+      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
+      continue;
     }
 
     //   Reorder based on SEE
@@ -269,7 +256,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 0});
   }
 
-  pvLine.moves[0] = NO_MOVE;
+  // pvLine.moves[0] = NO_MOVE;
   for (int moveNum = 0; moveNum < scoredMoves.size(); moveNum++) {
     pickMove(moveNum, scoredMoves);
     Move move = scoredMoves[moveNum].move;
@@ -285,7 +272,14 @@ int negamax(int alpha, int beta, int depth, State &state,
       sControl._currMoveNumber++;
     }
     state._ply++;
-    int score = -negamax(-beta, -alpha, depth - 1, state, sControl, line);
+    int score;
+    if (flag == EXACT && sControl._features[PV_SEARCH]) {
+      score = -negamax(-alpha - 1, -alpha, depth - 1, state, sControl, line);
+      if ((score > alpha) && (score < beta)) // Check for failure.
+        score = -negamax(-beta, -alpha, depth - 1, state, sControl, line);
+    } else {
+      score = -negamax(-beta, -alpha, depth - 1, state, sControl, line);
+    }
     state._ply--;
 
     state.takeMove();
@@ -293,40 +287,34 @@ int negamax(int alpha, int beta, int depth, State &state,
       return 0;
     }
 
-    if (score > bestScore) {
-      bestScore = score;
+    if (score > alpha) {
+      if (score >= beta) {
+        if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
+          storeHashEntry(state._zHash, depth, beta, move, BETA, sControl.table);
+        }
+        if (legal == 1) {
+          sControl._fhfNodes++;
+        }
+        sControl._fhNodes++;
+        if (!M_ISCAPTURE(move)) {
+
+          if (sControl._features[KH_REORDERING]) {
+            addKillerMove(state._ply, move);
+          }
+          if (sControl._features[HH_REORDERING]) {
+            historyHeuristic[M_FROMSQ(move)][M_TOSQ(move)] += depth * depth;
+          }
+        }
+        return beta; // Fail hard beta-cutoff
+      }
+
+      flag = EXACT;
+      alpha = score; // Update value of "best path so far for maximizer"
       pvLine.moves[0] = move;
-      if (score > alpha) {
-        if (score >= beta) {
-          if (sControl._features[TT_EVAL] ||
-              sControl._features[TT_REORDERING]) {
-            storeHashEntry(state._zHash, depth, beta, pvLine.moves[0], BETA,
-                           sControl.table);
-          }
-          if (legal == 1) {
-            sControl._fhfNodes++;
-          }
-          sControl._fhNodes++;
-          if (!M_ISCAPTURE(move)) {
-
-            if (sControl._features[KH_REORDERING]) {
-              addKillerMove(state._ply, move);
-            }
-            if (sControl._features[HH_REORDERING]) {
-              historyHeuristic[M_FROMSQ(move)][M_TOSQ(move)] += depth * depth;
-            }
-          }
-          return beta; // Fail hard beta-cutoff
-        }
-
-        flag = EXACT;
-        alpha = score; // Update value of "best path so far for maximizer"
-        pvLine.moves[0] = move;
-        memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(Move));
-        pvLine.moveCount = line.moveCount + 1;
-        if (state._ply == 0) {
-          state._lineEval = score;
-        }
+      memcpy(pvLine.moves + 1, line.moves, line.moveCount * sizeof(Move));
+      pvLine.moveCount = line.moveCount + 1;
+      if (state._ply == 0) {
+        state._lineEval = score;
       }
     }
   }
@@ -334,8 +322,12 @@ int negamax(int alpha, int beta, int depth, State &state,
     return evaluateGameOver(state);
   }
   if (sControl._features[TT_EVAL] || sControl._features[TT_REORDERING]) {
-    storeHashEntry(state._zHash, depth, alpha, pvLine.moves[0], flag,
-                   sControl.table);
+    if (flag == ALPHA) {
+      storeHashEntry(state._zHash, depth, alpha, NO_MOVE, flag, sControl.table);
+    } else {
+      storeHashEntry(state._zHash, depth, alpha, pvLine.moves[0], flag,
+                     sControl.table);
+    }
   }
   return alpha;
 }

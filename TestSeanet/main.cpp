@@ -166,7 +166,7 @@ void speedTest(std::string testPath) {
   std::vector<KeyInfoMap> positions;
   std::string line;
 
-  int posLimit = 50;
+  int posLimit = 10;
 
   while (std::getline(file, line)) {
     positions.push_back(splitEDP(line));
@@ -182,10 +182,11 @@ void speedTest(std::string testPath) {
   control[HH_REORDERING] = true;
   control[NULL_MOVE] = true;
   control[TT_EVAL] = true;
-  control[TT_REORDERING] = false;
+  control[TT_REORDERING] = true;
+  control[PV_SEARCH] = false;
 
   const int degreesOfFreedom = 1;
-  bool allFeatures[] = {true, true, true, true, true, true, true};
+  bool allFeatures[] = {true, true, true, true, true, true, true, true};
   std::vector<bool *> featureConfigs;
 
   bool configs[(int)std::pow(2, degreesOfFreedom) - 1][NUM_OF_FEATURES];

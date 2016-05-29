@@ -551,11 +551,14 @@ std::string searchFeaturesToString(bool *features) {
   if (features[TT_EVAL]) {
     string += "TT_EVAL ";
   }
-	if (features[TT_REORDERING]) {
-		string += "TT_R ";
-	}
+  if (features[TT_REORDERING]) {
+    string += "TT_R ";
+  }
+  if (features[PV_SEARCH]) {
+    string += "PVS ";
+  }
   if (string == "") {
-    string = "NONE";
+    string = "NONE ";
   }
   return string;
 }

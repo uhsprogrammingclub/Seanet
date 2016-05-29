@@ -38,12 +38,13 @@ void search(State &state, SearchController &sControl) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
     int eval;
-    if (sControl._stopSearch) {
-      break;
-    };
+
     if (!DEBUG || sControl._features[ASPIRATION_WINDOWS]) {
       while (true) {
         eval = negamax(alpha, beta, depth, state, sControl, state._bestLine);
+        if (sControl._stopSearch) {
+          break;
+        };
         if (eval <= alpha) {
           alpha -= ASP_WINDOW;
           continue;
@@ -65,6 +66,9 @@ void search(State &state, SearchController &sControl) {
       }
     } else {
       eval = negamax(alpha, beta, depth, state, sControl, state._bestLine);
+      if (sControl._stopSearch) {
+        break;
+      };
     }
 
     if (DEBUG) {

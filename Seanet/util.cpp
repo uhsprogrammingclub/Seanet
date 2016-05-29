@@ -559,6 +559,9 @@ std::string searchFeaturesToString(bool *features) {
   if (features[PV_SEARCH]) {
     string += "PVS ";
   }
+  if (features[ASPIRATION_WINDOW]) {
+    string += "AS_W ";
+  }
   if (string == "") {
     string = "NONE ";
   }

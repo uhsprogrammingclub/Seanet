@@ -32,13 +32,27 @@ void search(State &state, SearchController &sControl) {
       historyHeuristic[from][to] = 0;
     }
   }
+  int alpha = INT_MIN + 1;
+  int beta = INT_MAX - 1;
   for (int depth = 1; depth <= sControl._depthLimit; depth++) {
     sControl._currDepth = depth;
     sControl._maxDepth = depth;
-    negamax(INT_MIN + 1, INT_MAX - 1, depth, state, sControl, state._bestLine);
+    negamax(alpha, beta, depth, state, sControl, state._bestLine);
     if (sControl._stopSearch) {
       break;
     };
+    if (!DEBUG || sControl._features[ASPIRATION_WINDOW]) {
+      while (true) {
+        if ((state._lineEval <= alpha) || (state._lineEval >= beta)) {
+          alpha = -INFINITY; // We fell outside the window, so try again with a
+          beta = INFINITY;   //  full-width window (and the same depth).
+          continue;
+        }
+        alpha = state._lineEval - 50;
+        beta = state._lineEval + 50;
+        break;
+      }
+    }
 
     timeval currTime;
     gettimeofday(&currTime, 0);
@@ -123,6 +137,8 @@ int negamax(int alpha, int beta, int depth, State &state,
         if (oldEntry.depth >= depth) {
           if (oldEntry.type == EXACT) {
             sControl._exactNodes++;
+            pvLine.moves[0] = oldEntry.move;
+            pvLine.moveCount = 1;
             return oldEntry.score;
           }
           if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {

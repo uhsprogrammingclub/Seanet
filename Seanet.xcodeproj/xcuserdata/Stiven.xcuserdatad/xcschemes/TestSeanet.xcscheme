@@ -69,7 +69,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "&quot;[Speed-Opening]&quot;"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "&quot;[Speed-Endgame]&quot;"
@@ -85,7 +85,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "&quot;[LCT-II]&quot;"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-r console"

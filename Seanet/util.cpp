@@ -562,6 +562,9 @@ std::string searchFeaturesToString(bool *features) {
   if (features[ASPIRATION_WINDOWS]) {
     string += "AS_W ";
   }
+  if (features[QS_REORDERING]) {
+    string += "QS_R ";
+  }
   if (string == "") {
     string = "NONE ";
   }

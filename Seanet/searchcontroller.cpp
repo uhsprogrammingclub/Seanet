@@ -29,3 +29,14 @@ void SearchController::resetStats() {
 std::string SearchController::featuresToString() {
   return searchFeaturesToString(_features);
 }
+
+void SearchController::getAllottedTime(int totalMoves) {
+  int time = _wTime ? _analysisSide == WHITE : _bTime;
+  double scalar = (_dampeningFactor * time *
+                   pow(e, _dampeningFactor * (_upperMoveBound + totalMoves))) /
+                  (pow(e, _upperMoveBound * _dampeningFactor) -
+                   pow(e, _dampeningFactor * totalMoves));
+
+  int result = (int)(scalar * pow(e, -_dampeningFactor * totalMoves));
+  _timeLimit = result;
+}

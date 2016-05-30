@@ -34,6 +34,9 @@ public:
   int _bInc = 0;       // Black increment/move
   int _moveToGo;       // Number of moves before next time control
   int _nodeLimit;      // Limit to how many nodes searched
+  int _analysisSide = WHITE;
+  double _dampeningFactor = 0.03;
+  int _upperMoveBound = 70;
 
   bool _stopSearch = false;
   timeval _startTime;
@@ -52,6 +55,7 @@ public:
   int _currMoveNumber = 0;
   HashTable table;
 
+  void getAllottedTime(int totalMoves);
   void checkTimeLimit();
   void resetStats();
   std::string featuresToString();

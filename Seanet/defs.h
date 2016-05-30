@@ -39,6 +39,7 @@ const int MATERIAL_WORTH[13] = {0,   100,  -100, 325,   -325,   330,    -330,
 
 const int MATERIAL_PHASE[13] = {0, 0, 0, 1, 1, 1, 1, 2, 2, 4, 4, 0, 0};
 const int TOTAL_PHASE = 24;
+const double e = 2.71828;
 
 // enum { MATERIAL_WHITE, MATERIAL_BLACK };
 

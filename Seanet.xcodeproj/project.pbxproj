@@ -20,6 +20,7 @@
 		80053BE31CE5804C006B1B81 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BE11CE5804C006B1B81 /* util.cpp */; };
 		80B87A4B1CF68F5300313E28 /* Silver-Suite.text in Sources */ = {isa = PBXBuildFile; fileRef = 80B87A4A1CF68F5300313E28 /* Silver-Suite.text */; };
 		80B87A4D1CF831F400313E28 /* Sune-Larson-Endgame.text in Sources */ = {isa = PBXBuildFile; fileRef = 80B87A4C1CF831F400313E28 /* Sune-Larson-Endgame.text */; };
+		80C690531CFCC3A10001DE51 /* info.text in Sources */ = {isa = PBXBuildFile; fileRef = 80C690521CFCC3A10001DE51 /* info.text */; };
 		BF6871E71CEADC7A00F7007A /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E51CEADC7900F7007A /* search.cpp */; };
 		BF6871EA1CEADE8900F7007A /* evaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E81CEADE8900F7007A /* evaluator.cpp */; };
 		BF6871ED1CEC013E00F7007A /* searchcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871EB1CEC013E00F7007A /* searchcontroller.cpp */; };
@@ -55,7 +56,6 @@
 		36304D871CF2B509004ABD85 /* LCT-II.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LCT-II.text"; sourceTree = "<group>"; };
 		3634CA051CF424AB00DFFB64 /* hash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hash.cpp; sourceTree = "<group>"; };
 		3634CA061CF424AB00DFFB64 /* hash.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = hash.hpp; sourceTree = "<group>"; };
-		365BF3691CFBC46C00401B6B /* info.text */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = info.text; sourceTree = "<group>"; };
 		36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "Bratko-Kopec.text"; sourceTree = "<group>"; };
 		36A30F9A1CEFD0A600B6FDAC /* records.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = records.text; sourceTree = "<group>"; };
 		80053BD11CE57713006B1B81 /* Seanet */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Seanet; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,12 +69,14 @@
 		80053BE41CE58369006B1B81 /* defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
 		80B87A4A1CF68F5300313E28 /* Silver-Suite.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "Silver-Suite.text"; sourceTree = "<group>"; };
 		80B87A4C1CF831F400313E28 /* Sune-Larson-Endgame.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "Sune-Larson-Endgame.text"; sourceTree = "<group>"; };
-		80C6903C1CFC1A2A0001DE51 /* Seanet-0.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = "Seanet-0.1"; sourceTree = "<group>"; };
-		80C6903D1CFC1A2A0001DE51 /* Seanet-0.2 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet-0.2"; sourceTree = "<group>"; };
-		80C6903E1CFC1A2A0001DE51 /* Seanet-0.3 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet-0.3"; sourceTree = "<group>"; };
-		80C6903F1CFC1A2A0001DE51 /* Seanet-0.4 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet-0.4"; sourceTree = "<group>"; };
-		80C690401CFC1A2A0001DE51 /* Seanet-1.0 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet-1.0"; sourceTree = "<group>"; };
-		80C690411CFCBF630001DE51 /* Seanet-1.0.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = "Seanet-1.0.1"; sourceTree = "<group>"; };
+		80C6904B1CFCC3A10001DE51 /* Seanet-0.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = "Seanet-0.1"; path = "Executable Archive/Seanet-0.1"; sourceTree = "<group>"; };
+		80C6904C1CFCC3A10001DE51 /* Seanet-0.2 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = "Seanet-0.2"; path = "Executable Archive/Seanet-0.2"; sourceTree = "<group>"; };
+		80C6904D1CFCC3A10001DE51 /* Seanet-0.3 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = "Seanet-0.3"; path = "Executable Archive/Seanet-0.3"; sourceTree = "<group>"; };
+		80C6904E1CFCC3A10001DE51 /* Seanet-0.4 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = "Seanet-0.4"; path = "Executable Archive/Seanet-0.4"; sourceTree = "<group>"; };
+		80C6904F1CFCC3A10001DE51 /* Seanet-1.0 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = "Seanet-1.0"; path = "Executable Archive/Seanet-1.0"; sourceTree = "<group>"; };
+		80C690501CFCC3A10001DE51 /* Seanet-1.0.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = "Seanet-1.0.1"; path = "Executable Archive/Seanet-1.0.1"; sourceTree = "<group>"; };
+		80C690511CFCC3A10001DE51 /* Seanet-1.0.1-NO_TT_EVAL */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = "Seanet-1.0.1-NO_TT_EVAL"; path = "Executable Archive/Seanet-1.0.1-NO_TT_EVAL"; sourceTree = "<group>"; };
+		80C690521CFCC3A10001DE51 /* info.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = info.text; path = "Executable Archive/info.text"; sourceTree = "<group>"; };
 		BF6871E51CEADC7900F7007A /* search.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = search.cpp; sourceTree = "<group>"; };
 		BF6871E61CEADC7A00F7007A /* search.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = search.hpp; sourceTree = "<group>"; };
 		BF6871E81CEADE8900F7007A /* evaluator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = evaluator.cpp; sourceTree = "<group>"; };
@@ -108,13 +110,14 @@
 		365BF3681CFBC36900401B6B /* Executable Archive */ = {
 			isa = PBXGroup;
 			children = (
-				80C6903C1CFC1A2A0001DE51 /* Seanet-0.1 */,
-				80C6903D1CFC1A2A0001DE51 /* Seanet-0.2 */,
-				80C6903E1CFC1A2A0001DE51 /* Seanet-0.3 */,
-				80C6903F1CFC1A2A0001DE51 /* Seanet-0.4 */,
-				80C690401CFC1A2A0001DE51 /* Seanet-1.0 */,
-				80C690411CFCBF630001DE51 /* Seanet-1.0.1 */,
-				365BF3691CFBC46C00401B6B /* info.text */,
+				80C6904B1CFCC3A10001DE51 /* Seanet-0.1 */,
+				80C6904C1CFCC3A10001DE51 /* Seanet-0.2 */,
+				80C6904D1CFCC3A10001DE51 /* Seanet-0.3 */,
+				80C6904E1CFCC3A10001DE51 /* Seanet-0.4 */,
+				80C6904F1CFCC3A10001DE51 /* Seanet-1.0 */,
+				80C690501CFCC3A10001DE51 /* Seanet-1.0.1 */,
+				80C690511CFCC3A10001DE51 /* Seanet-1.0.1-NO_TT_EVAL */,
+				80C690521CFCC3A10001DE51 /* info.text */,
 			);
 			name = "Executable Archive";
 			sourceTree = "<group>";
@@ -261,6 +264,7 @@
 				3634CA071CF424AB00DFFB64 /* hash.cpp in Sources */,
 				80053BE31CE5804C006B1B81 /* util.cpp in Sources */,
 				BF6871EA1CEADE8900F7007A /* evaluator.cpp in Sources */,
+				80C690531CFCC3A10001DE51 /* info.text in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

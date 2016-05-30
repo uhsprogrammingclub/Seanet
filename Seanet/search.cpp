@@ -20,6 +20,9 @@ move for the state.sideToMove() as an int.
  **/
 void search(State &state, SearchController &sControl) {
   sControl.resetStats();
+  sControl.getAllottedTime(state._fullMoveCounter);
+  sControl.getAllottedTime(state._fullMoveCounter);
+  std::cout << "ALLOTTED TIME: " << sControl._timeLimit << std::endl;
   initHashTable(&sControl.table);
   state._bestLine = S_PVLINE();
 

@@ -9,7 +9,12 @@
 #include "searchcontroller.hpp"
 
 void SearchController::checkTimeLimit() {
-  if ((time(NULL) - _startTime.tv_sec) >= _timeLimit) {
+  /*if ((time(NULL) - _startTime.tv_sec) >= _timeLimit) {
+    _stopSearch = true;
+  }*/
+  timeval currTime;
+  gettimeofday(&currTime, 0);
+  if ((timeToMS(currTime) - timeToMS(_startTime) >= _timeLimit)) {
     _stopSearch = true;
   }
 }
@@ -31,12 +36,17 @@ std::string SearchController::featuresToString() {
 }
 
 void SearchController::getAllottedTime(int totalMoves) {
-  int time = _wTime ? _analysisSide == WHITE : _bTime;
-  double scalar = (_dampeningFactor * time *
-                   pow(e, _dampeningFactor * (_upperMoveBound + totalMoves))) /
-                  (pow(e, _upperMoveBound * _dampeningFactor) -
-                   pow(e, _dampeningFactor * totalMoves));
 
-  int result = (int)(scalar * pow(e, -_dampeningFactor * totalMoves));
+  if (_wTime <= 0) {
+    return;
+  }
+  int time = _analysisSide == WHITE ? _wTime : _bTime;
+  double scalar =
+      (_dampeningFactor * time *
+       pow(e, (_dampeningFactor * (_upperMoveBound + totalMoves)))) /
+      (pow(e, (_upperMoveBound * _dampeningFactor)) -
+       pow(e, (_dampeningFactor * totalMoves)));
+
+  int result = (int)(scalar * pow(e, (-_dampeningFactor * totalMoves)));
   _timeLimit = result;
 }

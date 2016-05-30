@@ -42,8 +42,6 @@ int main(int argc, const char *argv[]) {
   // FEN = "6K1/8/7P/8/8/3k4/1r6/8 b - - 3 78";
   initPresets();
 
-  takeUCIInput();
-
   gameState = boardFromFEN(FEN);
 
   while (true) {

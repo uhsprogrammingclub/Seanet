@@ -109,10 +109,13 @@ void search(State &state, SearchController &sControl) {
       }
     }
   }
-
+  sControl._stopSearch = true;
   if (sControl._uciOutput) {
-    std::cout << "bestmove " << moveToUCI(state._bestLine.moves[0])
-              << " ponder " << moveToUCI(state._bestLine.moves[1]) << std::endl;
+    std::cout << "bestmove " << moveToUCI(state._bestLine.moves[0]);
+    if (state._bestLine.moves[1]) {
+      std::cout << " ponder " << moveToUCI(state._bestLine.moves[1]);
+    }
+    std::cout << std::endl;
   }
 }
 

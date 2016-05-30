@@ -17,7 +17,7 @@
 
 class SearchController {
 public:
-  int _depthLimit = 60;
+  int _depthLimit = MAX_DEPTH;
 
   int _uciOutput = false;
   bool _output = true;

@@ -68,7 +68,7 @@ typedef struct {
   Move moves[MAX_DEPTH];
 } S_PVLINE;
 
-const int NUM_OF_FEATURES = 9;
+const int NUM_OF_FEATURES = 10;
 enum {
   PV_REORDERING,
   SEE_REORDERING,
@@ -78,7 +78,8 @@ enum {
   TT_EVAL,
   TT_REORDERING,
   PV_SEARCH,
-  ASPIRATION_WINDOWS
+  ASPIRATION_WINDOWS,
+  QS_REORDERING
 };
 
 #define CLRBIT(bb, i) (bb &= clearMask[i])

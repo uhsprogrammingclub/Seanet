@@ -169,7 +169,7 @@ void speedTest(std::string testPath) {
   std::vector<KeyInfoMap> positions;
   std::string line;
 
-  int posLimit = 50;
+  int posLimit = 20;
 
   while (std::getline(file, line)) {
     positions.push_back(splitEDP(line));
@@ -187,10 +187,12 @@ void speedTest(std::string testPath) {
   control[TT_EVAL] = true;
   control[TT_REORDERING] = true;
   control[PV_SEARCH] = true;
-  control[ASPIRATION_WINDOWS] = false;
+  control[ASPIRATION_WINDOWS] = true;
+  control[QS_REORDERING] = false;
 
   const int degreesOfFreedom = 1;
-  bool allFeatures[] = {true, true, true, true, true, true, true, true, true};
+  bool allFeatures[] = {true, true, true, true, true,
+                        true, true, true, true, true};
   std::vector<bool *> featureConfigs;
 
   bool configs[(int)std::pow(2, degreesOfFreedom) - 1][NUM_OF_FEATURES];
@@ -229,11 +231,11 @@ void speedTest(std::string testPath) {
     for (int i = 0; i < featureConfigs.size(); i++) {
       bool *config = featureConfigs[i];
       SearchController sControl;
-      //sControl._output = false;
+      // sControl._output = false;
       clearHashTable(&sControl.table);
       std::copy(config, config + NUM_OF_FEATURES, sControl._features);
       sControl._timeLimit = INT_MAX;
-      sControl._depthLimit = 9;
+      sControl._depthLimit = 7;
 
       runSearch(FEN, sControl);
       timeval currTime;

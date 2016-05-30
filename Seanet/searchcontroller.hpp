@@ -22,7 +22,8 @@ public:
   int _uciOutput = false;
   bool _output = true;
 
-  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true, true, true};
+  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true,
+                                     true, true, true, true, true};
   // Timing
   int _timeLimit = 60; // i.e. seconds.move
   int _wTime;          // Amount of time white has left

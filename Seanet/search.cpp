@@ -386,18 +386,28 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
     sControl.checkTimeLimit();
   }
 
-  if (!DEBUG || sControl._features[TT_EVAL]) {
+  Move bestTTMove = NO_MOVE;
+  if (!DEBUG || sControl._features[TT_EVAL] ||
+      sControl._features[TT_REORDERING]) {
     S_HASHENTRY oldEntry = probeHashTable(sControl.table, state._zHash);
     if (oldEntry != NULL_ENTRY && oldEntry.zobrist == state._zHash) {
       sControl._transpositions++;
-      if (oldEntry.type == EXACT) {
-        return oldEntry.score;
+      if (!DEBUG || sControl._features[TT_EVAL]) {
+        if (oldEntry.type == EXACT) {
+          sControl._exactNodes++;
+          return oldEntry.score;
+        }
+        if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
+          sControl._alphaNodes++;
+          return alpha;
+        }
+        if (oldEntry.type == BETA && oldEntry.score >= beta) {
+          sControl._betaNodes++;
+          return beta;
+        }
       }
-      if (oldEntry.type == ALPHA && oldEntry.score <= alpha) {
-        return alpha;
-      }
-      if (oldEntry.type == BETA && oldEntry.score >= beta) {
-        return beta;
+      if (!DEBUG || sControl._features[TT_REORDERING]) {
+        bestTTMove = oldEntry.move;
       }
     }
   }
@@ -405,10 +415,12 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
   NodeType flag = ALPHA;
 
   bool inCheck = state.isInCheck(state._sideToMove);
+
   std::vector<int> moves = generatePseudoMoves(state, inCheck);
-  bool gameOver = true; // assume game is over until we find a legal move
+  int legal = 0;
 
   int stand_pat = evaluate(state) * (state._sideToMove == WHITE ? 1 : -1);
+  Move bestMove = NO_MOVE;
   if (stand_pat >= beta) {
     alpha = beta;
     flag = BETA;
@@ -417,14 +429,50 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
     if (alpha < stand_pat) {
       alpha = stand_pat;
     }
-    int moveNum = 0;
-    for (Move move : moves) {
-      if (!inCheck) {
-        if ((state._pieces[M_TOSQ(move)] == EMPTY && !M_ISPROMOTION(move)) ||
-            see(move, state) < 0) {
+    std::vector<S_MOVE_AND_SCORE> scoredMoves;
+    scoredMoves.reserve(moves.size());
+
+    for (std::vector<Move>::iterator it = moves.begin(); it != moves.end();
+         ++it) {
+      if (!inCheck && state._pieces[M_TOSQ(*it)] == EMPTY &&
+          !M_ISPROMOTION(*it)) {
+        continue;
+      }
+
+      // PV-move reorder
+      if (!DEBUG || (sControl._features[QS_REORDERING] &&
+                     sControl._features[TT_REORDERING])) {
+        if (bestTTMove && M_EQUALS(*it, bestTTMove)) {
+          scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 1000000});
           continue;
         }
       }
+
+      //   Reorder based on SEE
+      if ((!DEBUG || (sControl._features[QS_REORDERING] &&
+                      sControl._features[SEE_REORDERING]))) {
+        int seeEval = see(*it, state);
+        if (seeEval >= 0) {
+          scoredMoves.push_back(S_MOVE_AND_SCORE{*it, seeEval});
+          continue;
+        } else if (seeEval < 0) {
+          if (!inCheck) {
+            continue;
+          }
+          scoredMoves.push_back(S_MOVE_AND_SCORE{*it, seeEval});
+          continue;
+        }
+      } else {
+        if (!inCheck && see(*it, state) < 0) {
+          continue;
+        }
+      }
+
+      scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 0});
+    }
+    for (int moveNum = 0; moveNum < scoredMoves.size(); moveNum++) {
+      pickMove(moveNum, scoredMoves);
+      Move move = scoredMoves[moveNum].move;
 
       state.makeMove(move);
 
@@ -432,8 +480,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
         state.takeMove();
         continue;
       }
-      moveNum++;
-      gameOver = false;
+      legal++;
       state._ply++;
       quiescencePly++;
       int score = -qSearch(-beta, -alpha, state, sControl);
@@ -443,34 +490,38 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
       state.takeMove();
 
       if (score >= beta) {
-        if (moveNum == 1) {
+        if (legal == 1) {
           sControl._fhfNodes++;
         }
         sControl._fhNodes++;
         alpha = beta;
         flag = BETA;
+        bestMove = move;
         break;
       }
       if (score > alpha) {
         flag = EXACT;
         alpha = score;
+        bestMove = move;
       }
     }
   }
   if (alpha == beta) { // check game over for beta cutoff
     if (isGameOver(state, moves)) {
+      bestMove = NO_MOVE;
       flag = EXACT;
       alpha = evaluateGameOver(state);
     }
   } else {
-    if (gameOver && (inCheck || isGameOver(state, moves))) {
+    if (!legal && (inCheck || isGameOver(state, moves))) {
+      bestMove = NO_MOVE;
       flag = EXACT;
       alpha = evaluateGameOver(state);
     }
   }
   if (!DEBUG || sControl._features[TT_EVAL] ||
       sControl._features[TT_REORDERING]) {
-    storeHashEntry(state._zHash, 0, alpha, NO_MOVE, flag, sControl.table);
+    storeHashEntry(state._zHash, 0, alpha, bestMove, flag, sControl.table);
   }
   return alpha;
 }

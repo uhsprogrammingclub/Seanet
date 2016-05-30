@@ -22,7 +22,9 @@ public:
   int _uciOutput = false;
   bool _output = true;
 
-  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true, true, true};
+  // {PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE,
+  // TT_EVAL, TT_REORDERING, PV_SEARCH, ASPIRATION_WINDOWS}
+  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true, true, false};
   // Timing
   int _timeLimit = 60; // i.e. seconds.move
   int _wTime;          // Amount of time white has left

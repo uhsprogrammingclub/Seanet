@@ -1,0 +1,24 @@
+-- Information about the files in the executable archive --
+* Write brief description of active features, evaluations, approximate strength (if available), etc. for each new addition
+
+
+
+-- Archive --
+
+* Seanet 1.0
+    - Bare-bones version
+    - PV_REORDERING
+
+* Seanet 2.0
+    - Moderately powerful engine with decent pruning
+    - PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE
+
+* Seanet 3.0
+    - Introduction of the Transposition Table features (TT_EVAL and TT_REORDERING)
+    - PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE, TT_EVAL, TT_REORDERING, PV_SEARCH
+
+* Seanet 4.0
+    - Adds the ASPIRATION_WINDOWS improvement (calculated at ~1%)
+    - PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE, TT_EVAL, TT_REORDERING, PV_SEARCH, ASPIRATION_WINDOWS
+
+* Seanet 5.0

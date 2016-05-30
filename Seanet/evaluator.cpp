@@ -142,7 +142,7 @@ int evaluate(State &state) {
 
 int evaluateGameOver(State &state) {
   if (state.isInCheck(state._sideToMove)) {
-    return -1000000;
+    return -CHECKMATE;
   } else {
     // stalemate
     return 0;
@@ -156,6 +156,23 @@ bool isGameOver(State &state, std::vector<Move> moves) {
     }
   }
   return true;
+}
+
+int evaluateThreeFoldRepetition(State &state) { return 0; }
+
+bool isThreeFoldRepetition(State &state) {
+  if (state._history.empty()) {
+    return false;
+  }
+  S_UNDO lastUndo = state._history.back();
+  U64 currentHash = lastUndo._zHash;
+
+  for (std::vector<S_UNDO>::reverse_iterator rit = state._history.rbegin() + 1;
+       rit <= state._history.rbegin() + lastUndo._halfMoveClock; ++rit)
+    if (rit->_zHash == currentHash) {
+      return true;
+    }
+  return false;
 }
 
 bool isGameOver(State &state) {

@@ -29,7 +29,7 @@ void State::makeNullMove() {
   if (_sideToMove == BLACK) {
     _fullMoveCounter++;
   }
-  _history.emplace(
+  _history.push_back(
       S_UNDO{NO_MOVE, _castleRights, _EPTarget, _halfMoveClock, _zHash});
   _halfMoveClock++;
   _sideToMove = -_sideToMove;
@@ -44,8 +44,8 @@ void State::takeNullMove() {
   if (_sideToMove == WHITE) {
     _fullMoveCounter--;
   }
-  S_UNDO undo = _history.top();
-  _history.pop();
+  S_UNDO undo = _history.back();
+  _history.pop_back();
   _halfMoveClock = undo._halfMoveClock;
   _EPTarget = undo._EPTarget;
   _castleRights = undo._castleRights;
@@ -54,7 +54,7 @@ void State::takeNullMove() {
 }
 
 void State::makeMove(Move &move) {
-  _history.emplace(
+  _history.push_back(
       S_UNDO{move, _castleRights, _EPTarget, _halfMoveClock, _zHash});
   _halfMoveClock++;
   if (_sideToMove == BLACK) {
@@ -88,11 +88,11 @@ void State::makeMove(Move &move) {
     int toX = to % 8;
     if (fromX != toX && !M_ISCAPTURE(move)) {
       if (_EPTarget == -1) {
-		  printBoard();
+        printBoard();
         printf("ERROR: EN PASSANT ON INVALID SQUARE! Move: %s (%i); captured "
                "Piece: %i\n",
                moveToUCI(move).c_str(), move, M_CAPTUREDP(move));
-		  exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
       clearSquare(_EPTarget);
       M_SETEP(move, true);
@@ -217,7 +217,7 @@ void State::makeMove(Move &move) {
   }
 
   _sideToMove = -_sideToMove;
-  _history.top()._move = move;
+  _history.back()._move = move;
   _zHash = getZobristHash(*this);
 }
 void State::takeMove() {
@@ -228,8 +228,8 @@ void State::takeMove() {
     _fullMoveCounter--;
   }
 
-  S_UNDO undo = _history.top();
-  _history.pop();
+  S_UNDO undo = _history.back();
+  _history.pop_back();
   Move move = undo._move;
   if (!move) {
     printBoard();

@@ -40,6 +40,10 @@ void search(State &state, SearchController &sControl) {
     int eval;
 
     while (true) {
+      if (beta - alpha > ASP_WINDOW * 4) {
+        alpha = INT_MIN + 1;
+        beta = INT_MAX - 1;
+      }
       eval = negamax(alpha, beta, depth, state, sControl, state._bestLine);
       if (sControl._stopSearch) {
         break;
@@ -47,10 +51,12 @@ void search(State &state, SearchController &sControl) {
       if (!DEBUG || sControl._features[ASPIRATION_WINDOWS]) {
         if (eval <= alpha) {
           alpha -= ASP_WINDOW;
+
           continue;
         }
         if (eval >= beta) {
           beta += ASP_WINDOW;
+
           continue;
         }
         alpha = eval - ASP_WINDOW;
@@ -144,6 +150,11 @@ int negamax(int alpha, int beta, int depth, State &state,
     sControl.checkTimeLimit();
   }
 
+  if (isThreeFoldRepetition(state)) {
+    return evaluateThreeFoldRepetition(state) *
+           (state._sideToMove == WHITE ? 1 : -1);
+  }
+
   // Check if TT entry exists for given state, and return stored score
 
   Move bestTTMove = NO_MOVE;
@@ -184,7 +195,6 @@ int negamax(int alpha, int beta, int depth, State &state,
     pvLine.moveCount = 0;
     int score = qSearch(alpha, beta, state, sControl);
     return score;
-    // return evaluate(state) * state._sideToMove == WHITE ? 1 : -1;
   }
 
   if ((!DEBUG || sControl._features[NULL_MOVE]) &&
@@ -299,6 +309,10 @@ int negamax(int alpha, int beta, int depth, State &state,
 
   // pvLine.moves[0] = NO_MOVE;
   for (int moveNum = 0; moveNum < scoredMoves.size(); moveNum++) {
+    // stop search if found a checkmate
+    if (alpha >= CHECKMATE) {
+      break;
+    }
     pickMove(moveNum, scoredMoves);
     Move move = scoredMoves[moveNum].move;
     state.makeMove(move);
@@ -384,6 +398,10 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
   sControl._qNodes++;
   if ((sControl._totalNodes & 10240) == 0) {
     sControl.checkTimeLimit();
+  }
+  if (isThreeFoldRepetition(state)) {
+    return evaluateThreeFoldRepetition(state) *
+           (state._sideToMove == WHITE ? 1 : -1);
   }
 
   Move bestTTMove = NO_MOVE;
@@ -471,6 +489,10 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
       scoredMoves.push_back(S_MOVE_AND_SCORE{*it, 0});
     }
     for (int moveNum = 0; moveNum < scoredMoves.size(); moveNum++) {
+      // stop search if found a checkmate
+      if (alpha >= CHECKMATE) {
+        break;
+      }
       pickMove(moveNum, scoredMoves);
       Move move = scoredMoves[moveNum].move;
 

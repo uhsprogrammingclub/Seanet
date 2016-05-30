@@ -571,12 +571,11 @@ std::string searchFeaturesToString(bool *features) {
   return string;
 }
 
-std::string historyToString(const State &state) {
-  std::stack<S_UNDO> history = state._history;
+std::string historyToString(State &state) {
   std::string string = "";
-  while (!history.empty()) {
-    string = moveToUCI(history.top()._move) + " " + string;
-    history.pop();
+  for (std::vector<S_UNDO>::iterator it = state._history.begin();
+       it != state._history.end(); ++it) {
+    string += moveToUCI(it->_move) + " ";
   }
   return string;
 }

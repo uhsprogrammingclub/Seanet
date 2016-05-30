@@ -20,6 +20,8 @@ int evaluate(State &state);
 int evaluateGameOver(State &state);
 bool isGameOver(State &state);
 bool isGameOver(State &state, std::vector<Move> moves);
+int evaluateThreeFoldRepetition(State &state);
+bool isThreeFoldRepetition(State &state);
 
 int countIsolatedPawns(State &state);
 int countIsolaniPawns(State &state);

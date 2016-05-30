@@ -76,7 +76,7 @@ void search(State &state, SearchController &sControl) {
       std::cout << "alpha: " << alpha << "; beta: " << beta << std::endl;
     };
     if (DEBUG) {
-      assert(eval == state._lineEval);
+      // assert(eval == state._lineEval);
     }
 
     timeval currTime;
@@ -375,7 +375,13 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
   }
   if (!legal) {
-    return evaluateGameOver(state);
+    pvLine.moves[0] = NO_MOVE;
+    pvLine.moveCount = 0;
+    flag = EXACT;
+    alpha = evaluateGameOver(state);
+    if (state._ply == 0) {
+      state._lineEval = alpha;
+    }
   }
   if (!DEBUG || sControl._features[TT_EVAL] ||
       sControl._features[TT_REORDERING]) {

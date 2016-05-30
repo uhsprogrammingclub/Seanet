@@ -17,11 +17,11 @@
 int calculatePhase(State &state);
 int calculateMaterial(State &state);
 int evaluate(State &state);
-int evaluateGameOver(State &state);
+int evaluateGameOver(State &state, int contempt);
 bool isGameOver(State &state);
 bool isGameOver(State &state, std::vector<Move> moves);
-int evaluateThreeFoldRepetition(State &state);
 bool isThreeFoldRepetition(State &state);
+int evaluateDraw(State &state, int contempt);
 
 int countIsolatedPawns(State &state);
 int countIsolaniPawns(State &state);

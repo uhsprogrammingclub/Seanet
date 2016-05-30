@@ -43,6 +43,7 @@ int main(int argc, const char *argv[]) {
   // FEN = "6K1/8/7P/8/8/3k4/1r6/8 b - - 3 78";
   // FEN = "8/1Q6/8/8/5K2/8/2R5/6k1 b - - 7 77";
   // FEN = "6R1/5Qbk/3p4/1P1Pp2P/3pP1p1/3P1K1P/1Pq2P2/5B2 w - - 0 65";
+	FEN = "6k1/ppp2ppp/2b5/2P3P1/1q3P1P/6Q1/PP2r3/3R2K1 b - - 2 34";
   initPresets();
 
   gameState = boardFromFEN(FEN);
@@ -78,7 +79,7 @@ void takeAction() {
 
     // sControl._depthLimit = 10;
     sControl._uciOutput = true;
-    sControl._timeLimit = 1;
+    sControl._timeLimit = 1000;
     search(gameState, sControl);
     std::cout << "\nEvaluation:\n["
               << gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)

@@ -41,6 +41,7 @@ void SearchController::getAllottedTime(int totalMoves) {
     return;
   }
   int time = _analysisSide == WHITE ? _wTime : _bTime;
+
   double scalar =
       (_dampeningFactor * time *
        pow(e, (_dampeningFactor * (_upperMoveBound + totalMoves)))) /

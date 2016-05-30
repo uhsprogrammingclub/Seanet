@@ -157,8 +157,7 @@ int negamax(int alpha, int beta, int depth, State &state,
   }
 
   if (isThreeFoldRepetition(state) && state._ply != 0) {
-    return evaluateThreeFoldRepetition(state) *
-           (state._sideToMove == WHITE ? 1 : -1);
+    return evaluateDraw(state, sControl._contemptFactor);
   }
 
   // Check if TT entry exists for given state, and return stored score
@@ -384,7 +383,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     pvLine.moves[0] = NO_MOVE;
     pvLine.moveCount = 0;
     flag = EXACT;
-    alpha = evaluateGameOver(state);
+    alpha = evaluateGameOver(state, sControl._contemptFactor);
     if (state._ply == 0) {
       state._lineEval = alpha;
     }
@@ -412,8 +411,7 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
     sControl.checkTimeLimit();
   }
   if (isThreeFoldRepetition(state)) {
-    return evaluateThreeFoldRepetition(state) *
-           (state._sideToMove == WHITE ? 1 : -1);
+    return evaluateDraw(state, sControl._contemptFactor);
   }
 
   Move bestTTMove = NO_MOVE;
@@ -544,13 +542,13 @@ int qSearch(int alpha, int beta, State &state, SearchController &sControl) {
     if (isGameOver(state, moves)) {
       bestMove = NO_MOVE;
       flag = EXACT;
-      alpha = evaluateGameOver(state);
+      alpha = evaluateGameOver(state, sControl._contemptFactor);
     }
   } else {
     if (!legal && (inCheck || isGameOver(state, moves))) {
       bestMove = NO_MOVE;
       flag = EXACT;
-      alpha = evaluateGameOver(state);
+      alpha = evaluateGameOver(state, sControl._contemptFactor);
     }
   }
   if (!DEBUG || sControl._features[TT_EVAL] ||

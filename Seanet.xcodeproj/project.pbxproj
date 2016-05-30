@@ -74,6 +74,7 @@
 		80C6903E1CFC1A2A0001DE51 /* Seanet-0.3 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet-0.3"; sourceTree = "<group>"; };
 		80C6903F1CFC1A2A0001DE51 /* Seanet-0.4 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet-0.4"; sourceTree = "<group>"; };
 		80C690401CFC1A2A0001DE51 /* Seanet-1.0 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet-1.0"; sourceTree = "<group>"; };
+		80C690411CFCBF630001DE51 /* Seanet-1.0.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = "Seanet-1.0.1"; sourceTree = "<group>"; };
 		BF6871E51CEADC7900F7007A /* search.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = search.cpp; sourceTree = "<group>"; };
 		BF6871E61CEADC7A00F7007A /* search.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = search.hpp; sourceTree = "<group>"; };
 		BF6871E81CEADE8900F7007A /* evaluator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = evaluator.cpp; sourceTree = "<group>"; };
@@ -112,6 +113,7 @@
 				80C6903E1CFC1A2A0001DE51 /* Seanet-0.3 */,
 				80C6903F1CFC1A2A0001DE51 /* Seanet-0.4 */,
 				80C690401CFC1A2A0001DE51 /* Seanet-1.0 */,
+				80C690411CFCBF630001DE51 /* Seanet-1.0.1 */,
 				365BF3691CFBC46C00401B6B /* info.text */,
 			);
 			name = "Executable Archive";

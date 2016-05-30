@@ -138,12 +138,12 @@ int evaluate(State &state) {
   return score;
 }
 
-int evaluateGameOver(State &state) {
+int evaluateGameOver(State &state, int contempt) {
   if (state.isInCheck(state._sideToMove)) {
     return -CHECKMATE;
   } else {
     // stalemate
-    return 0;
+    return evaluateDraw(state, contempt);
   }
 }
 
@@ -156,7 +156,9 @@ bool isGameOver(State &state, std::vector<Move> moves) {
   return true;
 }
 
-int evaluateThreeFoldRepetition(State &state) { return 0; }
+int evaluateDraw(State &state, int contempt) {
+  return state._ply % 2 == 0 ? contempt : -contempt;
+}
 
 bool isThreeFoldRepetition(State &state) {
   if (state._history.empty()) {

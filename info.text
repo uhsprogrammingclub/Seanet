@@ -25,3 +25,7 @@
     - Most up to date version as of 5/29/16 at 11:45 pm
     - Introduces QS_REORDERING reordering (to create more pruning in the qSearch)
     - PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE, TT_EVAL, TT_REORDERING, PV_SEARCH, ASPIRATION_WINDOWS, QS_REORDERING
+
+* Seanet 1.0.1
+	- Most up to date version as of 5/30/16 at 11:20 am
+	- Contempt factor (-50)

@@ -24,6 +24,7 @@ void takeUCIInput();
 
 void takeAction();
 State gameState;
+SearchController sControl;
 
 int main(int argc, const char *argv[]) {
   // insert code here...
@@ -40,6 +41,8 @@ int main(int argc, const char *argv[]) {
   // FEN = "2r1k2r/2pn1pp1/1p3n1p/p3PP2/4q2B/P1P5/2Q1N1PP/R4RK1 w q -";
   // FEN = "4k2r/3n1pp1/1pr2n1p/p1p1PP2/4QR1B/P1P5/4N1PP/R5K1 w q - 2 2";
   // FEN = "6K1/8/7P/8/8/3k4/1r6/8 b - - 3 78";
+  // FEN = "8/1Q6/8/8/5K2/8/2R5/6k1 b - - 7 77";
+  FEN = "6R1/5Qbk/3p4/1P1Pp2P/3pP1p1/3P1K1P/1Pq2P2/5B2 w - - 0 65";
   initPresets();
 
   gameState = boardFromFEN(FEN);
@@ -72,9 +75,10 @@ void takeAction() {
   } else if (userMove == "uci") {
     startUCI();
   } else if (userMove == "search") {
-    SearchController sControl;
-    sControl._depthLimit = 11;
-    sControl._timeLimit = 90;
+
+    // sControl._depthLimit = 10;
+    sControl._uciOutput = true;
+    sControl._timeLimit = 1;
     search(gameState, sControl);
     std::cout << "\nEvaluation:\n["
               << gameState._lineEval * (gameState._sideToMove == WHITE ? 1 : -1)
@@ -116,7 +120,6 @@ void takeUCIInput() {
         searchThread.join();
       }
     }
-
     std::vector<std::string> inputParts;
     inputParts = split(input, ' ');
     std::string commandName = inputParts.at(0);

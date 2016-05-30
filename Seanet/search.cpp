@@ -79,7 +79,7 @@ void search(State &state, SearchController &sControl) {
       std::cout << "alpha: " << alpha << "; beta: " << beta << std::endl;
     };
     if (DEBUG) {
-      assert(eval == state._lineEval);
+      // assert(eval == state._lineEval);
     }
 
     timeval currTime;
@@ -112,10 +112,13 @@ void search(State &state, SearchController &sControl) {
       }
     }
   }
-
+  sControl._stopSearch = true;
   if (sControl._uciOutput) {
-    std::cout << "bestmove " << moveToUCI(state._bestLine.moves[0])
-              << " ponder " << moveToUCI(state._bestLine.moves[1]) << std::endl;
+    std::cout << "bestmove " << moveToUCI(state._bestLine.moves[0]);
+    if (state._bestLine.moves[1]) {
+      std::cout << " ponder " << moveToUCI(state._bestLine.moves[1]);
+    }
+    std::cout << std::endl;
   }
 }
 
@@ -378,7 +381,13 @@ int negamax(int alpha, int beta, int depth, State &state,
     }
   }
   if (!legal) {
-    return evaluateGameOver(state);
+    pvLine.moves[0] = NO_MOVE;
+    pvLine.moveCount = 0;
+    flag = EXACT;
+    alpha = evaluateGameOver(state);
+    if (state._ply == 0) {
+      state._lineEval = alpha;
+    }
   }
   if (!DEBUG || sControl._features[TT_EVAL] ||
       sControl._features[TT_REORDERING]) {

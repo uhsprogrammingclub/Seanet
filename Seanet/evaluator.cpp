@@ -88,8 +88,6 @@ int evaluate(State &state) {
     int pcIndex = allPieces[i];
     Piece piece = state._pieces[pcIndex];
 
-    score += MATERIAL_WORTH[piece];
-
     switch (piece) {
     case wP:
       score += whitePawnPS[pcIndex];
@@ -165,11 +163,12 @@ bool isThreeFoldRepetition(State &state) {
     return false;
   }
   S_UNDO lastUndo = state._history.back();
-  U64 currentHash = lastUndo._zHash;
 
-  for (std::vector<S_UNDO>::reverse_iterator rit = state._history.rbegin() + 1;
-       rit <= state._history.rbegin() + lastUndo._halfMoveClock; ++rit)
-    if (rit->_zHash == currentHash) {
+  for (std::vector<S_UNDO>::reverse_iterator rit = state._history.rbegin();
+       rit <= state._history.rbegin() + lastUndo._halfMoveClock &&
+       rit != state._history.rend();
+       ++rit)
+    if (rit->_zHash == state._zHash) {
       return true;
     }
   return false;

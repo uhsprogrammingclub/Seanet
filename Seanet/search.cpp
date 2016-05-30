@@ -150,7 +150,7 @@ int negamax(int alpha, int beta, int depth, State &state,
     sControl.checkTimeLimit();
   }
 
-  if (isThreeFoldRepetition(state)) {
+  if (isThreeFoldRepetition(state) && state._ply != 0) {
     return evaluateThreeFoldRepetition(state) *
            (state._sideToMove == WHITE ? 1 : -1);
   }

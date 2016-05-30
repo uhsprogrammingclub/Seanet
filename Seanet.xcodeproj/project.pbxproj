@@ -55,6 +55,12 @@
 		36304D871CF2B509004ABD85 /* LCT-II.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LCT-II.text"; sourceTree = "<group>"; };
 		3634CA051CF424AB00DFFB64 /* hash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hash.cpp; sourceTree = "<group>"; };
 		3634CA061CF424AB00DFFB64 /* hash.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = hash.hpp; sourceTree = "<group>"; };
+		365BF3691CFBC46C00401B6B /* info.text */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = info.text; sourceTree = "<group>"; };
+		365BF36C1CFBC5B700401B6B /* Seanet 4.0 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet 4.0"; sourceTree = "<group>"; };
+		365BF36D1CFBC75C00401B6B /* Seanet 1.0 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet 1.0"; sourceTree = "<group>"; };
+		365BF36E1CFBC7FC00401B6B /* Seanet 2.0 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet 2.0"; sourceTree = "<group>"; };
+		365BF36F1CFBC99E00401B6B /* Seanet 3.0 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet 3.0"; sourceTree = "<group>"; };
+		365BF3701CFBCC7600401B6B /* Seanet 5.0 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "Seanet 5.0"; sourceTree = "<group>"; };
 		36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "Bratko-Kopec.text"; sourceTree = "<group>"; };
 		36A30F9A1CEFD0A600B6FDAC /* records.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = records.text; sourceTree = "<group>"; };
 		80053BD11CE57713006B1B81 /* Seanet */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Seanet; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,9 +104,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		365BF3681CFBC36900401B6B /* Executable Archive */ = {
+			isa = PBXGroup;
+			children = (
+				365BF3691CFBC46C00401B6B /* info.text */,
+				365BF36D1CFBC75C00401B6B /* Seanet 1.0 */,
+				365BF36E1CFBC7FC00401B6B /* Seanet 2.0 */,
+				365BF36F1CFBC99E00401B6B /* Seanet 3.0 */,
+				365BF36C1CFBC5B700401B6B /* Seanet 4.0 */,
+				365BF3701CFBCC7600401B6B /* Seanet 5.0 */,
+			);
+			name = "Executable Archive";
+			sourceTree = "<group>";
+		};
 		80053BC81CE57713006B1B81 = {
 			isa = PBXGroup;
 			children = (
+				365BF3681CFBC36900401B6B /* Executable Archive */,
 				80053BD31CE57713006B1B81 /* Seanet */,
 				BFDDC6AE1CE81DD900CBB8CC /* TestSeanet */,
 				80053BD21CE57713006B1B81 /* Products */,

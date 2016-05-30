@@ -29,7 +29,7 @@ public:
   int _halfMoveClock;
   int _fullMoveCounter;
   int _sideToMove;
-  std::stack<S_UNDO> _history;
+  std::vector<S_UNDO> _history;
   S_PVLINE _bestLine;
   int _lineEval;
   int _ply = 0;

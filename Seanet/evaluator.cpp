@@ -88,8 +88,6 @@ int evaluate(State &state) {
     int pcIndex = allPieces[i];
     Piece piece = state._pieces[pcIndex];
 
-    score += MATERIAL_WORTH[piece];
-
     switch (piece) {
     case wP:
       score += whitePawnPS[pcIndex];
@@ -142,7 +140,7 @@ int evaluate(State &state) {
 
 int evaluateGameOver(State &state) {
   if (state.isInCheck(state._sideToMove)) {
-    return -1000000;
+    return -CHECKMATE;
   } else {
     // stalemate
     return 0;
@@ -156,6 +154,24 @@ bool isGameOver(State &state, std::vector<Move> moves) {
     }
   }
   return true;
+}
+
+int evaluateThreeFoldRepetition(State &state) { return 0; }
+
+bool isThreeFoldRepetition(State &state) {
+  if (state._history.empty()) {
+    return false;
+  }
+  S_UNDO lastUndo = state._history.back();
+
+  for (std::vector<S_UNDO>::reverse_iterator rit = state._history.rbegin();
+       rit <= state._history.rbegin() + lastUndo._halfMoveClock &&
+       rit != state._history.rend();
+       ++rit)
+    if (rit->_zHash == state._zHash) {
+      return true;
+    }
+  return false;
 }
 
 bool isGameOver(State &state) {

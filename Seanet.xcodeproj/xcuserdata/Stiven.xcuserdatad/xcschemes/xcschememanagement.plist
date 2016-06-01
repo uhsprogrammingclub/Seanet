@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Learning.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 		<key>Seanet.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -18,6 +23,11 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>80053BD01CE57713006B1B81</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>80D7B6CB1CFE2A4A00041095</key>
 		<dict>
 			<key>primary</key>
 			<true/>

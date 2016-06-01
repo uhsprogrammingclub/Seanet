@@ -20,7 +20,16 @@
 		80053BE31CE5804C006B1B81 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BE11CE5804C006B1B81 /* util.cpp */; };
 		80B87A4B1CF68F5300313E28 /* Silver-Suite.text in Sources */ = {isa = PBXBuildFile; fileRef = 80B87A4A1CF68F5300313E28 /* Silver-Suite.text */; };
 		80B87A4D1CF831F400313E28 /* Sune-Larson-Endgame.text in Sources */ = {isa = PBXBuildFile; fileRef = 80B87A4C1CF831F400313E28 /* Sune-Larson-Endgame.text */; };
-		80C690531CFCC3A10001DE51 /* info.text in Sources */ = {isa = PBXBuildFile; fileRef = 80C690521CFCC3A10001DE51 /* info.text */; };
+		80D7B6CF1CFE2A4A00041095 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80D7B6CE1CFE2A4A00041095 /* main.cpp */; };
+		80D7B6D31CFE2A7B00041095 /* hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3634CA051CF424AB00DFFB64 /* hash.cpp */; };
+		80D7B6D41CFE2A7D00041095 /* searchcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871EB1CEC013E00F7007A /* searchcontroller.cpp */; };
+		80D7B6D51CFE2A8400041095 /* evaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E81CEADE8900F7007A /* evaluator.cpp */; };
+		80D7B6D61CFE2A8800041095 /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E51CEADC7900F7007A /* search.cpp */; };
+		80D7B6D71CFE2A9000041095 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BE11CE5804C006B1B81 /* util.cpp */; };
+		80D7B6D81CFE2A9200041095 /* movegenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BDE1CE58033006B1B81 /* movegenerator.cpp */; };
+		80D7B6D91CFE2A9500041095 /* board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BDB1CE5801D006B1B81 /* board.cpp */; };
+		80D7B6DC1CFE2D2700041095 /* perceptron.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80D7B6DA1CFE2D2700041095 /* perceptron.cpp */; };
+		80D7B6DF1CFE2F3100041095 /* neuralnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80D7B6DD1CFE2F3100041095 /* neuralnet.cpp */; };
 		BF6871E71CEADC7A00F7007A /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E51CEADC7900F7007A /* search.cpp */; };
 		BF6871EA1CEADE8900F7007A /* evaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E81CEADE8900F7007A /* evaluator.cpp */; };
 		BF6871ED1CEC013E00F7007A /* searchcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871EB1CEC013E00F7007A /* searchcontroller.cpp */; };
@@ -32,6 +41,15 @@
 
 /* Begin PBXCopyFilesBuildPhase section */
 		80053BCF1CE57713006B1B81 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		80D7B6CA1CFE2A4A00041095 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -77,6 +95,12 @@
 		80C690501CFCC3A10001DE51 /* Seanet-1.0.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = "Seanet-1.0.1"; path = "Executable Archive/Seanet-1.0.1"; sourceTree = "<group>"; };
 		80C690511CFCC3A10001DE51 /* Seanet-1.0.1-NO_TT_EVAL */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = "Seanet-1.0.1-NO_TT_EVAL"; path = "Executable Archive/Seanet-1.0.1-NO_TT_EVAL"; sourceTree = "<group>"; };
 		80C690521CFCC3A10001DE51 /* info.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = info.text; path = "Executable Archive/info.text"; sourceTree = "<group>"; };
+		80D7B6CC1CFE2A4A00041095 /* Learning */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Learning; sourceTree = BUILT_PRODUCTS_DIR; };
+		80D7B6CE1CFE2A4A00041095 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		80D7B6DA1CFE2D2700041095 /* perceptron.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = perceptron.cpp; sourceTree = "<group>"; };
+		80D7B6DB1CFE2D2700041095 /* perceptron.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = perceptron.hpp; sourceTree = "<group>"; };
+		80D7B6DD1CFE2F3100041095 /* neuralnet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = neuralnet.cpp; sourceTree = "<group>"; };
+		80D7B6DE1CFE2F3100041095 /* neuralnet.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = neuralnet.hpp; sourceTree = "<group>"; };
 		BF6871E51CEADC7900F7007A /* search.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = search.cpp; sourceTree = "<group>"; };
 		BF6871E61CEADC7A00F7007A /* search.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = search.hpp; sourceTree = "<group>"; };
 		BF6871E81CEADE8900F7007A /* evaluator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = evaluator.cpp; sourceTree = "<group>"; };
@@ -91,6 +115,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		80053BCE1CE57713006B1B81 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80D7B6C91CFE2A4A00041095 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -128,6 +159,7 @@
 				365BF3681CFBC36900401B6B /* Executable Archive */,
 				80053BD31CE57713006B1B81 /* Seanet */,
 				BFDDC6AE1CE81DD900CBB8CC /* TestSeanet */,
+				80D7B6CD1CFE2A4A00041095 /* Learning */,
 				80053BD21CE57713006B1B81 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -137,6 +169,7 @@
 			children = (
 				80053BD11CE57713006B1B81 /* Seanet */,
 				BFDDC6AD1CE81DD900CBB8CC /* TestSeanet */,
+				80D7B6CC1CFE2A4A00041095 /* Learning */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -162,6 +195,18 @@
 				3634CA061CF424AB00DFFB64 /* hash.hpp */,
 			);
 			path = Seanet;
+			sourceTree = "<group>";
+		};
+		80D7B6CD1CFE2A4A00041095 /* Learning */ = {
+			isa = PBXGroup;
+			children = (
+				80D7B6CE1CFE2A4A00041095 /* main.cpp */,
+				80D7B6DD1CFE2F3100041095 /* neuralnet.cpp */,
+				80D7B6DE1CFE2F3100041095 /* neuralnet.hpp */,
+				80D7B6DA1CFE2D2700041095 /* perceptron.cpp */,
+				80D7B6DB1CFE2D2700041095 /* perceptron.hpp */,
+			);
+			path = Learning;
 			sourceTree = "<group>";
 		};
 		BFDDC6AE1CE81DD900CBB8CC /* TestSeanet */ = {
@@ -200,6 +245,23 @@
 			productReference = 80053BD11CE57713006B1B81 /* Seanet */;
 			productType = "com.apple.product-type.tool";
 		};
+		80D7B6CB1CFE2A4A00041095 /* Learning */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 80D7B6D21CFE2A4A00041095 /* Build configuration list for PBXNativeTarget "Learning" */;
+			buildPhases = (
+				80D7B6C81CFE2A4A00041095 /* Sources */,
+				80D7B6C91CFE2A4A00041095 /* Frameworks */,
+				80D7B6CA1CFE2A4A00041095 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Learning;
+			productName = Learning;
+			productReference = 80D7B6CC1CFE2A4A00041095 /* Learning */;
+			productType = "com.apple.product-type.tool";
+		};
 		BFDDC6AC1CE81DD900CBB8CC /* TestSeanet */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BFDDC6B11CE81DD900CBB8CC /* Build configuration list for PBXNativeTarget "TestSeanet" */;
@@ -228,6 +290,9 @@
 					80053BD01CE57713006B1B81 = {
 						CreatedOnToolsVersion = 7.3;
 					};
+					80D7B6CB1CFE2A4A00041095 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
 					BFDDC6AC1CE81DD900CBB8CC = {
 						CreatedOnToolsVersion = 6.3.1;
 					};
@@ -247,6 +312,7 @@
 			targets = (
 				80053BD01CE57713006B1B81 /* Seanet */,
 				BFDDC6AC1CE81DD900CBB8CC /* TestSeanet */,
+				80D7B6CB1CFE2A4A00041095 /* Learning */,
 			);
 		};
 /* End PBXProject section */
@@ -264,7 +330,23 @@
 				3634CA071CF424AB00DFFB64 /* hash.cpp in Sources */,
 				80053BE31CE5804C006B1B81 /* util.cpp in Sources */,
 				BF6871EA1CEADE8900F7007A /* evaluator.cpp in Sources */,
-				80C690531CFCC3A10001DE51 /* info.text in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		80D7B6C81CFE2A4A00041095 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80D7B6D61CFE2A8800041095 /* search.cpp in Sources */,
+				80D7B6DC1CFE2D2700041095 /* perceptron.cpp in Sources */,
+				80D7B6D41CFE2A7D00041095 /* searchcontroller.cpp in Sources */,
+				80D7B6D91CFE2A9500041095 /* board.cpp in Sources */,
+				80D7B6D51CFE2A8400041095 /* evaluator.cpp in Sources */,
+				80D7B6CF1CFE2A4A00041095 /* main.cpp in Sources */,
+				80D7B6D81CFE2A9200041095 /* movegenerator.cpp in Sources */,
+				80D7B6D31CFE2A7B00041095 /* hash.cpp in Sources */,
+				80D7B6DF1CFE2F3100041095 /* neuralnet.cpp in Sources */,
+				80D7B6D71CFE2A9000041095 /* util.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,6 +467,22 @@
 			};
 			name = Release;
 		};
+		80D7B6D01CFE2A4A00041095 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		80D7B6D11CFE2A4A00041095 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		BFDDC6B21CE81DD900CBB8CC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -424,6 +522,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		80D7B6D21CFE2A4A00041095 /* Build configuration list for PBXNativeTarget "Learning" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				80D7B6D01CFE2A4A00041095 /* Debug */,
+				80D7B6D11CFE2A4A00041095 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		BFDDC6B11CE81DD900CBB8CC /* Build configuration list for PBXNativeTarget "TestSeanet" */ = {
 			isa = XCConfigurationList;

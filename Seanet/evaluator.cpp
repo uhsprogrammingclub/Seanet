@@ -233,3 +233,10 @@ int countKingPawnShields(State &state) {
 
   return count;
 }
+
+FList getInitialFeatures(State &state) {
+  FList features;
+  return features;
+}
+
+float getPhaseFactor(State &state) { return (256.0 - state._phase) / 256.0; }

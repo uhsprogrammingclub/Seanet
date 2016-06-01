@@ -10,11 +10,13 @@
 #define defs_h
 
 #include <map>
+#include <vector>
 
 #define DEBUG true
 
 typedef unsigned long long U64;
 typedef int Move;
+typedef std::vector<float> FList;
 typedef std::map<std::string, std::string> KeyInfoMap;
 
 extern U64 setMask[64];

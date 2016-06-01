@@ -33,4 +33,7 @@ int countPassedPawns(State &state);
 int countHoles(State &state);
 int countKingPawnShields(State &state);
 
+FList getInitialFeatures(State &state);
+float getPhaseFactor(State &state);
+
 #endif /* defined(__Seanet__evaluator__) */

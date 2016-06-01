@@ -21,4 +21,6 @@ public:
   void updateWeights(FList correctFeatures, FList wrongFeatures, float alpha);
 };
 
+float activationFunction(float sum);
+
 #endif /* perceptron_hpp */

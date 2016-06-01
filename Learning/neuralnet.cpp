@@ -88,7 +88,7 @@ std::vector<FList> NeuralNet::calculateFeatures(State &state,
   features[0] = initialFeatures;
 
   // Iterate through all layers
-  for (int layer = 0; layer < _numOfLayers; layer++) {
+  for (int layer = 0; layer < _numOfLayers - 1; layer++) {
 
     // Initialize features of the next layer (perceptron activation values)
     features[layer + 1] = FList();
@@ -99,8 +99,16 @@ std::vector<FList> NeuralNet::calculateFeatures(State &state,
       // update the perceptron activation value of the perceptron
       features[layer + 1][pn] =
           _perceptrons[layer][pn].calculateActivation(features[layer]);
+
+      // put sum through activation function
+      features[layer + 1][pn] = activationFunction(features[layer + 1][pn]);
     }
   }
+
+  // Calculate final score
+  features[_numOfLayers][0] =
+      _perceptrons[_numOfLayers - 1][0].calculateActivation(
+          features[_numOfLayers - 1]);
 
   return features;
 }

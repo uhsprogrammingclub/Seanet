@@ -24,9 +24,7 @@ float Perceptron::calculateActivation(FList features) {
     sum += features[i] * _weights[i];
   }
 
-  // Calculate activation
-  float z = 1.0 / (1.0 + exp(-sum));
-  return z;
+  return sum;
 }
 
 void Perceptron::updateWeights(FList correctFeatures, FList wrongFeatures,
@@ -44,4 +42,9 @@ void Perceptron::updateWeights(FList correctFeatures, FList wrongFeatures,
   for (int i = 0; i < numOfFeatures; i++) {
     _weights[i] += alpha * (correctFeatures[i] - wrongFeatures[i]);
   }
+}
+
+float activationFunction(float sum) {
+  // Calculate activation
+  return 1.0 / (1.0 + exp(-sum));
 }

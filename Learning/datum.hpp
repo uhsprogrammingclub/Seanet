@@ -13,6 +13,13 @@
 #include "search.hpp"
 #include <stdio.h>
 
+class Datum {
+public:
+  State _state;
+  Move _bestMove;
+  int _contemptFactor;
+};
+
 bool isPseudoQuiet(State &state);
 
 #endif /* datum_hpp */

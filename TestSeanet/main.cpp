@@ -20,9 +20,32 @@ void engineTest(std::string testPath, std::string tag, std::string comments,
 void runSearch(std::string FEN, SearchController &sControl);
 void speedTest(std::string testPath);
 
+TEST_CASE("Checking moveToSAN() and moveFromSAN()", "[SAN-functions]") {
+  initPresets();
+  std::vector<std::string> files;
+  files.push_back("LCT-II.text");
+  files.push_back("Bratko-Kopec.text");
+  files.push_back("san-checking.text");
+
+  std::string line;
+  State state;
+
+  for (auto it : files) {
+    std::ifstream file(it);
+
+    while (std::getline(file, line)) {
+      KeyInfoMap info = splitEDP(line);
+      state = boardFromFEN(info["fen"]);
+      std::string move = info["bm"];
+      Move m1 = moveFromSAN(move, state);
+      std::string m2 = moveToSAN(m1, state);
+      REQUIRE(move == m2);
+    }
+  }
+}
+
 TEST_CASE("Ensuring Zobrist functions properly", "[Zobrist-Checking]") {
   initPresets();
-
   std::ifstream file("zobrist-checking.text");
   std::string line;
   std::vector<std::string> data;

@@ -34,10 +34,10 @@ public:
   int _bInc = 0;       // Black increment/move
   int _moveToGo;       // Number of moves before next time control
   int _nodeLimit;      // Limit to how many nodes searched
-  int _analysisSide = WHITE;
+  int _analysisSide = BLACK;
   double _dampeningFactor = 0.03;
   int _upperMoveBound = 100;
-	
+
   int _contemptFactor = -50;
 
   bool _stopSearch = false;

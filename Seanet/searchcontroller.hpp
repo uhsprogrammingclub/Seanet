@@ -24,8 +24,8 @@ public:
 
   // {PV_REORDERING, SEE_REORDERING, KH_REORDERING, HH_REORDERING, NULL_MOVE,
   // TT_EVAL, TT_REORDERING, PV_SEARCH, ASPIRATION_WINDOWS, QS_REORDERING}
-  bool _features[NUM_OF_FEATURES] = {true,  true, true, true, true,
-                                     false, true, true, true, true};
+  bool _features[NUM_OF_FEATURES] = {true, true, true, true, true,
+                                     true, true, true, true, true};
   // Timing
   int _timeLimit = 10; // i.e. seconds.move
   int _wTime;          // Amount of time white has left
@@ -34,7 +34,7 @@ public:
   int _bInc = 0;       // Black increment/move
   int _moveToGo;       // Number of moves before next time control
   int _nodeLimit;      // Limit to how many nodes searched
-  int _analysisSide = BLACK;
+  int _analysisSide = WHITE;
   double _dampeningFactor = 0.03;
   int _upperMoveBound = 100;
 

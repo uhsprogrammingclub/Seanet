@@ -192,6 +192,7 @@ void takeUCIInput() {
         }
       }
       searching = true;
+      uciStateControl._analysisSide = uciGameState._sideToMove;
       searchThread = std::thread(search, std::ref(uciGameState),
                                  std::ref(uciStateControl));
 

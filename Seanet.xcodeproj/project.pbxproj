@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		361BD7511CFFAFA600CE771B /* datum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 361BD74F1CFFAFA600CE771B /* datum.cpp */; };
 		361C08531CF8CE6100F972C9 /* zobrist-checking.text in Sources */ = {isa = PBXBuildFile; fileRef = 361C08521CF8CE6100F972C9 /* zobrist-checking.text */; };
 		36304D881CF2B509004ABD85 /* LCT-II.text in Sources */ = {isa = PBXBuildFile; fileRef = 36304D871CF2B509004ABD85 /* LCT-II.text */; };
 		3634CA071CF424AB00DFFB64 /* hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3634CA051CF424AB00DFFB64 /* hash.cpp */; };
@@ -70,6 +71,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		361BD74F1CFFAFA600CE771B /* datum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = datum.cpp; sourceTree = "<group>"; };
+		361BD7501CFFAFA600CE771B /* datum.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = datum.hpp; sourceTree = "<group>"; };
 		361C08521CF8CE6100F972C9 /* zobrist-checking.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "zobrist-checking.text"; sourceTree = "<group>"; };
 		36304D871CF2B509004ABD85 /* LCT-II.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LCT-II.text"; sourceTree = "<group>"; };
 		3634CA051CF424AB00DFFB64 /* hash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hash.cpp; sourceTree = "<group>"; };
@@ -205,6 +208,8 @@
 				80D7B6DE1CFE2F3100041095 /* neuralnet.hpp */,
 				80D7B6DA1CFE2D2700041095 /* perceptron.cpp */,
 				80D7B6DB1CFE2D2700041095 /* perceptron.hpp */,
+				361BD74F1CFFAFA600CE771B /* datum.cpp */,
+				361BD7501CFFAFA600CE771B /* datum.hpp */,
 			);
 			path = Learning;
 			sourceTree = "<group>";
@@ -344,6 +349,7 @@
 				80D7B6D51CFE2A8400041095 /* evaluator.cpp in Sources */,
 				80D7B6CF1CFE2A4A00041095 /* main.cpp in Sources */,
 				80D7B6D81CFE2A9200041095 /* movegenerator.cpp in Sources */,
+				361BD7511CFFAFA600CE771B /* datum.cpp in Sources */,
 				80D7B6D31CFE2A7B00041095 /* hash.cpp in Sources */,
 				80D7B6DF1CFE2F3100041095 /* neuralnet.cpp in Sources */,
 				80D7B6D71CFE2A9000041095 /* util.cpp in Sources */,
@@ -530,6 +536,7 @@
 				80D7B6D11CFE2A4A00041095 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BFDDC6B11CE81DD900CBB8CC /* Build configuration list for PBXNativeTarget "TestSeanet" */ = {
 			isa = XCConfigurationList;

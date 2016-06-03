@@ -738,15 +738,22 @@ S_PVLINE getGameMoveLine(std::string game) {
   int moveNum = 0;
   std::vector<std::string> movesSAN = split(game, ' ');
   S_PVLINE moveLine;
-  for (std::string move : movesSAN) {
-    if (move == "") {
+  State state =
+      boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  for (std::string moveSAN : movesSAN) {
+    if (moveSAN == "") {
       break;
     }
 
     if (moveNum % 2 == 0) {
-      move = move.substr(2);
+      moveSAN = moveSAN.substr(moveSAN.find(".")+1);
     }
-    // moveLine.moves[moveNum] = moveFromSAN(move);
+	  state.printBoard();
+	  std::cout << boardToFEN(state) << std::endl;
+    std::cout << "Parsing '" << moveSAN << "'" << std::endl;
+    Move move = moveFromSAN(moveSAN, state);
+    state.makeMove(move);
+    moveLine.moves[moveNum] = move;
     moveNum++;
   }
   moveLine.moveCount = moveNum;

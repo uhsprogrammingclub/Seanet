@@ -34,7 +34,8 @@ int main(int argc, const char *argv[]) {
 
   loadRandomWeights(midgameNeuralNet);
   std::cout << "Loaded wieghts." << std::endl;
-  recordWeights(midgameNeuralNet, "Midgame");
+  recordWeights(midgameNeuralNet, "midgame");
+  std::cout << "Recorded weights." << std::endl;
 
   // Counter for number of examples tested in current training session
   int numExamples = 0;
@@ -76,22 +77,24 @@ void recordWeights(NeuralNet *net, std::string name) {
   char buff[DTTMSZ];
   std::fstream records;
   records.open("weight-records.text", std::fstream::out | std::fstream::app);
-  records << "<name>" << name << "</name>\n"
+  records << "<network name=" << name << ">\n"
           << "<info>Weights as of " << getDtTm(buff) << "</info>\n<weights>\n";
   std::vector<std::vector<FList>> weights = net->getWeights();
   for (int layer = 0; layer < weights.size(); layer++) {
     records << "<layer>\n";
     for (int pn = 0; pn < weights[layer].size(); pn++) {
-      records << "<p>";
+      records << "(";
       for (int f = 0; f < weights[layer][pn].size(); f++) {
-        records << "<f>";
-        records << weights[layer][pn][f] << " ";
-        records << "</f>";
+        records << weights[layer][pn][f];
+        if (f < weights[layer][pn].size() - 1) {
+          records << ", ";
+        }
       }
-      records << "</p>";
+      records << ")";
     }
     records << "\n</layer>\n";
   }
-  records << "</weights>";
+  records << "</weights>\n";
+  records << "</network>\n";
   records.close();
 }

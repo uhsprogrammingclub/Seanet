@@ -183,8 +183,9 @@ Move moveFromSAN(std::string SAN, State &state) {
 
   // If the entire move has been iterated through, its a quiet pawn move (1 or 2
   // squares)
+  int direction = state._sideToMove == WHITE ? -1 : 1;
   if (rit == parts.rend()) {
-    int direction = state._sideToMove == WHITE ? -1 : 1;
+
     if (state._pieces[to + 8 * direction] == wP ||
         state._pieces[to + 8 * direction] == bP) {
       from = to + 8 * direction;
@@ -207,13 +208,17 @@ Move moveFromSAN(std::string SAN, State &state) {
     } else if (islower(*rit)) {
       if (rit + 1 == parts.rend()) {
         int column = *rit - 97;
+        int toX = to % 8;
+        int toY = (to - toX) / 8;
+
         U64 bbColumn = FILE_BB[column];
         U64 bbPiece =
             state._pieceBitboards[PAWNS] &
-            state._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS];
+            state
+                ._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS] &
+            RANK_BB[toY + direction];
         from = LS1B(bbPiece & bbColumn);
       } else {
-
         int column = *rit - 97;
         U64 bbColumn = FILE_BB[column];
         char p = state._sideToMove == WHITE ? *(rit + 1) : tolower(*(rit + 1));

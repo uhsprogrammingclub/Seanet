@@ -14,11 +14,11 @@
 #include <vector>
 
 class Perceptron {
-  FList _weights;
 
 public:
-  FList getWeights();
+  FList _weights;
   float calculateActivation(FList features);
+  void setWeights(FList weights);
   void updateWeights(FList correctFeatures, FList wrongFeatures, float alpha);
 };
 

@@ -47,7 +47,13 @@ int main(int argc, const char *argv[]) {
   // FEN = "r3k3/2p2p1P/p1n4b/P3Nb1p/1p4P1/5n1P/1P4R1/R1BK1B2 b q -";
   initPresets();
 
+  FEN = "rn1q1rk1/p4ppp/1ppb4/3p4/2PP2b1/2PB1N2/P4PPP/1RBQ1RK1 w - -";
+
   gameState = boardFromFEN(FEN);
+
+  Move m = moveFromSAN("cxd5", gameState);
+  std::cout << moveToUCI(m) << std::endl;
+  exit(0);
 
   while (true) {
     takeAction();

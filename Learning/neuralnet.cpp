@@ -82,10 +82,31 @@ void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
   }
 }
 
-FList NeuralNet::getPerceptronWeights(int layer, int pn) {
-  return _perceptrons[layer][pn].getWeights();
+NeuralNet::NeuralNet(std::vector<int> &layers) {
+  _numOfLayers = (int)layers.size();
+  _perceptrons.resize(_numOfLayers);
+  for (int i = 0; i < _numOfLayers; i++) {
+    _perceptrons[i].resize(layers[i]);
+    for (int pn = 0; pn < layers[i]; pn++) {
+      _perceptrons[i][pn] = Perceptron();
+    }
+  }
 }
-int NeuralNet::getSizeOfLayer(int layer) { return _perceptrons[layer].size(); }
+
+std::vector<std::vector<FList>> NeuralNet::getWeights() {
+  std::vector<std::vector<FList>> weights = std::vector<std::vector<FList>>(
+      MAX_PERCEPTRONS, std::vector<FList>(MAX_FEATURES)); // Can be optimized...
+
+  // Loop through all layers
+  for (int i = 0; i < _numOfLayers; i++) {
+    // Loop through perceptrons
+    for (int pn = 0; pn < _perceptrons[i].size(); pn++) {
+      // Get the weights for a particular perceptron (a FList)
+      weights[i][pn] = _perceptrons[i][pn]._weights;
+    }
+  }
+  return weights;
+}
 
 std::vector<FList> NeuralNet::calculateFeatures(State &state,
                                                 FList initialFeatures) {

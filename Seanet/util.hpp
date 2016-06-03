@@ -48,11 +48,12 @@ std::string bbToString(U64 bb);
 std::string moveToUCI(int move);
 int moveFromUCI(std::string uci);
 std::string pvLineToString(S_PVLINE line);
+std::string moveLineToString(std::vector<Move> line);
 int see(Move move, const State &s);
 std::string searchFeaturesToString(bool *features);
 std::string historyToString(const State &state);
 std::vector<std::string> exportGamesFromPGN(std::ifstream file);
-S_PVLINE getGameMoveLine(std::string game);
+std::vector<Move> getGameMoveLine(std::string game);
 int getPGNGameWinner(std::string game);
 
 // inline functions

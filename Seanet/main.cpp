@@ -29,7 +29,7 @@ SearchController sControl;
 int main(int argc, const char *argv[]) {
   // insert code here...
 
-  std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  std::string FEN = "startpos";
   // FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0
   // 1";
   // FEN = "8/8/4K3/4P3/8/4k3/8/8 w - - 0 1";
@@ -132,17 +132,14 @@ void takeUCIInput() {
     inputParts = split(input, ' ');
     std::string commandName = inputParts.at(0);
     if (commandName == "isready") {
-      uciGameState = boardFromFEN(
-          "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+      uciGameState = boardFromFEN("startpos");
       std::cout << "readyok\n";
     } else if (commandName == "ucinewgame") {
-      uciGameState = boardFromFEN(
-          "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+      uciGameState = boardFromFEN("startpos");
     } else if (commandName == "position") {
       std::string FEN = inputParts.at(1);
       if (FEN == "startpos") {
-        uciGameState = boardFromFEN(
-            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        uciGameState = boardFromFEN("startpos");
       } else {
         FEN = input.substr(13);
         uciGameState = boardFromFEN(FEN);

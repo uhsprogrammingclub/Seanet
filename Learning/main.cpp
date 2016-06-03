@@ -18,9 +18,12 @@ NeuralNet *endgameNeuralNet;
 void loadExistingWeights(NeuralNet *net, std::string name);
 void recordWeights(NeuralNet *net, std::string name);
 void loadRandomWeights(NeuralNet *net);
+std::vector<Datum> loadData(std::vector<std::string> pgnFiles);
 
 int main(int argc, const char *argv[]) {
 
+	initPresets();
+	
   // Randomly seed rand() function
   timeval currTime;
   gettimeofday(&currTime, 0);
@@ -55,30 +58,12 @@ int main(int argc, const char *argv[]) {
   delete midgameNeuralNet;
   delete endgameNeuralNet;
 
-  State state;
-  initPresets();
-  std::ifstream file("LCT-II.text");
-  std::string line;
-  while (std::getline(file, line)) {
-    KeyInfoMap info = splitEDP(line);
-    state = boardFromFEN(info["fen"]);
-    if (isPseudoQuiet(state)) {
-      // std::cout << "Pseduo Quiet:" << std::endl;
-    } else {
-      std::cout << "NOT Pseduo Quiet:" << std::endl;
-      state.printBoard();
-      std::cout << info["fen"] << std::endl;
-    }
-  }
+  std::vector<std::string> pgnGames;
+  pgnGames.push_back("Carlsen.pgn");
 
-  std::vector<std::string> games =
-      exportGamesFromPGN(std::ifstream("Carlsen.pgn"));
-  for (std::string game : games) {
-    std::cout << "Game: " << game << std::endl;
-    std::cout << "PV line: " << pvLineToString(getGameMoveLine(game))
-              << std::endl;
-    std::cout << "Game winner: " << getPGNGameWinner(game) << std::endl;
-  }
+  std::vector<Datum> data = loadData(pgnGames);
+  std::cout << data.size() << std::endl;
+
   return 0;
 }
 
@@ -118,4 +103,29 @@ void recordWeights(NeuralNet *net, std::string name) {
   }
   records << "</weights>";
   records.close();
+}
+
+std::vector<Datum> loadData(std::vector<std::string> pgnFiles) {
+  std::vector<Datum> data;
+
+  for (std::string fileName : pgnFiles) {
+    std::vector<std::string> games =
+        exportGamesFromPGN(std::ifstream(fileName));
+    for (std::string game : games) {
+
+      std::vector<Move> moveLine = getGameMoveLine(game);
+      int winner = getPGNGameWinner(game);
+      State state = boardFromFEN("startpos");
+      for (Move move : moveLine) {
+        if (winner == NONE || state._sideToMove == winner) {
+          if (isPseudoQuiet(state)) {
+            data.emplace_back(state, move, 0);
+          }
+        }
+        state.makeMove(move);
+      }
+    }
+  }
+
+  return data;
 }

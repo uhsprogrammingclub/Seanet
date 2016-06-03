@@ -8,6 +8,9 @@
 
 #include "datum.hpp"
 
+Datum::Datum(State state, Move bestMove, int contemptFactor)
+    : _state(state), _bestMove(bestMove), _contemptFactor(contemptFactor) {}
+
 int simpleQSearch(int alpha, int beta, State &state) {
   bool inCheck = state.isInCheck(state._sideToMove);
 
@@ -70,15 +73,16 @@ int simpleQSearch(int alpha, int beta, State &state) {
 }
 bool isPseudoQuiet(State &state) {
   if (state.isInCheck(state._sideToMove)) {
-    std::cout << "NOT PSEUDO QUIET BECAUSE IN CHECK" << std::endl;
+    //    std::cout << "NOT PSEUDO QUIET BECAUSE IN CHECK" << std::endl;
     return false;
   }
 
   int standPat = state._material * (state._sideToMove == WHITE ? 1 : -1);
   if (simpleQSearch(INT_MIN, INT_MAX, state) != standPat) {
-    std::cout << "simpleQSearch(INT_MIN, -INT_MAX, state) != standPat: "
-              << simpleQSearch(INT_MIN, INT_MAX, state) << " != " << standPat
-              << std::endl;
+    //    std::cout << "simpleQSearch(INT_MIN, -INT_MAX, state) != standPat: "
+    //              << simpleQSearch(INT_MIN, INT_MAX, state) << " != " <<
+    //              standPat
+    //              << std::endl;
     return false;
   }
 
@@ -86,11 +90,9 @@ bool isPseudoQuiet(State &state) {
   int nullMoveScore = -simpleQSearch(INT_MIN, INT_MAX, state);
   state.takeNullMove();
   if (nullMoveScore != standPat) {
-    std::cout << "nullMoveScore != standPat: " << nullMoveScore
-              << " != " << standPat << std::endl;
+    //    std::cout << "nullMoveScore != standPat: " << nullMoveScore
+    //              << " != " << standPat << std::endl;
     return false;
   }
   return true;
 }
-
-

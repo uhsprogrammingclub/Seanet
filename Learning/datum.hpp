@@ -18,6 +18,8 @@ public:
   State _state;
   Move _bestMove;
   int _contemptFactor;
+
+  Datum(State state, Move bestMove, int contemptFactor);
 };
 
 bool isPseudoQuiet(State &state);

@@ -403,6 +403,9 @@ std::string boardToFEN(const State &b) {
 
 State boardFromFEN(std::string FEN) {
   State b;
+  if (FEN == "startpos") {
+    FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  }
   std::vector<std::string> subFEN = split(FEN, ' ');
 
   std::vector<std::string> piecesByRow = split(subFEN[0], '/');
@@ -634,6 +637,15 @@ std::string pvLineToString(S_PVLINE line) {
   return str;
 }
 
+std::string moveLineToString(std::vector<Move> line) {
+  std::string str;
+  for (Move move : line) {
+    str += moveToUCI(move);
+    str += ' ';
+  }
+  return str;
+}
+
 int getValue(int index, const State &s) {
   U64 piece = setMask[index];
   if (piece & s._pieceBitboards[PAWNS]) {
@@ -762,12 +774,12 @@ std::vector<std::string> exportGamesFromPGN(std::ifstream file) {
   }
   return games;
 }
-S_PVLINE getGameMoveLine(std::string game) {
+std::vector<Move> getGameMoveLine(std::string game) {
   int moveNum = 0;
   std::vector<std::string> movesSAN = split(game, ' ');
-  S_PVLINE moveLine;
-  State state =
-      boardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  std::vector<Move> moveLine;
+  State state = boardFromFEN("startpos");
+  ;
   for (std::string moveSAN : movesSAN) {
     if (moveSAN == "") {
       break;
@@ -776,19 +788,18 @@ S_PVLINE getGameMoveLine(std::string game) {
     if (moveNum % 2 == 0) {
       moveSAN = moveSAN.substr(moveSAN.find(".") + 1);
     }
-    state.printBoard();
-    std::cout << boardToFEN(state) << std::endl;
-    if (!state.isPositionLegal()) {
-      std::cout << "ILLEGAL POSITION!" << std::endl;
-    }
-    std::cout << "\nParsing '" << moveSAN << "'" << std::endl;
+    //    state.printBoard();
+    //    std::cout << boardToFEN(state) << std::endl;
+    //    if (!state.isPositionLegal()) {
+    //      std::cout << "ILLEGAL POSITION!" << std::endl;
+    //    }
+    //    std::cout << "\nParsing '" << moveSAN << "'" << std::endl;
     Move move = moveFromSAN(moveSAN, state);
     state.makeMove(move);
 
-    moveLine.moves[moveNum] = move;
+    moveLine.push_back(move);
     moveNum++;
   }
-  moveLine.moveCount = moveNum;
   return moveLine;
 }
 int getPGNGameWinner(std::string game) {

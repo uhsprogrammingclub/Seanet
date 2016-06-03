@@ -579,3 +579,64 @@ std::string historyToString(State &state) {
   }
   return string;
 }
+
+std::vector<std::string> exportGamesFromPGN(std::ifstream file) {
+  std::vector<std::string> games;
+
+  int gameNum = 0;
+
+  std::string line;
+  while (std::getline(file, line)) {
+    if (games.size() <= gameNum) {
+      games.resize(gameNum + 1);
+    }
+    if (line.length() < 2) {
+      if (games[gameNum] != "") {
+        gameNum++;
+      }
+      continue;
+    }
+    if (line[0] == '[') {
+      continue;
+    }
+    if (games[gameNum] != "") {
+      games[gameNum] += " ";
+    }
+    games[gameNum] += line.substr(0, line.length() - 1);
+  }
+  return games;
+}
+S_PVLINE getGameMoveLine(std::string game) {
+  int moveNum = 0;
+  std::vector<std::string> movesSAN = split(game, ' ');
+  S_PVLINE moveLine;
+  for (std::string move : movesSAN) {
+    if (move == "") {
+      break;
+    }
+
+    if (moveNum % 2 == 0) {
+      move = move.substr(2);
+    }
+    // moveLine.moves[moveNum] = moveFromSAN(move);
+    moveNum++;
+  }
+  moveLine.moveCount = moveNum;
+  return moveLine;
+}
+int getPGNGameWinner(std::string game) {
+  std::vector<std::string> movesSAN = split(game, ' ');
+  std::string gameResult = movesSAN.back();
+  if (gameResult == "1-0") {
+    return WHITE;
+  } else if (gameResult == "0-1") {
+    return BLACK;
+  } else if (gameResult == "1/2-1/2") {
+    return NONE;
+  } else {
+    std::cout << "UNKNOWN GAME WINNER!" << std::endl;
+    std::cout << "Game: " << game << std::endl;
+    std::cout << "Result: " << gameResult << std::endl;
+  }
+  return 0;
+}

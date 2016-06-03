@@ -31,6 +31,7 @@
 		80D7B6D91CFE2A9500041095 /* board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80053BDB1CE5801D006B1B81 /* board.cpp */; };
 		80D7B6DC1CFE2D2700041095 /* perceptron.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80D7B6DA1CFE2D2700041095 /* perceptron.cpp */; };
 		80D7B6DF1CFE2F3100041095 /* neuralnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80D7B6DD1CFE2F3100041095 /* neuralnet.cpp */; };
+		80D7B6E01CFFBEE000041095 /* LCT-II.text in Sources */ = {isa = PBXBuildFile; fileRef = 36304D871CF2B509004ABD85 /* LCT-II.text */; };
 		BF6871E71CEADC7A00F7007A /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E51CEADC7900F7007A /* search.cpp */; };
 		BF6871EA1CEADE8900F7007A /* evaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871E81CEADE8900F7007A /* evaluator.cpp */; };
 		BF6871ED1CEC013E00F7007A /* searchcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF6871EB1CEC013E00F7007A /* searchcontroller.cpp */; };
@@ -346,6 +347,7 @@
 				80D7B6DC1CFE2D2700041095 /* perceptron.cpp in Sources */,
 				80D7B6D41CFE2A7D00041095 /* searchcontroller.cpp in Sources */,
 				80D7B6D91CFE2A9500041095 /* board.cpp in Sources */,
+				80D7B6E01CFFBEE000041095 /* LCT-II.text in Sources */,
 				80D7B6D51CFE2A8400041095 /* evaluator.cpp in Sources */,
 				80D7B6CF1CFE2A4A00041095 /* main.cpp in Sources */,
 				80D7B6D81CFE2A9200041095 /* movegenerator.cpp in Sources */,

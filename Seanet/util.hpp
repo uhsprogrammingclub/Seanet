@@ -16,6 +16,7 @@
 #include "util.hpp"
 
 #include <cctype>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -48,6 +49,9 @@ std::string pvLineToString(S_PVLINE line);
 int see(Move move, const State &s);
 std::string searchFeaturesToString(bool *features);
 std::string historyToString(const State &state);
+std::vector<std::string> exportGamesFromPGN(std::ifstream file);
+S_PVLINE getGameMoveLine(std::string game);
+int getPGNGameWinner(std::string game);
 
 // inline functions
 

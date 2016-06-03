@@ -751,13 +751,16 @@ S_PVLINE getGameMoveLine(std::string game) {
     }
 
     if (moveNum % 2 == 0) {
-      moveSAN = moveSAN.substr(moveSAN.find(".")+1);
+      moveSAN = moveSAN.substr(moveSAN.find(".") + 1);
     }
-	  state.printBoard();
-	  std::cout << boardToFEN(state) << std::endl;
+    state.printBoard();
+    std::cout << boardToFEN(state) << std::endl;
     std::cout << "Parsing '" << moveSAN << "'" << std::endl;
     Move move = moveFromSAN(moveSAN, state);
     state.makeMove(move);
+    if (!state.isPositionLegal()) {
+      std::cout << "ILLEGAL POSITION!" << std::endl;
+    }
     moveLine.moves[moveNum] = move;
     moveNum++;
   }

@@ -23,6 +23,8 @@ public:
   int _numOfLayers = 2;
   float _alpha = 1;
 
+  FList getPerceptronWeights(int layer, int pn);
+  int getSizeOfLayer(int layer);
   void train(State &state, Move bestMove, float alpha);
   std::vector<FList> calculateFeatures(State &state, FList initialFeatures);
   void updatePerceptrons(std::vector<FList> correctFeatures,
@@ -31,4 +33,5 @@ public:
 
 void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
                   NeuralNet *endgameNet, float alpha);
+
 #endif /* neuralnet_hpp */

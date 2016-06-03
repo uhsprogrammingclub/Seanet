@@ -391,7 +391,7 @@ void engineTest(std::string testPath, std::string tag, std::string comments,
   }
   char buff[DTTMSZ];
   std::fstream records;
-  records.open("records.text", std::fstream::out | std::fstream::app);
+  records.open("tactics-records.text", std::fstream::out | std::fstream::app);
   records << "test = " << tag << "; date = " << getDtTm(buff)
           << "; correct = " << numCorrect
           << "; seconds/position = " << secondsPerPosition

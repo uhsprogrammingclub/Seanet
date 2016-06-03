@@ -17,6 +17,7 @@ class Perceptron {
   FList _weights;
 
 public:
+  FList getWeights();
   float calculateActivation(FList features);
   void updateWeights(FList correctFeatures, FList wrongFeatures, float alpha);
 };

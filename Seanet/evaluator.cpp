@@ -180,6 +180,29 @@ bool isGameOver(State &state) {
   return isGameOver(state, generatePseudoMoves(state));
 }
 
+bool isIsolatedPawn(State &state, int index) {
+  U64 friendlyPawns =
+      state._pieceBitboards[PAWNS] &
+      state._pieceBitboards[sideBitboardForPiece(state._pieces[index])];
+  U64 fileBB = FILE_BB[index % 8];
+  return ((RIGHT(fileBB) | LEFT(fileBB)) & friendlyPawns) == 0;
+}
+
+bool isIsolaniPawn(State &state, int index) {
+  return index % 8 == 3 && isIsolatedPawn(state, index);
+}
+bool isDoubledPawn(State &state, int index) {
+  U64 friendlyPawns =
+      state._pieceBitboards[PAWNS] &
+      state._pieceBitboards[sideBitboardForPiece(state._pieces[index])];
+  U64 fileBB = FILE_BB[index % 8];
+  return (CLRBIT(fileBB, index) & friendlyPawns);
+}
+bool isConnectedPawn(State &state, int index) { return false; }
+bool isBackwardPawn(State &state, int index) { return false; }
+bool isBlockedPawn(State &state, int index) { return false; }
+bool isPassedPawn(State &state, int index) { return false; }
+
 int countIsolatedPawns(State &state) {
   int count = 0;
 

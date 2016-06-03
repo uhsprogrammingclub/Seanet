@@ -75,6 +75,8 @@ inline int sideBitboardForPiece(Piece p) {
   return p % 2 == 0 ? BLACKS : WHITES;
 }
 
+inline int sideOfPiece(Piece p) { return p % 2 == 0 ? BLACK : WHITE; }
+
 inline long int timeToMS(timeval &t) {
   return t.tv_sec * 1000 + (t.tv_usec / 1000);
 }

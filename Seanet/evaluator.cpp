@@ -258,7 +258,121 @@ int countKingPawnShields(State &state) {
 }
 
 FList getInitialFeatures(State &state) {
-  FList features;
+  FList features(NUM_OF_BOARD_FEATURES);
+  int friendlyPieces[17];
+  int enemyPieces[17];
+  U64 friendlyBB =
+      state._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS];
+  U64 enemyBB =
+      state._pieceBitboards[state._sideToMove == WHITE ? BLACKS : WHITES];
+
+  getSetBits(friendlyBB, friendlyPieces);
+  getSetBits(enemyBB, enemyPieces);
+
+  for (int i = 0; enemyPieces[i] != -1; i++) {
+    int pcIndex = enemyPieces[i];
+    Piece piece = state._pieces[pcIndex];
+
+    switch (piece) {
+    case wP:
+      features[ENEMY_PAWN_PS] += whitePawnPS[pcIndex];
+      break;
+    case bP:
+      features[ENEMY_PAWN_PS] += whitePawnPS[63 - pcIndex];
+      break;
+    case wN:
+      features[ENEMY_KNIGHT_PS] += whiteKnightPS[pcIndex];
+      break;
+    case bN:
+      features[ENEMY_KNIGHT_PS] += whiteKnightPS[63 - pcIndex];
+      break;
+    case wB:
+      features[ENEMY_BISHOP_PS] += whiteBishopPS[pcIndex];
+      break;
+    case bB:
+      features[ENEMY_BISHOP_PS] += whiteBishopPS[63 - pcIndex];
+      break;
+    case wR:
+      features[ENEMY_ROOK_PS] += whiteRookPS[pcIndex];
+      break;
+    case bR:
+      features[ENEMY_ROOK_PS] += whiteRookPS[63 - pcIndex];
+      break;
+    case wQ:
+      features[ENEMY_QUEEN_PS] += whiteQueenPS[pcIndex];
+      break;
+    case bQ:
+      features[ENEMY_QUEEN_PS] += whiteQueenPS[63 - pcIndex];
+      break;
+    case wK:
+      features[ENEMY_KING_PS] +=
+          ((whiteKingMiddlePS[pcIndex] * (256 - state._phase)) +
+           (whiteKingEndPS[pcIndex] * state._phase)) /
+          256;
+      break;
+    case bK:
+      features[ENEMY_KING_PS] +=
+          ((whiteKingMiddlePS[63 - pcIndex] * (256 - state._phase)) +
+           (whiteKingEndPS[63 - pcIndex] * state._phase)) /
+          256;
+      break;
+    default:
+      break;
+    }
+  }
+
+  for (int i = 0; friendlyPieces[i] != -1; i++) {
+    int pcIndex = friendlyPieces[i];
+    Piece piece = state._pieces[pcIndex];
+
+    switch (piece) {
+    case wP:
+      features[FRIENDLY_PAWN_PS] += whitePawnPS[pcIndex];
+      break;
+    case bP:
+      features[FRIENDLY_PAWN_PS] += whitePawnPS[63 - pcIndex];
+      break;
+    case wN:
+      features[FRIENDLY_KNIGHT_PS] += whiteKnightPS[pcIndex];
+      break;
+    case bN:
+      features[FRIENDLY_KNIGHT_PS] += whiteKnightPS[63 - pcIndex];
+      break;
+    case wB:
+      features[FRIENDLY_BISHOP_PS] += whiteBishopPS[pcIndex];
+      break;
+    case bB:
+      features[FRIENDLY_BISHOP_PS] += whiteBishopPS[63 - pcIndex];
+      break;
+    case wR:
+      features[FRIENDLY_ROOK_PS] += whiteRookPS[pcIndex];
+      break;
+    case bR:
+      features[FRIENDLY_ROOK_PS] += whiteRookPS[63 - pcIndex];
+      break;
+    case wQ:
+      features[FRIENDLY_QUEEN_PS] += whiteQueenPS[pcIndex];
+      break;
+    case bQ:
+      features[FRIENDLY_QUEEN_PS] += whiteQueenPS[63 - pcIndex];
+      break;
+    case wK:
+      features[FRIENDLY_KING_PS] +=
+          ((whiteKingMiddlePS[pcIndex] * (256 - state._phase)) +
+           (whiteKingEndPS[pcIndex] * state._phase)) /
+          256;
+      break;
+    case bK:
+      features[FRIENDLY_KING_PS] +=
+          ((whiteKingMiddlePS[63 - pcIndex] * (256 - state._phase)) +
+           (whiteKingEndPS[63 - pcIndex] * state._phase)) /
+          256;
+      break;
+    default:
+      break;
+    }
+  }
+
   return features;
 }
 

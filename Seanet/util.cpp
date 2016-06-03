@@ -141,7 +141,116 @@ int uciToIndex(std::string uci) {
   }
 }
 
+Move moveFromSAN(std::string SAN, State &state) {
+
+  SAN.erase(std::remove(SAN.begin(), SAN.end(), '+'), SAN.end());
+
+  std::vector<char> parts(SAN.begin(), SAN.end());
+  int to = 0;
+  int from = 0;
+  std::vector<char>::reverse_iterator rit = parts.rbegin();
+
+  Piece promotion = EMPTY;
+  bool ep = false;
+
+  // Check if its a castling move
+  if (SAN == "O-O") {
+    from = state.kingPos(state._sideToMove);
+    to = from + 2;
+    Move m = NEW_MOVE(from, to);
+    M_SETCASTLE(m, true);
+    return m;
+  } else if (SAN == "O-O-O") {
+    from = state.kingPos(state._sideToMove);
+    to = from - 2;
+    Move m = NEW_MOVE(from, to);
+    M_SETCASTLE(m, true);
+    return m;
+  }
+
+  // Check if its a promotion move
+  if (*(rit + 1) == '=') {
+    promotion = charToPiece(tolower(*rit));
+    rit += 2;
+  } else if ('.' == *rit) {
+    ep = true;
+    rit += 4;
+  }
+
+  std::string move{static_cast<char>(*(rit + 1)), static_cast<char>(*rit)};
+  to = uciToIndex(move);
+  rit += 2;
+
+  // If the entire move has been iterated through, its a quiet pawn move (1 or 2
+  // squares)
+  if (rit == parts.rend()) {
+    int direction = state._sideToMove == WHITE ? -1 : 1;
+    if (state._pieces[to + 8 * direction] == wP ||
+        state._pieces[to + 8 * direction] == bP) {
+      from = to + 8 * direction;
+    } else if (state._pieces[to + 16 * direction] == wP ||
+               state._pieces[to + 16 * direction] == bP) {
+      from = to + 16 * direction;
+    }
+  } else {
+    if (*rit == 'x') {
+      rit++;
+    }
+    if (isdigit(*rit)) {
+      int row = *rit - '1';
+      U64 bbRow = RANK_BB[row];
+      char p = state._sideToMove == WHITE ? *(rit + 1) : tolower(*(rit + 1));
+      U64 bbPiece =
+          state._pieceBitboards[bitboardForPiece(charToPiece(p))] &
+          state._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS];
+      from = LS1B(bbPiece & bbRow);
+    } else if (islower(*rit)) {
+      if (rit + 1 == parts.rend()) {
+        int column = *rit - 97;
+        U64 bbColumn = FILE_BB[column];
+        U64 bbPiece =
+            state._pieceBitboards[PAWNS] &
+            state._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS];
+        from = LS1B(bbPiece & bbColumn);
+      } else {
+
+        int column = *rit - 97;
+        U64 bbColumn = FILE_BB[column];
+        char p = state._sideToMove == WHITE ? *(rit + 1) : tolower(*(rit + 1));
+        U64 bbPiece =
+            state._pieceBitboards[bitboardForPiece(charToPiece(p))] &
+            state._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS];
+        from = LS1B(bbPiece & bbColumn);
+      }
+
+    } else {
+      assert(isupper(*rit));
+      U64 attacks = attacksTo(to, state, -state._sideToMove);
+
+      char p = state._sideToMove == WHITE ? *rit : tolower(*rit);
+
+      U64 pieceBB =
+          state._pieceBitboards[bitboardForPiece(charToPiece(p))] &
+          state._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS];
+
+      from = LS1B(pieceBB & attacks);
+    }
+  }
+
+  Move m = NEW_MOVE(from, to);
+
+  if (promotion != EMPTY) {
+
+    M_SETPROM(m, promotion);
+  }
+  M_SETEP(m, ep);
+  return m;
+}
+
 std::string moveToSAN(Move move, State state) {
+
+  // Note: function does not handle cases where either file or rank alone will
+  // not disambiguate moves (very rare)
 
   std::string s = "";
   int from = M_FROMSQ(move);
@@ -150,8 +259,29 @@ std::string moveToSAN(Move move, State state) {
   int toX = to % 8;
 
   Piece movingP = state._pieces[from];
+
+  U64 pieceBB =
+      state._pieceBitboards[bitboardForPiece(movingP)] &
+      state._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS];
+
+  U64 attacks = attacksTo(to, state, -state._sideToMove);
+  int setBits[64];
+  U64 combined = attacks & pieceBB;
+  getSetBits(combined, setBits);
+
   if (bitboardForPiece(movingP) != PAWNS) {
     s += toupper(pieceToChar(movingP));
+    if (setBits[1] != -1) {
+      getSetBits(combined & FILE_BB[fromX], setBits);
+
+      if (setBits[1] != -1) {
+        int y = (from - fromX) / 8 + 1;
+        s += std::to_string(y);
+
+      } else {
+        s += (char)(fromX + 97);
+      }
+    }
   }
   if (state._pieces[to] != 0 || M_EP(move)) {
     if (bitboardForPiece(movingP) == PAWNS) {
@@ -159,11 +289,8 @@ std::string moveToSAN(Move move, State state) {
     }
     s += "x";
   }
-  if (M_EP(move)) {
-    s += indexToUCI(to - 8);
-  } else {
-    s += indexToUCI(to);
-  }
+
+  s += indexToUCI(to);
 
   if (M_ISPROMOTION(move)) {
     s += "=";
@@ -173,11 +300,12 @@ std::string moveToSAN(Move move, State state) {
   if (M_EP(move)) {
     s += "e.p.";
   }
+
   if (M_CASTLE(move)) {
     if (toX == 6) {
-      s += "O-O";
+      s = "O-O";
     } else {
-      s += "O-O-O";
+      s = "O-O-O";
     }
   }
   state.makeMove(move);
@@ -449,7 +577,7 @@ std::string bbToString(U64 bb) {
 std::string moveToUCI(int m) {
   std::string uci = indexToUCI(M_FROMSQ(m)) + indexToUCI(M_TOSQ(m));
   if (M_ISPROMOTION(m)) {
-    uci += pieceToChar((Piece)M_PROMOTIONP(m));
+    uci += tolower(pieceToChar((Piece)M_PROMOTIONP(m)));
   }
   return uci;
 }

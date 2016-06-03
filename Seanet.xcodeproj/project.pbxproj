@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		361BD7511CFFAFA600CE771B /* datum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 361BD74F1CFFAFA600CE771B /* datum.cpp */; };
+		361BD7531D00128E00CE771B /* san-checking.text in Sources */ = {isa = PBXBuildFile; fileRef = 361BD7521D00128E00CE771B /* san-checking.text */; };
 		361C08531CF8CE6100F972C9 /* zobrist-checking.text in Sources */ = {isa = PBXBuildFile; fileRef = 361C08521CF8CE6100F972C9 /* zobrist-checking.text */; };
 		36304D881CF2B509004ABD85 /* LCT-II.text in Sources */ = {isa = PBXBuildFile; fileRef = 36304D871CF2B509004ABD85 /* LCT-II.text */; };
 		3634CA071CF424AB00DFFB64 /* hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3634CA051CF424AB00DFFB64 /* hash.cpp */; };
@@ -74,6 +75,7 @@
 /* Begin PBXFileReference section */
 		361BD74F1CFFAFA600CE771B /* datum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = datum.cpp; sourceTree = "<group>"; };
 		361BD7501CFFAFA600CE771B /* datum.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = datum.hpp; sourceTree = "<group>"; };
+		361BD7521D00128E00CE771B /* san-checking.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "san-checking.text"; sourceTree = "<group>"; };
 		361C08521CF8CE6100F972C9 /* zobrist-checking.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "zobrist-checking.text"; sourceTree = "<group>"; };
 		36304D871CF2B509004ABD85 /* LCT-II.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LCT-II.text"; sourceTree = "<group>"; };
 		3634CA051CF424AB00DFFB64 /* hash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hash.cpp; sourceTree = "<group>"; };
@@ -227,6 +229,7 @@
 				36A30F9A1CEFD0A600B6FDAC /* records.text */,
 				36304D871CF2B509004ABD85 /* LCT-II.text */,
 				361C08521CF8CE6100F972C9 /* zobrist-checking.text */,
+				361BD7521D00128E00CE771B /* san-checking.text */,
 			);
 			path = TestSeanet;
 			sourceTree = "<group>";
@@ -362,6 +365,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				361BD7531D00128E00CE771B /* san-checking.text in Sources */,
 				80B87A4D1CF831F400313E28 /* Sune-Larson-Endgame.text in Sources */,
 				36304D881CF2B509004ABD85 /* LCT-II.text in Sources */,
 				361C08531CF8CE6100F972C9 /* zobrist-checking.text in Sources */,

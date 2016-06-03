@@ -15,6 +15,7 @@
 #include "hash.hpp"
 #include "util.hpp"
 
+#include <algorithm>
 #include <cctype>
 #include <fstream>
 #include <iostream>
@@ -29,6 +30,7 @@ std::vector<std::string> &split(const std::string &s, char delim,
 std::vector<std::string> split(const std::string &s, char delim);
 
 std::string moveToSAN(Move move, State state);
+Move moveFromSAN(std::string SAN, State &state);
 char *getDtTm(char *buff);
 KeyInfoMap splitEDP(std::string EDP);
 char pieceToChar(Piece p);

@@ -10,6 +10,9 @@
 #include <iostream>
 #include <math.h>
 
+Perceptron::Perceptron(){};
+Perceptron::Perceptron(int size) { _weights.resize(size); }
+
 float Perceptron::calculateActivation(FList features) {
   float sum = 0;
 

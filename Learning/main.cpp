@@ -27,7 +27,7 @@ int main(int argc, const char *argv[]) {
   int now = (int)(timeToMS(currTime));
   srand(now);
 
-  std::vector<int> layers = {5, 1};
+  std::vector<int> layers = {5, 5, 1}; // layers[0] is initial features
   midgameNeuralNet = new NeuralNet(layers);
   endgameNeuralNet = new NeuralNet(layers);
 

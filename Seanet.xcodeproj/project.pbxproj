@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		361BD7511CFFAFA600CE771B /* datum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 361BD74F1CFFAFA600CE771B /* datum.cpp */; };
 		361BD7531D00128E00CE771B /* san-checking.text in Sources */ = {isa = PBXBuildFile; fileRef = 361BD7521D00128E00CE771B /* san-checking.text */; };
+		361BD7551D0101BD00CE771B /* weight-records.text in Sources */ = {isa = PBXBuildFile; fileRef = 361BD7541D0101BD00CE771B /* weight-records.text */; };
 		361C08531CF8CE6100F972C9 /* zobrist-checking.text in Sources */ = {isa = PBXBuildFile; fileRef = 361C08521CF8CE6100F972C9 /* zobrist-checking.text */; };
 		36304D881CF2B509004ABD85 /* LCT-II.text in Sources */ = {isa = PBXBuildFile; fileRef = 36304D871CF2B509004ABD85 /* LCT-II.text */; };
 		3634CA071CF424AB00DFFB64 /* hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3634CA051CF424AB00DFFB64 /* hash.cpp */; };
@@ -75,12 +76,13 @@
 		361BD74F1CFFAFA600CE771B /* datum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = datum.cpp; sourceTree = "<group>"; };
 		361BD7501CFFAFA600CE771B /* datum.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = datum.hpp; sourceTree = "<group>"; };
 		361BD7521D00128E00CE771B /* san-checking.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "san-checking.text"; sourceTree = "<group>"; };
+		361BD7541D0101BD00CE771B /* weight-records.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "weight-records.text"; sourceTree = "<group>"; };
 		361C08521CF8CE6100F972C9 /* zobrist-checking.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "zobrist-checking.text"; sourceTree = "<group>"; };
 		36304D871CF2B509004ABD85 /* LCT-II.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "LCT-II.text"; sourceTree = "<group>"; };
 		3634CA051CF424AB00DFFB64 /* hash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hash.cpp; sourceTree = "<group>"; };
 		3634CA061CF424AB00DFFB64 /* hash.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = hash.hpp; sourceTree = "<group>"; };
 		36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "Bratko-Kopec.text"; sourceTree = "<group>"; };
-		36A30F9A1CEFD0A600B6FDAC /* records.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = records.text; sourceTree = "<group>"; };
+		36A30F9A1CEFD0A600B6FDAC /* tactics-records.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "tactics-records.text"; sourceTree = "<group>"; };
 		80053BD11CE57713006B1B81 /* Seanet */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Seanet; sourceTree = BUILT_PRODUCTS_DIR; };
 		80053BD41CE57713006B1B81 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		80053BDB1CE5801D006B1B81 /* board.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = board.cpp; sourceTree = "<group>"; };
@@ -143,7 +145,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		365BF3681CFBC36900401B6B /* Executable Archive */ = {
+		365BF3681CFBC36900401B6B /* ExecutableArchive */ = {
 			isa = PBXGroup;
 			children = (
 				80C6904B1CFCC3A10001DE51 /* Seanet-0.1 */,
@@ -155,13 +157,13 @@
 				80C690511CFCC3A10001DE51 /* Seanet-1.0.1-NO_TT_EVAL */,
 				80C690521CFCC3A10001DE51 /* info.text */,
 			);
-			name = "Executable Archive";
+			name = ExecutableArchive;
 			sourceTree = "<group>";
 		};
 		80053BC81CE57713006B1B81 = {
 			isa = PBXGroup;
 			children = (
-				365BF3681CFBC36900401B6B /* Executable Archive */,
+				365BF3681CFBC36900401B6B /* ExecutableArchive */,
 				80053BD31CE57713006B1B81 /* Seanet */,
 				BFDDC6AE1CE81DD900CBB8CC /* TestSeanet */,
 				80D7B6CD1CFE2A4A00041095 /* Learning */,
@@ -212,6 +214,7 @@
 				80D7B6DB1CFE2D2700041095 /* perceptron.hpp */,
 				361BD74F1CFFAFA600CE771B /* datum.cpp */,
 				361BD7501CFFAFA600CE771B /* datum.hpp */,
+				361BD7541D0101BD00CE771B /* weight-records.text */,
 			);
 			path = Learning;
 			sourceTree = "<group>";
@@ -225,7 +228,7 @@
 				80B87A4A1CF68F5300313E28 /* Silver-Suite.text */,
 				80B87A4C1CF831F400313E28 /* Sune-Larson-Endgame.text */,
 				36A30F991CEEE14200B6FDAC /* Bratko-Kopec.text */,
-				36A30F9A1CEFD0A600B6FDAC /* records.text */,
+				36A30F9A1CEFD0A600B6FDAC /* tactics-records.text */,
 				36304D871CF2B509004ABD85 /* LCT-II.text */,
 				361C08521CF8CE6100F972C9 /* zobrist-checking.text */,
 				361BD7521D00128E00CE771B /* san-checking.text */,
@@ -350,6 +353,7 @@
 				80D7B6D41CFE2A7D00041095 /* searchcontroller.cpp in Sources */,
 				80D7B6D91CFE2A9500041095 /* board.cpp in Sources */,
 				80D7B6D51CFE2A8400041095 /* evaluator.cpp in Sources */,
+				361BD7551D0101BD00CE771B /* weight-records.text in Sources */,
 				80D7B6CF1CFE2A4A00041095 /* main.cpp in Sources */,
 				80D7B6D81CFE2A9200041095 /* movegenerator.cpp in Sources */,
 				361BD7511CFFAFA600CE771B /* datum.cpp in Sources */,

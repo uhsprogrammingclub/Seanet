@@ -10,6 +10,8 @@
 #include <iostream>
 #include <math.h>
 
+FList Perceptron::getWeights() { return _weights; }
+
 float Perceptron::calculateActivation(FList features) {
   float sum = 0;
 

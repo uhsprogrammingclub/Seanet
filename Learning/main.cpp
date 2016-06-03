@@ -6,25 +6,70 @@
 //
 //
 
+#include "defs.h"
 #include "neuralnet.hpp"
 #include "perceptron.hpp"
+#include <ctime>
 #include <iostream>
 
 float alpha = 0.5;
+const int NUMBER_NETS = 2;
 NeuralNet *midgameNeuralNet;
 NeuralNet *endgameNeuralNet;
-void loadExistingWeights(NeuralNet *neuralnet);
+void loadExistingWeights(
+    std::array<std::vector<std::vector<int>>, NUMBER_NETS> *weights);
 
 int main(int argc, const char *argv[]) {
   midgameNeuralNet = new NeuralNet();
   endgameNeuralNet = new NeuralNet();
 
-  //  for (state, bestMove) {
-  //	  trainTwoNets(state, bestMove, midgameNeuralNet, endgameNeuralNet,
-  // alpha);
-  //  }
+  // Array of current weights (updated after each training example)
+  std::array<std::vector<std::vector<int>>, NUMBER_NETS> _currentWeights;
 
-  // save nets
+  NeuralNet nets[NUMBER_NETS] = {midgameNeuralNet, endgameNeuralNet};
+
+  // Load existing weights for each net
+  /*** To be implemented ***/
+
+  // Counter for number of examples tested in current training session
+  int numExamples = 0;
+
+  for (state, bestMove) {
+    // Increment counter
+    numExamples++;
+
+    // Perform training
+    trainTwoNets(state, bestMove, midgameNeuralNet, endgameNeuralNet, alpha);
+
+    // Extract updated weights from neural nets
+    for (int i = 0; i < sizeof(nets) / sizeof(*nets); i++) {
+      for (int layer = 0; layer < nets[i]->_numOfLayers; layer++) {
+        for (int pn = 0; pn < nets[i]->getSizeOfLayer(layer); pn++) {
+          _currentWeights[i][layer][pn] =
+              nets[i]->getPerceptronWeights(layer, pn);
+        }
+      }
+    }
+    // Record the current weights every n training positions
+    if (numExamples % 2000 == 0) {
+      char buff[DTTMSZ];
+      std::fstream records;
+      records.open("weight-records.text",
+                   std::fstream::out | std::fstream::app);
+      records << "[ Weights as of " << getDtTm(buff) << " ] \n";
+      for (int i = 0; i < sizeof(nets) / sizeof(*nets); i++) {
+        records << "< Neural Network # " << i << " >\n";
+        for (int layer = 0; layer < nets[i]->_numOfLayers; layer++) {
+          for (int pn = 0; pn < nets[i]->getSizeOfLayer(layer); pn++) {
+            records << _currentWeights[i][layer][pn] << " ";
+          }
+          records << "| ";
+        }
+      }
+      records.close();
+    }
+  }
+
   delete midgameNeuralNet;
   delete endgameNeuralNet;
   return 0;

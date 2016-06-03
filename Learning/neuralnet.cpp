@@ -82,6 +82,11 @@ void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
   }
 }
 
+FList NeuralNet::getPerceptronWeights(int layer, int pn) {
+  return _perceptrons[layer][pn].getWeights();
+}
+int NeuralNet::getSizeOfLayer(int layer) { return _perceptrons[layer].size(); }
+
 std::vector<FList> NeuralNet::calculateFeatures(State &state,
                                                 FList initialFeatures) {
   std::vector<FList> features;

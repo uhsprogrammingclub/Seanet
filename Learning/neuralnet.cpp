@@ -41,6 +41,7 @@ void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
   FList initialFeatures = getInitialFeatures(state);
   std::vector<FList> correctMidgameFeaturesList =
       midgameNet->calculateFeatures(state, initialFeatures);
+
   std::vector<FList> correctEndgameFeaturesList =
       endgameNet->calculateFeatures(state, initialFeatures);
   state.takeMove();
@@ -83,7 +84,7 @@ void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
 }
 
 NeuralNet::NeuralNet(std::vector<int> &layers) {
-  _numOfLayers = (int)layers.size() - 1;
+  _numOfLayers = (int)(layers.size() - 1);
   _perceptrons.resize(_numOfLayers);
   for (int i = 0; i < _numOfLayers; i++) {
     _perceptrons[i].resize(layers[i + 1]);
@@ -111,14 +112,15 @@ std::vector<std::vector<FList>> NeuralNet::getWeights() {
 
 std::vector<FList> NeuralNet::calculateFeatures(State &state,
                                                 FList initialFeatures) {
-  std::vector<FList> features;
+
+  std::vector<FList> features(_numOfLayers + 1);
   features[0] = initialFeatures;
 
   // Iterate through all layers
   for (int layer = 0; layer < _numOfLayers - 1; layer++) {
 
     // Initialize features of the next layer (perceptron activation values)
-    features[layer + 1] = FList();
+    features[layer + 1] = FList(_perceptrons[layer].size());
 
     // Iterate through each perceptron in the layer (pn = perceptron number)
     for (int pn = 0; pn < _perceptrons[layer].size(); pn++) {
@@ -133,9 +135,9 @@ std::vector<FList> NeuralNet::calculateFeatures(State &state,
   }
 
   // Calculate final score
-  features[_numOfLayers][0] =
+  features[_numOfLayers].push_back(
       _perceptrons[_numOfLayers - 1][0].calculateActivation(
-          features[_numOfLayers - 1]);
+          features[_numOfLayers - 1]));
 
   return features;
 }
@@ -150,8 +152,8 @@ void NeuralNet::updatePerceptrons(std::vector<FList> correctFeatures,
     for (int pn = 0; pn < _perceptrons[layer].size(); pn++) {
 
       // update the perceptron weight of each feature
-      _perceptrons[layer][pn].updateWeights(correctFeatures[pn],
-                                            wrongFeatures[pn], _alpha);
+      _perceptrons[layer][pn].updateWeights(correctFeatures[layer],
+                                            wrongFeatures[layer], _alpha);
     }
   }
 }

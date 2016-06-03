@@ -30,7 +30,8 @@ int main(int argc, const char *argv[]) {
   int now = (int)(timeToMS(currTime));
   srand(now);
 
-  std::vector<int> layers = {5, 5, 1}; // layers[0] is initial features
+  std::vector<int> layers = {NUM_OF_BOARD_FEATURES, 5,
+                             1}; // layers[0] is initial features
   midgameNeuralNet = new NeuralNet(layers);
   endgameNeuralNet = new NeuralNet(layers);
 
@@ -39,14 +40,13 @@ int main(int argc, const char *argv[]) {
   recordWeights(midgameNeuralNet, "midgame");
   std::cout << "Recorded weights." << std::endl;
 
-  delete midgameNeuralNet;
-  delete endgameNeuralNet;
-
   std::vector<std::string> pgnGames;
   pgnGames.push_back("Carlsen.pgn");
 
+  std::cout << "Loading data..." << std::endl;
   std::vector<Datum> data = loadData(pgnGames);
-  std::cout << data.size() << std::endl;
+  std::cout << "Loaded " << data.size() << " pseudo quiet training examples."
+            << std::endl;
 
   // Counter for number of examples tested in current training session
   int numExamples = 0;
@@ -61,13 +61,16 @@ int main(int argc, const char *argv[]) {
                    endgameNeuralNet, alpha);
 
       // Record the current weights every n training positions
-      if (numExamples % 2000 == 0) {
-        recordWeights(midgameNeuralNet, "Midgame");
-        recordWeights(endgameNeuralNet, "Endgame");
+      if (numExamples % 50000 == 0) {
+        recordWeights(midgameNeuralNet, "midgame");
+        recordWeights(endgameNeuralNet, "endgame");
+        std::cout << "Recorded weights at training example #" << numExamples
+                  << std::endl;
       }
     }
   }
-
+  delete midgameNeuralNet;
+  delete endgameNeuralNet;
   return 0;
 }
 

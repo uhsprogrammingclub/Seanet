@@ -85,6 +85,11 @@ enum {
   QS_REORDERING
 };
 
+const int NUM_OF_BOARD_FEATURES = 0;
+enum BoardFeature {
+
+};
+
 #define CLRBIT(bb, i) (bb &= clearMask[i])
 #define SETBIT(bb, i) (bb |= setMask[i])
 #define UP(bb) (bb << 8)

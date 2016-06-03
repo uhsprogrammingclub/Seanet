@@ -10,67 +10,88 @@
 #include "neuralnet.hpp"
 #include "perceptron.hpp"
 #include <ctime>
+#include <fstream>
 #include <iostream>
 
 float alpha = 0.5;
-const int NUMBER_NETS = 2;
 NeuralNet *midgameNeuralNet;
 NeuralNet *endgameNeuralNet;
-void loadExistingWeights(
-    std::array<std::vector<std::vector<int>>, NUMBER_NETS> *weights);
+void loadExistingWeights(NeuralNet *net, std::string name);
+void recordWeights(NeuralNet *net, std::string name);
+void loadRandomWeights(NeuralNet *net);
 
 int main(int argc, const char *argv[]) {
-  midgameNeuralNet = new NeuralNet();
-  endgameNeuralNet = new NeuralNet();
 
-  // Array of current weights (updated after each training example)
-  std::array<std::vector<std::vector<int>>, NUMBER_NETS> _currentWeights;
+  // Randomly seed rand() function
+  timeval currTime;
+  gettimeofday(&currTime, 0);
+  int now = (int)(timeToMS(currTime));
+  srand(now);
 
-  NeuralNet nets[NUMBER_NETS] = {midgameNeuralNet, endgameNeuralNet};
+  std::vector<int> layers = {5, 1};
+  midgameNeuralNet = new NeuralNet(layers);
+  endgameNeuralNet = new NeuralNet(layers);
 
-  // Load existing weights for each net
-  /*** To be implemented ***/
+  loadRandomWeights(midgameNeuralNet);
+  std::cout << "Loaded wieghts." << std::endl;
+  recordWeights(midgameNeuralNet, "Midgame");
 
   // Counter for number of examples tested in current training session
   int numExamples = 0;
 
-  for (state, bestMove) {
+  /*for (state, bestMove) {
     // Increment counter
     numExamples++;
 
     // Perform training
     trainTwoNets(state, bestMove, midgameNeuralNet, endgameNeuralNet, alpha);
 
-    // Extract updated weights from neural nets
-    for (int i = 0; i < sizeof(nets) / sizeof(*nets); i++) {
-      for (int layer = 0; layer < nets[i]->_numOfLayers; layer++) {
-        for (int pn = 0; pn < nets[i]->getSizeOfLayer(layer); pn++) {
-          _currentWeights[i][layer][pn] =
-              nets[i]->getPerceptronWeights(layer, pn);
-        }
-      }
-    }
     // Record the current weights every n training positions
     if (numExamples % 2000 == 0) {
-      char buff[DTTMSZ];
-      std::fstream records;
-      records.open("weight-records.text",
-                   std::fstream::out | std::fstream::app);
-      records << "[ Weights as of " << getDtTm(buff) << " ] \n";
-      for (int i = 0; i < sizeof(nets) / sizeof(*nets); i++) {
-        records << "< Neural Network # " << i << " >\n";
-        for (int layer = 0; layer < nets[i]->_numOfLayers; layer++) {
-          for (int pn = 0; pn < nets[i]->getSizeOfLayer(layer); pn++) {
-            records << _currentWeights[i][layer][pn] << " ";
-          }
-          records << "| ";
-        }
-      }
-      records.close();
+      recordWeights(&midgameNeuralNet, "Midgame");
+      recordWeights(&endgameNeuralNet, "Endgame");
     }
-  }
+  }*/
 
   delete midgameNeuralNet;
   delete endgameNeuralNet;
   return 0;
+}
+
+void loadRandomWeights(NeuralNet *net) {
+  std::vector<std::vector<FList>> weights = net->getWeights();
+  for (int layer = 0; layer < weights.size(); layer++) {
+    for (int pn = 0; pn < weights[layer].size(); pn++) {
+      for (int f = 0; f < weights[layer][pn].size(); f++) {
+        net->_perceptrons[layer][pn]._weights[f] =
+            static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+      }
+    }
+  }
+}
+
+void loadExistingWeights(NeuralNet *net, std::string name) {}
+
+void recordWeights(NeuralNet *net, std::string name) {
+  char buff[DTTMSZ];
+  std::fstream records;
+  records.open("weight-records.text", std::fstream::out | std::fstream::app);
+  records << "<name>" << name << "</name>\n"
+          << "<info>Weights as of " << getDtTm(buff) << "</info>\n<weights>\n";
+  std::vector<std::vector<FList>> weights = net->getWeights();
+  for (int layer = 0; layer < weights.size(); layer++) {
+    records << "<layer>\n";
+    for (int pn = 0; pn < weights[layer].size(); pn++) {
+      records << "<p>";
+      for (int f = 0; f < weights[layer][pn].size(); f++) {
+        records << "<f>";
+        records << weights[layer][pn][f] << " ";
+        records << "</f>";
+      }
+      records << "</p>";
+    }
+    records << "\n</layer>\n";
+  }
+  records << "</weights>";
+  records.close();
 }

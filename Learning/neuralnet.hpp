@@ -9,6 +9,10 @@
 #ifndef neuralnet_hpp
 #define neuralnet_hpp
 
+#define MAX_LAYERS 2
+#define MAX_PERCEPTRONS 5
+#define MAX_FEATURES 5
+
 #include "board.hpp"
 #include "defs.h"
 #include "evaluator.hpp"
@@ -17,18 +21,22 @@
 #include <vector>
 
 class NeuralNet {
-  std::vector<std::vector<Perceptron>> _perceptrons;
 
 public:
+  // Allocate memory for _perceptrons
+  std::vector<std::vector<Perceptron>> _perceptrons =
+      std::vector<std::vector<Perceptron>>(
+          MAX_LAYERS, std::vector<Perceptron>(MAX_PERCEPTRONS));
+
   int _numOfLayers = 2;
   float _alpha = 1;
 
-  FList getPerceptronWeights(int layer, int pn);
-  int getSizeOfLayer(int layer);
+  std::vector<std::vector<FList>> getWeights();
   void train(State &state, Move bestMove, float alpha);
   std::vector<FList> calculateFeatures(State &state, FList initialFeatures);
   void updatePerceptrons(std::vector<FList> correctFeatures,
                          std::vector<FList> wrongFeatures);
+  NeuralNet(std::vector<int> &layers);
 };
 
 void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,

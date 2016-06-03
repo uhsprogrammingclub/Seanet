@@ -755,12 +755,13 @@ S_PVLINE getGameMoveLine(std::string game) {
     }
     state.printBoard();
     std::cout << boardToFEN(state) << std::endl;
-    std::cout << "Parsing '" << moveSAN << "'" << std::endl;
-    Move move = moveFromSAN(moveSAN, state);
-    state.makeMove(move);
     if (!state.isPositionLegal()) {
       std::cout << "ILLEGAL POSITION!" << std::endl;
     }
+    std::cout << "\nParsing '" << moveSAN << "'" << std::endl;
+    Move move = moveFromSAN(moveSAN, state);
+    state.makeMove(move);
+
     moveLine.moves[moveNum] = move;
     moveNum++;
   }

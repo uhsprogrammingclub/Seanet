@@ -22,8 +22,8 @@ std::vector<Datum> loadData(std::vector<std::string> pgnFiles);
 
 int main(int argc, const char *argv[]) {
 
-	initPresets();
-	
+  initPresets();
+
   // Randomly seed rand() function
   timeval currTime;
   gettimeofday(&currTime, 0);
@@ -39,23 +39,6 @@ int main(int argc, const char *argv[]) {
   recordWeights(midgameNeuralNet, "midgame");
   std::cout << "Recorded weights." << std::endl;
 
-  // Counter for number of examples tested in current training session
-  int numExamples = 0;
-
-  /*for (state, bestMove) {
-    // Increment counter
-    numExamples++;
-
-    // Perform training
-    trainTwoNets(state, bestMove, midgameNeuralNet, endgameNeuralNet, alpha);
-
-    // Record the current weights every n training positions
-    if (numExamples % 2000 == 0) {
-      recordWeights(&midgameNeuralNet, "Midgame");
-      recordWeights(&endgameNeuralNet, "Endgame");
-    }
-  }*/
-
   delete midgameNeuralNet;
   delete endgameNeuralNet;
 
@@ -64,6 +47,26 @@ int main(int argc, const char *argv[]) {
 
   std::vector<Datum> data = loadData(pgnGames);
   std::cout << data.size() << std::endl;
+
+  // Counter for number of examples tested in current training session
+  int numExamples = 0;
+
+  while (true) {
+    for (Datum datum : data) {
+      // Increment counter
+      numExamples++;
+
+      // Perform training
+      trainTwoNets(datum._state, datum._bestMove, midgameNeuralNet,
+                   endgameNeuralNet, alpha);
+
+      // Record the current weights every n training positions
+      if (numExamples % 2000 == 0) {
+        recordWeights(midgameNeuralNet, "Midgame");
+        recordWeights(endgameNeuralNet, "Endgame");
+      }
+    }
+  }
 
   return 0;
 }

@@ -10,8 +10,8 @@
 #include "neuralnet.hpp"
 #include <iostream>
 
-void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
-                  NeuralNet *endgameNet, float alpha) {
+bool trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
+                  NeuralNet *endgameNet, float alpha, bool train) {
   float phaseFactor = getPhaseFactor(state);
   midgameNet->_alpha = alpha * phaseFactor;
   endgameNet->_alpha = alpha * (1 - phaseFactor);
@@ -75,11 +75,15 @@ void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
   }
 
   if (!M_EQUALS(bestMove, bestCalculatedMove)) {
-
-    midgameNet->updatePerceptrons(correctMidgameFeaturesList,
-                                  calculatedMidgameFeaturesList);
-    endgameNet->updatePerceptrons(correctEndgameFeaturesList,
-                                  calculatedEndgameFeaturesList);
+    if (train) {
+      midgameNet->updatePerceptrons(correctMidgameFeaturesList,
+                                    calculatedMidgameFeaturesList);
+      endgameNet->updatePerceptrons(correctEndgameFeaturesList,
+                                    calculatedEndgameFeaturesList);
+    }
+    return false;
+  } else {
+    return true;
   }
 }
 

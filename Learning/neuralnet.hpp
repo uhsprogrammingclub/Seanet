@@ -33,7 +33,7 @@ public:
   NeuralNet(std::vector<int> &layers);
 };
 
-void trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
-                  NeuralNet *endgameNet, float alpha);
+bool trainTwoNets(State &state, Move bestMove, NeuralNet *midgameNet,
+                  NeuralNet *endgameNet, float alpha, bool train = true);
 
 #endif /* neuralnet_hpp */

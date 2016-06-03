@@ -36,6 +36,7 @@ int main(int argc, const char *argv[]) {
   endgameNeuralNet = new NeuralNet(layers);
 
   loadRandomWeights(midgameNeuralNet);
+  loadRandomWeights(endgameNeuralNet);
   std::cout << "Loaded wieghts." << std::endl;
   recordWeights(midgameNeuralNet, "midgame");
   std::cout << "Recorded weights." << std::endl;
@@ -51,8 +52,12 @@ int main(int argc, const char *argv[]) {
   // Counter for number of examples tested in current training session
   int numExamples = 0;
 
+  std::vector<Datum> trainingData(data.begin(),
+                                  data.begin() + 9 * data.size() / 10);
+  std::vector<Datum> testData(data.begin() + 9 * data.size() / 10, data.end());
+
   while (true) {
-    for (Datum datum : data) {
+    for (Datum datum : trainingData) {
       // Increment counter
       numExamples++;
 
@@ -66,6 +71,31 @@ int main(int argc, const char *argv[]) {
         recordWeights(endgameNeuralNet, "endgame");
         std::cout << "Recorded weights at training example #" << numExamples
                   << std::endl;
+        int correct = 0;
+//        for (Datum testDatum : trainingData) {
+//
+//          // Perform training
+//          if (trainTwoNets(testDatum._state, testDatum._bestMove,
+//                           midgameNeuralNet, endgameNeuralNet, alpha, false)) {
+//            correct++;
+//          }
+//        }
+//        std::cout << correct << "/" << trainingData.size() << " ("
+//                  << 100.0 * correct / trainingData.size()
+//                  << "%) correct on training set" << std::endl;
+//
+//        correct = 0;
+        for (Datum testDatum : testData) {
+
+          // Perform training
+          if (trainTwoNets(testDatum._state, testDatum._bestMove,
+                           midgameNeuralNet, endgameNeuralNet, alpha, false)) {
+            correct++;
+          }
+        }
+        std::cout << correct << "/" << testData.size() << " ("
+                  << 100.0 * correct / testData.size()
+                  << "%) correct on test set" << std::endl;
       }
     }
   }

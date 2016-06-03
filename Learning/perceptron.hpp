@@ -16,6 +16,8 @@
 class Perceptron {
 
 public:
+  Perceptron();
+  Perceptron(int size);
   FList _weights;
   float calculateActivation(FList features);
   void setWeights(FList weights);

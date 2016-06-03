@@ -9,10 +9,6 @@
 #ifndef neuralnet_hpp
 #define neuralnet_hpp
 
-#define MAX_LAYERS 2
-#define MAX_PERCEPTRONS 5
-#define MAX_FEATURES 5
-
 #include "board.hpp"
 #include "defs.h"
 #include "evaluator.hpp"
@@ -24,9 +20,7 @@ class NeuralNet {
 
 public:
   // Allocate memory for _perceptrons
-  std::vector<std::vector<Perceptron>> _perceptrons =
-      std::vector<std::vector<Perceptron>>(
-          MAX_LAYERS, std::vector<Perceptron>(MAX_PERCEPTRONS));
+  std::vector<std::vector<Perceptron>> _perceptrons;
 
   int _numOfLayers = 2;
   float _alpha = 1;

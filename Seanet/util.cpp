@@ -238,7 +238,30 @@ Move moveFromSAN(std::string SAN, State &state) {
           state._pieceBitboards[bitboardForPiece(charToPiece(p))] &
           state._pieceBitboards[state._sideToMove == WHITE ? WHITES : BLACKS];
 
-      from = LS1B(pieceBB & attacks);
+      int setBits[64];
+      U64 combined = attacks & pieceBB;
+      getSetBits(combined, setBits);
+
+      int i = 0;
+      while (setBits[i] != -1) {
+
+        from = setBits[i];
+
+        Move m = NEW_MOVE(from, to);
+
+        if (promotion != EMPTY) {
+
+          M_SETPROM(m, promotion);
+        }
+        M_SETEP(m, ep);
+
+        if (state.isLegalMove(m)) {
+          return m;
+        }
+
+        i++;
+      }
+      std::cout << "ERROR: moveFromSAN()" << std::endl;
     }
   }
 
